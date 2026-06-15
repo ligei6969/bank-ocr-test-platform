@@ -1,0 +1,7 @@
+{
+  "issuer": "TEST BANK",
+  "card_type": "Synthetic Debit Card",
+  "network": "TestNet",
+  "background": ["#29465f", "#516b83"],
+  "accent": "#f2c94c"
+}

@@ -1,0 +1,97 @@
+[
+  {
+    "sample_id": "bank_card_099",
+    "doc_type": "bank_card",
+    "side": "front",
+    "quality_type": "normal",
+    "image_path": "reports/bank-card-smoke/normal/synthetic_debit_099.png",
+    "is_real_document": false,
+    "synthetic": true,
+    "warning": "SYNTHETIC CARD / FOR TEST ONLY",
+    "fields": {
+      "bank_name": "SYNTHETIC TEST BANK",
+      "card_product": "Synthetic Debit Card",
+      "card_number": "9000000099603806",
+      "name": "SAM SUN",
+      "expire_date": "10/35",
+      "issuer_bin": "900000",
+      "network": "TestNet"
+    }
+  },
+  {
+    "sample_id": "bank_card_099",
+    "doc_type": "bank_card",
+    "side": "front",
+    "quality_type": "blur",
+    "image_path": "reports/bank-card-smoke/blur/synthetic_debit_099.png",
+    "is_real_document": false,
+    "synthetic": true,
+    "warning": "SYNTHETIC CARD / FOR TEST ONLY",
+    "fields": {
+      "bank_name": "SYNTHETIC TEST BANK",
+      "card_product": "Synthetic Debit Card",
+      "card_number": "9000000099603806",
+      "name": "SAM SUN",
+      "expire_date": "10/35",
+      "issuer_bin": "900000",
+      "network": "TestNet"
+    }
+  },
+  {
+    "sample_id": "bank_card_099",
+    "doc_type": "bank_card",
+    "side": "front",
+    "quality_type": "glare",
+    "image_path": "reports/bank-card-smoke/glare/synthetic_debit_099.png",
+    "is_real_document": false,
+    "synthetic": true,
+    "warning": "SYNTHETIC CARD / FOR TEST ONLY",
+    "fields": {
+      "bank_name": "SYNTHETIC TEST BANK",
+      "card_product": "Synthetic Debit Card",
+      "card_number": "9000000099603806",
+      "name": "SAM SUN",
+      "expire_date": "10/35",
+      "issuer_bin": "900000",
+      "network": "TestNet"
+    }
+  },
+  {
+    "sample_id": "bank_card_099",
+    "doc_type": "bank_card",
+    "side": "front",
+    "quality_type": "occlusion",
+    "image_path": "reports/bank-card-smoke/occlusion/synthetic_debit_099.png",
+    "is_real_document": false,
+    "synthetic": true,
+    "warning": "SYNTHETIC CARD / FOR TEST ONLY",
+    "fields": {
+      "bank_name": "SYNTHETIC TEST BANK",
+      "card_product": "Synthetic Debit Card",
+      "card_number": "9000000099603806",
+      "name": "SAM SUN",
+      "expire_date": "10/35",
+      "issuer_bin": "900000",
+      "network": "TestNet"
+    }
+  },
+  {
+    "sample_id": "bank_card_099",
+    "doc_type": "bank_card",
+    "side": "front",
+    "quality_type": "rotate",
+    "image_path": "reports/bank-card-smoke/rotate/synthetic_debit_099.png",
+    "is_real_document": false,
+    "synthetic": true,
+    "warning": "SYNTHETIC CARD / FOR TEST ONLY",
+    "fields": {
+      "bank_name": "SYNTHETIC TEST BANK",
+      "card_product": "Synthetic Debit Card",
+      "card_number": "9000000099603806",
+      "name": "SAM SUN",
+      "expire_date": "10/35",
+      "issuer_bin": "900000",
+      "network": "TestNet"
+    }
+  }
+]
