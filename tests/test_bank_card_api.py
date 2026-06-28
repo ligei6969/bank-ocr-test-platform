@@ -22,7 +22,19 @@ def create_upload_image(path: Path) -> None:
     image.save(path)
 
 
-def test_bank_card_review_api_returns_review_result() -> None:
+def test_bank_card_review_api_returns_review_result(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.main.recognize_text",
+        lambda image_path: [
+            "TEST BANK",
+            "SYNTHETIC CARD",
+            "6222 0202 0202 0001",
+            "CARD HOLDER",
+            "ZHANG SAN",
+            "VALID THRU 12/30",
+            "FOR TEST ONLY",
+        ],
+    )
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     image_path = ARTIFACT_DIR / "bank_card.png"
     create_upload_image(image_path)

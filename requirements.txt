@@ -5,3 +5,5 @@ uvicorn
 python-multipart
 pytest
 httpx
+paddlepaddle
+paddleocr
