@@ -38,6 +38,15 @@ def test_reject_when_card_number_invalid() -> None:
     assert result == "reject"
 
 
+def test_review_when_expiry_is_invalid() -> None:
+    result = review_bank_card(
+        {"card_number": "6222020202020001", "name": "ZHANG SAN", "valid_date": "13/30"},
+        {"is_blur": False, "brightness": "normal", "has_glare": False},
+    )
+
+    assert result == "review"
+
+
 def test_review_when_quality_has_problem() -> None:
     fields = {"card_number": "6222020202020001", "name": "ZHANG SAN", "valid_date": "12/30"}
 

@@ -2,12 +2,24 @@
 
 from pathlib import Path
 
+import pytest
 from PIL import Image, ImageDraw, ImageFilter
 
 from app.quality_check import check_image_quality, detect_blur, detect_brightness, detect_glare
 
 
 ARTIFACT_DIR = Path("reports") / "test-artifacts" / "quality"
+BANK_CARD_DATA_DIR = Path("data") / "processed" / "bank_card"
+SAMPLE_INDEXES = (1, 2, 3)
+QUALITY_TYPES = ("normal", "blur", "glare", "occlusion", "rotate", "dark", "bright")
+
+
+def bank_card_sample_path(quality_type: str, index: int) -> Path:
+    return BANK_CARD_DATA_DIR / quality_type / f"bank_card_{index:04d}.png"
+
+
+def sample_ids(quality_type: str) -> list[str]:
+    return [f"{quality_type}-{index:04d}" for index in SAMPLE_INDEXES]
 
 
 def artifact_path(name: str) -> Path:
@@ -70,3 +82,111 @@ def test_check_image_quality_pass() -> None:
         "has_glare": False,
         "quality_result": "pass",
     }
+
+
+@pytest.mark.parametrize(
+    ("quality_type", "image_path"),
+    [
+        (quality_type, bank_card_sample_path(quality_type, index))
+        for quality_type in QUALITY_TYPES
+        for index in SAMPLE_INDEXES
+    ],
+    ids=[
+        f"{quality_type}-{index:04d}"
+        for quality_type in QUALITY_TYPES
+        for index in SAMPLE_INDEXES
+    ],
+)
+def test_processed_bank_card_samples_exist(quality_type: str, image_path: Path) -> None:
+    assert image_path.is_file(), f"Missing {quality_type} sample: {image_path}"
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("normal", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("normal"),
+)
+def test_processed_normal_bank_cards_have_normal_brightness_and_are_not_blurry(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["brightness"] == "normal"
+    assert result["is_blur"] is False
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("normal", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("normal"),
+)
+def test_processed_normal_bank_cards_pass_quality_gate(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["quality_result"] == "pass"
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("blur", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("blur"),
+)
+def test_processed_blur_bank_cards_are_blurry(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["is_blur"] is True
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("dark", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("dark"),
+)
+def test_processed_dark_bank_cards_are_dark(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["brightness"] == "dark"
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("bright", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("bright"),
+)
+def test_processed_bright_bank_cards_are_bright(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["brightness"] == "bright"
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [bank_card_sample_path("glare", index) for index in SAMPLE_INDEXES],
+    ids=sample_ids("glare"),
+)
+def test_processed_glare_bank_cards_have_glare(image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert result["has_glare"] is True
+
+
+@pytest.mark.parametrize(
+    ("quality_type", "image_path"),
+    [
+        (quality_type, bank_card_sample_path(quality_type, index))
+        for quality_type in ("occlusion", "rotate")
+        for index in SAMPLE_INDEXES
+    ],
+    ids=[
+        f"{quality_type}-{index:04d}"
+        for quality_type in ("occlusion", "rotate")
+        for index in SAMPLE_INDEXES
+    ],
+)
+def test_processed_occlusion_and_rotate_bank_cards_are_processable(quality_type: str, image_path: Path) -> None:
+    result = check_image_quality(str(image_path))
+
+    assert quality_type in {"occlusion", "rotate"}
+    assert set(result) == {"is_blur", "brightness", "has_glare", "quality_result"}
+    assert isinstance(result["is_blur"], bool)
+    assert result["brightness"] in {"dark", "normal", "bright"}
+    assert isinstance(result["has_glare"], bool)
+    assert result["quality_result"] in {"pass", "review"}

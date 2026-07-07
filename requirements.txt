@@ -4,6 +4,10 @@ fastapi
 uvicorn
 python-multipart
 pytest
+pytest-cov
+pytest-html
+allure-pytest
+locust
 httpx
 paddlepaddle
 paddleocr

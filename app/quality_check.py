@@ -6,6 +6,12 @@ import cv2
 import numpy as np
 
 
+GLARE_VALUE_THRESHOLD = 245
+GLARE_SATURATION_THRESHOLD = 45
+# Chosen from current synthetic normal/glare component-ratio distributions.
+GLARE_COMPONENT_RATIO_THRESHOLD = 0.005
+
+
 def _read_image(image_path: str) -> np.ndarray:
     image = cv2.imread(image_path)
     if image is None:
@@ -36,9 +42,13 @@ def detect_glare(image_path: str) -> bool:
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     value = hsv[:, :, 2]
     saturation = hsv[:, :, 1]
-    glare_mask = (value > 245) & (saturation < 45)
-    glare_ratio = float(glare_mask.mean())
-    return bool(glare_ratio > 0.015)
+    glare_mask = (value > GLARE_VALUE_THRESHOLD) & (saturation < GLARE_SATURATION_THRESHOLD)
+    component_count, _labels, stats, _centroids = cv2.connectedComponentsWithStats(glare_mask.astype("uint8"), 8)
+    if component_count <= 1:
+        return False
+    largest_area = int(stats[1:, cv2.CC_STAT_AREA].max())
+    largest_component_ratio = largest_area / glare_mask.size
+    return bool(largest_component_ratio > GLARE_COMPONENT_RATIO_THRESHOLD)
 
 
 def check_image_quality(image_path: str) -> dict:

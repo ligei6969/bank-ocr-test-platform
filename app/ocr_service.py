@@ -6,12 +6,20 @@ import os
 import tempfile
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PADDLEX_CACHE_DIR = ROOT_DIR / "reports" / "paddlex-runtime-cache"
 OCR_TEMP_DIR = ROOT_DIR / "reports" / "ocr-temp"
+OCRMode = Literal["mock", "paddle"]
+MOCK_OCR_TEXT = [
+    "TEST BANK",
+    "6222 0202 0202 0001",
+    "CARD HOLDER",
+    "ZHANG SAN",
+    "VALID THRU 12/30",
+]
 
 
 def _extract_text_lines(ocr_result: Any) -> list[str]:
@@ -52,6 +60,9 @@ def _extract_text_lines(ocr_result: Any) -> list[str]:
         if callable(result_json):
             collect(result_json())
             return
+        if isinstance(result_json, dict):
+            collect(result_json)
+            return
 
         result_res = getattr(value, "res", None)
         if result_res is not None:
@@ -61,8 +72,8 @@ def _extract_text_lines(ocr_result: Any) -> list[str]:
     return lines
 
 
-@lru_cache(maxsize=1)
-def _get_ocr_engine() -> Any:
+def _configure_paddle_runtime() -> None:
+    PADDLEX_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     OCR_TEMP_DIR.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(PADDLEX_CACHE_DIR))
     os.environ.setdefault("TMP", str(OCR_TEMP_DIR))
@@ -70,37 +81,52 @@ def _get_ocr_engine() -> Any:
     os.environ.setdefault("TMPDIR", str(OCR_TEMP_DIR))
     os.environ.setdefault("FLAGS_use_mkldnn", "0")
     os.environ.setdefault("FLAGS_use_onednn", "0")
+    os.environ.setdefault("PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT", "False")
     tempfile.tempdir = str(OCR_TEMP_DIR)
+
+
+@lru_cache(maxsize=1)
+def _get_paddle_ocr_engine() -> Any:
+    _configure_paddle_runtime()
 
     try:
         from paddleocr import PaddleOCR
     except ImportError as exc:
         raise RuntimeError(
-            "Real OCR requires PaddleOCR. Install it in the active environment: "
+            "Paddle OCR mode requires PaddleOCR. Install it in the active environment: "
             "python -m pip install paddleocr"
         ) from exc
 
-    try:
-        return PaddleOCR(
-            use_doc_orientation_classify=False,
-            use_doc_unwarping=False,
-            use_textline_orientation=False,
-            enable_mkldnn=False,
-        )
-    except TypeError:
-        return PaddleOCR(use_angle_cls=True, lang="ch", show_log=False)
+    return PaddleOCR(
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_textline_orientation=False,
+    )
 
 
-def recognize_text(image_path: str) -> list[str]:
+def _recognize_text_with_paddle(image_path: str) -> list[str]:
     """Return OCR text detected from the uploaded image.
 
     PaddleOCR 3.x exposes ``predict`` while older 2.x releases expose ``ocr``.
     The output shape differs by version, so text extraction is normalized here.
     """
-    ocr_engine = _get_ocr_engine()
+    ocr_engine = _get_paddle_ocr_engine()
     if hasattr(ocr_engine, "predict"):
         result = ocr_engine.predict(image_path)
     else:
-        result = ocr_engine.ocr(image_path, cls=True)
+        result = ocr_engine.ocr(image_path)
 
     return _extract_text_lines(result)
+
+
+def recognize_text(image_path: str, mode: OCRMode = "mock") -> list[str]:
+    """Return OCR text using the selected OCR mode.
+
+    ``mock`` is deterministic and does not load OCR models. ``paddle`` lazily
+    initializes PaddleOCR once and normalizes its output to ``list[str]``.
+    """
+    if mode == "mock":
+        return list(MOCK_OCR_TEXT)
+    if mode == "paddle":
+        return _recognize_text_with_paddle(image_path)
+    raise ValueError(f"Unsupported OCR mode: {mode}")

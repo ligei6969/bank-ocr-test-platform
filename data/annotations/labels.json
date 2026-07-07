@@ -2053,19 +2053,6 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/glare/bank_card_0001.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0001",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/occlusion/bank_card_0001.png",
     "doc_type": "bank_card",
     "quality_type": "occlusion",
@@ -2105,35 +2092,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0001.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0001",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0002.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0002",
-      "valid_date": "04/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0002.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "SUN QI",
@@ -2183,35 +2144,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0002.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0002",
-      "valid_date": "04/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0003.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0003",
-      "valid_date": "11/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0003.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -2261,35 +2196,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0003.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0003",
-      "valid_date": "11/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0004.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0004",
-      "valid_date": "04/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0004.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -2339,35 +2248,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0004.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0004",
-      "valid_date": "04/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0005.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0005",
-      "valid_date": "06/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0005.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -2417,35 +2300,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0005.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0005",
-      "valid_date": "06/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0006.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0006",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0006.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -2495,35 +2352,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0006.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0006",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0007.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0007",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0007.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -2573,35 +2404,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0007.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0007",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0008.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0008",
-      "valid_date": "11/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0008.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -2651,35 +2456,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0008.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0008",
-      "valid_date": "11/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0009.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0009",
-      "valid_date": "06/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0009.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -2729,35 +2508,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0009.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0009",
-      "valid_date": "06/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0010.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0010",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0010.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -2807,35 +2560,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0010.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0010",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0011.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0011",
-      "valid_date": "06/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0011.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -2885,35 +2612,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0011.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0011",
-      "valid_date": "06/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0012.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0012",
-      "valid_date": "01/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0012.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -2963,35 +2664,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0012.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0012",
-      "valid_date": "01/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0013.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0013",
-      "valid_date": "03/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0013.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -3041,35 +2716,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0013.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0013",
-      "valid_date": "03/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0014.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0014",
-      "valid_date": "08/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0014.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -3119,35 +2768,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0014.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0014",
-      "valid_date": "08/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0015.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0015",
-      "valid_date": "09/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0015.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -3197,35 +2820,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0015.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0015",
-      "valid_date": "09/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0016.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0016",
-      "valid_date": "05/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0016.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -3275,35 +2872,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0016.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0016",
-      "valid_date": "05/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0017.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0017",
-      "valid_date": "02/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0017.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -3353,35 +2924,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0017.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0017",
-      "valid_date": "02/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0018.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0018",
-      "valid_date": "05/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0018.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -3431,35 +2976,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0018.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0018",
-      "valid_date": "05/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0019.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0019",
-      "valid_date": "05/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0019.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -3509,35 +3028,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0019.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0019",
-      "valid_date": "05/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0020.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0020",
-      "valid_date": "06/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0020.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -3587,35 +3080,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0020.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0020",
-      "valid_date": "06/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0021.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0021",
-      "valid_date": "07/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0021.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -3665,35 +3132,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0021.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0021",
-      "valid_date": "07/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0022.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0022",
-      "valid_date": "04/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0022.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -3743,35 +3184,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0022.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0022",
-      "valid_date": "04/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0023.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0023",
-      "valid_date": "05/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0023.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -3821,35 +3236,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0023.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0023",
-      "valid_date": "05/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0024.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0024",
-      "valid_date": "08/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0024.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -3899,35 +3288,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0024.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0024",
-      "valid_date": "08/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0025.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0025",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0025.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -3977,35 +3340,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0025.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0025",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0026.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0026",
-      "valid_date": "07/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0026.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -4055,35 +3392,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0026.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0026",
-      "valid_date": "07/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0027.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0027",
-      "valid_date": "02/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0027.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -4133,35 +3444,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0027.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0027",
-      "valid_date": "02/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0028.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0028",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0028.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "SUN QI",
@@ -4211,35 +3496,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0028.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0028",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0029.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0029",
-      "valid_date": "07/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0029.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -4289,35 +3548,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0029.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0029",
-      "valid_date": "07/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0030.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0030",
-      "valid_date": "07/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0030.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -4367,35 +3600,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0030.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0030",
-      "valid_date": "07/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0031.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0031",
-      "valid_date": "10/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0031.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -4445,35 +3652,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0031.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0031",
-      "valid_date": "10/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0032.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0032",
-      "valid_date": "08/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0032.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -4523,35 +3704,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0032.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0032",
-      "valid_date": "08/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0033.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0033",
-      "valid_date": "06/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0033.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -4601,35 +3756,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0033.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0033",
-      "valid_date": "06/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0034.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0034",
-      "valid_date": "06/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0034.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -4679,35 +3808,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0034.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0034",
-      "valid_date": "06/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0035.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0035",
-      "valid_date": "07/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0035.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -4757,35 +3860,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0035.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0035",
-      "valid_date": "07/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0036.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0036",
-      "valid_date": "10/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0036.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -4835,35 +3912,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0036.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0036",
-      "valid_date": "10/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0037.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0037",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0037.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -4913,35 +3964,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0037.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0037",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0038.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0038",
-      "valid_date": "07/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0038.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -4991,35 +4016,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0038.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0038",
-      "valid_date": "07/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0039.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0039",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0039.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -5069,35 +4068,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0039.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0039",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0040.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0040",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0040.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -5147,35 +4120,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0040.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0040",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0041.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0041",
-      "valid_date": "12/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0041.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -5225,35 +4172,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0041.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0041",
-      "valid_date": "12/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0042.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0042",
-      "valid_date": "04/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0042.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -5303,35 +4224,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0042.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0042",
-      "valid_date": "04/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0043.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0043",
-      "valid_date": "09/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0043.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -5381,35 +4276,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0043.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0043",
-      "valid_date": "09/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0044.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0044",
-      "valid_date": "12/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0044.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -5459,35 +4328,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0044.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0044",
-      "valid_date": "12/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0045.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0045",
-      "valid_date": "12/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0045.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -5537,35 +4380,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0045.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0045",
-      "valid_date": "12/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0046.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0046",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0046.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -5615,35 +4432,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0046.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0046",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0047.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0047",
-      "valid_date": "04/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0047.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -5693,35 +4484,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0047.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0047",
-      "valid_date": "04/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0048.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0048",
-      "valid_date": "07/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0048.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -5771,35 +4536,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0048.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0048",
-      "valid_date": "07/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0049.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0049",
-      "valid_date": "01/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0049.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -5849,35 +4588,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0049.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0049",
-      "valid_date": "01/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0050.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0050",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0050.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -5927,35 +4640,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0050.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0050",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0051.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0051",
-      "valid_date": "08/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0051.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -6005,35 +4692,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0051.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0051",
-      "valid_date": "08/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0052.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0052",
-      "valid_date": "01/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0052.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -6083,35 +4744,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0052.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0052",
-      "valid_date": "01/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0053.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0053",
-      "valid_date": "05/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0053.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -6161,35 +4796,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0053.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0053",
-      "valid_date": "05/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0054.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0054",
-      "valid_date": "08/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0054.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -6239,35 +4848,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0054.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0054",
-      "valid_date": "08/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0055.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0055",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0055.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -6317,35 +4900,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0055.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0055",
-      "valid_date": "04/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0056.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0056",
-      "valid_date": "09/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0056.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -6395,35 +4952,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0056.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0056",
-      "valid_date": "09/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0057.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0057",
-      "valid_date": "03/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0057.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -6473,35 +5004,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0057.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0057",
-      "valid_date": "03/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0058.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0058",
-      "valid_date": "11/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0058.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -6551,35 +5056,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0058.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0058",
-      "valid_date": "11/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0059.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0059",
-      "valid_date": "04/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0059.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -6629,35 +5108,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0059.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0059",
-      "valid_date": "04/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0060.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0060",
-      "valid_date": "12/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0060.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -6707,35 +5160,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0060.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0060",
-      "valid_date": "12/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0061.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0061",
-      "valid_date": "01/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0061.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -6785,35 +5212,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0061.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0061",
-      "valid_date": "01/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0062.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0062",
-      "valid_date": "10/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0062.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -6863,35 +5264,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0062.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0062",
-      "valid_date": "10/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0063.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0063",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0063.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -6941,35 +5316,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0063.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0063",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0064.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0064",
-      "valid_date": "02/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0064.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -7019,35 +5368,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0064.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0064",
-      "valid_date": "02/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0065.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0065",
-      "valid_date": "01/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0065.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -7097,35 +5420,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0065.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0065",
-      "valid_date": "01/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0066.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0066",
-      "valid_date": "07/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0066.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -7175,35 +5472,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0066.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0066",
-      "valid_date": "07/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0067.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0067",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0067.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -7253,35 +5524,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0067.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0067",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0068.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0068",
-      "valid_date": "06/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0068.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -7331,35 +5576,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0068.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0068",
-      "valid_date": "06/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0069.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0069",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0069.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "SUN QI",
@@ -7409,35 +5628,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0069.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0069",
-      "valid_date": "10/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0070.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0070",
-      "valid_date": "03/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0070.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -7487,35 +5680,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0070.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0070",
-      "valid_date": "03/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0071.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0071",
-      "valid_date": "01/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0071.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -7565,35 +5732,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0071.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0071",
-      "valid_date": "01/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0072.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0072",
-      "valid_date": "10/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0072.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -7643,35 +5784,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0072.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0072",
-      "valid_date": "10/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0073.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0073",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0073.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -7721,35 +5836,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0073.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0073",
-      "valid_date": "05/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0074.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0074",
-      "valid_date": "05/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0074.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -7799,35 +5888,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0074.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0074",
-      "valid_date": "05/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0075.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0075",
-      "valid_date": "07/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0075.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -7877,35 +5940,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0075.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0075",
-      "valid_date": "07/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0076.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0076",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0076.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -7955,35 +5992,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0076.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0076",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0077.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0077",
-      "valid_date": "04/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0077.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -8033,35 +6044,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0077.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0077",
-      "valid_date": "04/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0078.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0078",
-      "valid_date": "07/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0078.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -8111,35 +6096,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0078.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0078",
-      "valid_date": "07/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0079.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0079",
-      "valid_date": "09/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0079.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "CHEN JIE",
@@ -8189,35 +6148,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0079.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "CHEN JIE",
-      "card_number": "6222 0202 0202 0079",
-      "valid_date": "09/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0080.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0080",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0080.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -8267,35 +6200,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0080.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0080",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0081.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0081",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0081.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -8345,35 +6252,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0081.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0081",
-      "valid_date": "02/33",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0082.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0082",
-      "valid_date": "01/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0082.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -8423,35 +6304,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0082.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0082",
-      "valid_date": "01/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0083.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0083",
-      "valid_date": "03/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0083.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "XU NING",
@@ -8501,35 +6356,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0083.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "XU NING",
-      "card_number": "6222 0202 0202 0083",
-      "valid_date": "03/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0084.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0084",
-      "valid_date": "03/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0084.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WANG WEI",
@@ -8579,35 +6408,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0084.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WANG WEI",
-      "card_number": "6222 0202 0202 0084",
-      "valid_date": "03/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0085.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0085",
-      "valid_date": "10/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0085.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -8657,35 +6460,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0085.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0085",
-      "valid_date": "10/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0086.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0086",
-      "valid_date": "09/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0086.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "SUN QI",
@@ -8735,35 +6512,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0086.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "SUN QI",
-      "card_number": "6222 0202 0202 0086",
-      "valid_date": "09/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0087.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0087",
-      "valid_date": "08/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0087.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -8813,35 +6564,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0087.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0087",
-      "valid_date": "08/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0088.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0088",
-      "valid_date": "12/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0088.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -8891,35 +6616,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0088.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0088",
-      "valid_date": "12/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0089.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0089",
-      "valid_date": "07/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0089.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -8969,35 +6668,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0089.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0089",
-      "valid_date": "07/29",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0090.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0090",
-      "valid_date": "02/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0090.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -9047,35 +6720,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0090.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0090",
-      "valid_date": "02/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0091.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0091",
-      "valid_date": "11/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0091.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "WU HAO",
@@ -9125,35 +6772,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0091.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "WU HAO",
-      "card_number": "6222 0202 0202 0091",
-      "valid_date": "11/35",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0092.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0092",
-      "valid_date": "11/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0092.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -9203,35 +6824,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0092.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0092",
-      "valid_date": "11/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0093.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0093",
-      "valid_date": "04/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0093.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -9281,35 +6876,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0093.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0093",
-      "valid_date": "04/36",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0094.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0094",
-      "valid_date": "04/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0094.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHAO LEI",
@@ -9359,35 +6928,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0094.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHAO LEI",
-      "card_number": "6222 0202 0202 0094",
-      "valid_date": "04/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0095.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0095",
-      "valid_date": "02/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0095.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -9437,35 +6980,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0095.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0095",
-      "valid_date": "02/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0096.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0096",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0096.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHOU YI",
@@ -9515,35 +7032,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0096.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHOU YI",
-      "card_number": "6222 0202 0202 0096",
-      "valid_date": "10/34",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0097.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0097",
-      "valid_date": "03/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0097.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -9593,35 +7084,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0097.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0097",
-      "valid_date": "03/30",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0098.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0098",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0098.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "ZHANG SAN",
@@ -9671,35 +7136,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0098.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "ZHANG SAN",
-      "card_number": "6222 0202 0202 0098",
-      "valid_date": "11/28",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0099.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0099",
-      "valid_date": "10/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0099.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LI MING",
@@ -9749,35 +7188,9 @@
     }
   },
   {
-    "image_path": "data/processed/bank_card/bright/bank_card_0099.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LI MING",
-      "card_number": "6222 0202 0202 0099",
-      "valid_date": "10/31",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
     "image_path": "data/processed/bank_card/blur/bank_card_0100.png",
     "doc_type": "bank_card",
     "quality_type": "blur",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0100",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/glare/bank_card_0100.png",
-    "doc_type": "bank_card",
-    "quality_type": "glare",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -9817,19 +7230,6 @@
     "image_path": "data/processed/bank_card/dark/bank_card_0100.png",
     "doc_type": "bank_card",
     "quality_type": "dark",
-    "is_synthetic": true,
-    "fields": {
-      "name": "LIU YANG",
-      "card_number": "6222 0202 0202 0100",
-      "valid_date": "07/32",
-      "issuer": "TEST BANK",
-      "card_type": "Synthetic Debit Card"
-    }
-  },
-  {
-    "image_path": "data/processed/bank_card/bright/bank_card_0100.png",
-    "doc_type": "bank_card",
-    "quality_type": "bright",
     "is_synthetic": true,
     "fields": {
       "name": "LIU YANG",
@@ -37137,6 +34537,2606 @@
     "assets": {
       "template_source": "third_party/idcardgenerator/idcardgenerator/usedres/empty.png",
       "license": "GPL-3.0 airob0t/idcardgenerator assets"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0001.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0001",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0001.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0001",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0002.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0002",
+      "valid_date": "04/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0002.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0002",
+      "valid_date": "04/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0003.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0003",
+      "valid_date": "11/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0003.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0003",
+      "valid_date": "11/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0004.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0004",
+      "valid_date": "04/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0004.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0004",
+      "valid_date": "04/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0005.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0005",
+      "valid_date": "06/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0005.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0005",
+      "valid_date": "06/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0006.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0006",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0006.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0006",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0007.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0007",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0007.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0007",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0008.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0008",
+      "valid_date": "11/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0008.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0008",
+      "valid_date": "11/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0009.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0009",
+      "valid_date": "06/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0009.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0009",
+      "valid_date": "06/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0010.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0010",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0010.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0010",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0011.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0011",
+      "valid_date": "06/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0011.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0011",
+      "valid_date": "06/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0012.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0012",
+      "valid_date": "01/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0012.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0012",
+      "valid_date": "01/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0013.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0013",
+      "valid_date": "03/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0013.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0013",
+      "valid_date": "03/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0014.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0014",
+      "valid_date": "08/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0014.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0014",
+      "valid_date": "08/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0015.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0015",
+      "valid_date": "09/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0015.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0015",
+      "valid_date": "09/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0016.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0016",
+      "valid_date": "05/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0016.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0016",
+      "valid_date": "05/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0017.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0017",
+      "valid_date": "02/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0017.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0017",
+      "valid_date": "02/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0018.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0018",
+      "valid_date": "05/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0018.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0018",
+      "valid_date": "05/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0019.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0019",
+      "valid_date": "05/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0019.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0019",
+      "valid_date": "05/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0020.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0020",
+      "valid_date": "06/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0020.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0020",
+      "valid_date": "06/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0021.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0021",
+      "valid_date": "07/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0021.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0021",
+      "valid_date": "07/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0022.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0022",
+      "valid_date": "04/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0022.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0022",
+      "valid_date": "04/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0023.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0023",
+      "valid_date": "05/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0023.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0023",
+      "valid_date": "05/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0024.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0024",
+      "valid_date": "08/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0024.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0024",
+      "valid_date": "08/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0025.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0025",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0025.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0025",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0026.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0026",
+      "valid_date": "07/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0026.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0026",
+      "valid_date": "07/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0027.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0027",
+      "valid_date": "02/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0027.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0027",
+      "valid_date": "02/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0028.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0028",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0028.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0028",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0029.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0029",
+      "valid_date": "07/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0029.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0029",
+      "valid_date": "07/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0030.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0030",
+      "valid_date": "07/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0030.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0030",
+      "valid_date": "07/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0031.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0031",
+      "valid_date": "10/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0031.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0031",
+      "valid_date": "10/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0032.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0032",
+      "valid_date": "08/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0032.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0032",
+      "valid_date": "08/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0033.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0033",
+      "valid_date": "06/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0033.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0033",
+      "valid_date": "06/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0034.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0034",
+      "valid_date": "06/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0034.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0034",
+      "valid_date": "06/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0035.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0035",
+      "valid_date": "07/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0035.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0035",
+      "valid_date": "07/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0036.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0036",
+      "valid_date": "10/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0036.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0036",
+      "valid_date": "10/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0037.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0037",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0037.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0037",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0038.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0038",
+      "valid_date": "07/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0038.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0038",
+      "valid_date": "07/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0039.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0039",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0039.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0039",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0040.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0040",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0040.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0040",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0041.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0041",
+      "valid_date": "12/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0041.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0041",
+      "valid_date": "12/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0042.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0042",
+      "valid_date": "04/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0042.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0042",
+      "valid_date": "04/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0043.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0043",
+      "valid_date": "09/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0043.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0043",
+      "valid_date": "09/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0044.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0044",
+      "valid_date": "12/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0044.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0044",
+      "valid_date": "12/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0045.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0045",
+      "valid_date": "12/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0045.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0045",
+      "valid_date": "12/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0046.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0046",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0046.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0046",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0047.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0047",
+      "valid_date": "04/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0047.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0047",
+      "valid_date": "04/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0048.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0048",
+      "valid_date": "07/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0048.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0048",
+      "valid_date": "07/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0049.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0049",
+      "valid_date": "01/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0049.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0049",
+      "valid_date": "01/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0050.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0050",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0050.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0050",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0051.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0051",
+      "valid_date": "08/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0051.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0051",
+      "valid_date": "08/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0052.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0052",
+      "valid_date": "01/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0052.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0052",
+      "valid_date": "01/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0053.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0053",
+      "valid_date": "05/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0053.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0053",
+      "valid_date": "05/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0054.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0054",
+      "valid_date": "08/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0054.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0054",
+      "valid_date": "08/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0055.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0055",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0055.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0055",
+      "valid_date": "04/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0056.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0056",
+      "valid_date": "09/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0056.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0056",
+      "valid_date": "09/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0057.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0057",
+      "valid_date": "03/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0057.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0057",
+      "valid_date": "03/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0058.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0058",
+      "valid_date": "11/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0058.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0058",
+      "valid_date": "11/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0059.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0059",
+      "valid_date": "04/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0059.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0059",
+      "valid_date": "04/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0060.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0060",
+      "valid_date": "12/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0060.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0060",
+      "valid_date": "12/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0061.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0061",
+      "valid_date": "01/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0061.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0061",
+      "valid_date": "01/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0062.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0062",
+      "valid_date": "10/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0062.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0062",
+      "valid_date": "10/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0063.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0063",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0063.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0063",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0064.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0064",
+      "valid_date": "02/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0064.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0064",
+      "valid_date": "02/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0065.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0065",
+      "valid_date": "01/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0065.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0065",
+      "valid_date": "01/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0066.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0066",
+      "valid_date": "07/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0066.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0066",
+      "valid_date": "07/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0067.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0067",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0067.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0067",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0068.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0068",
+      "valid_date": "06/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0068.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0068",
+      "valid_date": "06/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0069.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0069",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0069.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0069",
+      "valid_date": "10/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0070.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0070",
+      "valid_date": "03/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0070.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0070",
+      "valid_date": "03/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0071.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0071",
+      "valid_date": "01/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0071.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0071",
+      "valid_date": "01/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0072.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0072",
+      "valid_date": "10/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0072.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0072",
+      "valid_date": "10/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0073.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0073",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0073.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0073",
+      "valid_date": "05/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0074.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0074",
+      "valid_date": "05/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0074.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0074",
+      "valid_date": "05/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0075.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0075",
+      "valid_date": "07/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0075.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0075",
+      "valid_date": "07/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0076.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0076",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0076.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0076",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0077.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0077",
+      "valid_date": "04/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0077.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0077",
+      "valid_date": "04/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0078.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0078",
+      "valid_date": "07/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0078.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0078",
+      "valid_date": "07/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0079.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0079",
+      "valid_date": "09/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0079.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "CHEN JIE",
+      "card_number": "6222 0202 0202 0079",
+      "valid_date": "09/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0080.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0080",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0080.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0080",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0081.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0081",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0081.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0081",
+      "valid_date": "02/33",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0082.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0082",
+      "valid_date": "01/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0082.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0082",
+      "valid_date": "01/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0083.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0083",
+      "valid_date": "03/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0083.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "XU NING",
+      "card_number": "6222 0202 0202 0083",
+      "valid_date": "03/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0084.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0084",
+      "valid_date": "03/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0084.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WANG WEI",
+      "card_number": "6222 0202 0202 0084",
+      "valid_date": "03/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0085.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0085",
+      "valid_date": "10/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0085.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0085",
+      "valid_date": "10/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0086.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0086",
+      "valid_date": "09/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0086.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "SUN QI",
+      "card_number": "6222 0202 0202 0086",
+      "valid_date": "09/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0087.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0087",
+      "valid_date": "08/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0087.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0087",
+      "valid_date": "08/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0088.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0088",
+      "valid_date": "12/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0088.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0088",
+      "valid_date": "12/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0089.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0089",
+      "valid_date": "07/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0089.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0089",
+      "valid_date": "07/29",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0090.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0090",
+      "valid_date": "02/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0090.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0090",
+      "valid_date": "02/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0091.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0091",
+      "valid_date": "11/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0091.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "WU HAO",
+      "card_number": "6222 0202 0202 0091",
+      "valid_date": "11/35",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0092.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0092",
+      "valid_date": "11/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0092.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0092",
+      "valid_date": "11/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0093.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0093",
+      "valid_date": "04/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0093.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0093",
+      "valid_date": "04/36",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0094.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0094",
+      "valid_date": "04/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0094.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHAO LEI",
+      "card_number": "6222 0202 0202 0094",
+      "valid_date": "04/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0095.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0095",
+      "valid_date": "02/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0095.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0095",
+      "valid_date": "02/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0096.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0096",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0096.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHOU YI",
+      "card_number": "6222 0202 0202 0096",
+      "valid_date": "10/34",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0097.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0097",
+      "valid_date": "03/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0097.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0097",
+      "valid_date": "03/30",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0098.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0098",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0098.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "ZHANG SAN",
+      "card_number": "6222 0202 0202 0098",
+      "valid_date": "11/28",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0099.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0099",
+      "valid_date": "10/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0099.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LI MING",
+      "card_number": "6222 0202 0202 0099",
+      "valid_date": "10/31",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/bright/bank_card_0100.png",
+    "doc_type": "bank_card",
+    "quality_type": "bright",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0100",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
+    }
+  },
+  {
+    "image_path": "data/processed/bank_card/glare/bank_card_0100.png",
+    "doc_type": "bank_card",
+    "quality_type": "glare",
+    "is_synthetic": true,
+    "fields": {
+      "name": "LIU YANG",
+      "card_number": "6222 0202 0202 0100",
+      "valid_date": "07/32",
+      "issuer": "TEST BANK",
+      "card_type": "Synthetic Debit Card"
     }
   }
 ]

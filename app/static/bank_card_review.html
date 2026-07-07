@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bank OCR Review</title>
+    <link rel="stylesheet" href="/static/bank_card_review.css" />
+  </head>
+  <body>
+    <main id="bank-card-review-app" class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Bank OCR Test Platform</p>
+          <h1>银行卡审核</h1>
+        </div>
+        <div class="mode-pill" id="modeLabel">OCR: server</div>
+      </header>
+
+      <section class="workspace" aria-label="银行卡审核工作区">
+        <section class="upload-panel">
+          <div class="upload-head">
+            <h2>图片</h2>
+            <span id="fileMeta">PNG / JPG</span>
+          </div>
+
+          <label class="drop-zone" id="dropZone">
+            <input id="fileInput" type="file" name="file" accept="image/png,image/jpeg" />
+            <span class="drop-title">选择银行卡图片</span>
+            <span class="drop-subtitle">或拖到这里</span>
+          </label>
+
+          <div class="preview-frame" id="previewFrame">
+            <div class="card-visual" id="emptyPreview">
+              <div class="card-row"></div>
+              <div class="card-chip"></div>
+              <div class="card-number"></div>
+              <div class="card-lines"></div>
+            </div>
+            <img id="imagePreview" alt="银行卡图片预览" hidden />
+          </div>
+
+          <div class="actions">
+            <button id="submitButton" type="button" disabled>开始审核</button>
+            <button id="resetButton" type="button" class="secondary">清空</button>
+          </div>
+          <p class="message" id="message"></p>
+        </section>
+
+        <section class="result-panel">
+          <div class="summary-strip">
+            <div>
+              <span class="label">审核结果</span>
+              <strong id="reviewResult" class="status neutral">未提交</strong>
+            </div>
+            <div>
+              <span class="label">质量结果</span>
+              <strong id="qualityResult" class="status neutral">--</strong>
+            </div>
+            <div>
+              <span class="label">耗时</span>
+              <strong id="latency">--</strong>
+            </div>
+          </div>
+
+          <div class="result-grid">
+            <section class="panel-section">
+              <h2>字段</h2>
+              <dl class="field-list">
+                <div>
+                  <dt>卡号</dt>
+                  <dd id="cardNumber">--</dd>
+                </div>
+                <div>
+                  <dt>姓名</dt>
+                  <dd id="cardholderName">--</dd>
+                </div>
+                <div>
+                  <dt>有效期</dt>
+                  <dd id="validDate">--</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="panel-section">
+              <h2>质量</h2>
+              <dl class="field-list compact">
+                <div>
+                  <dt>亮度</dt>
+                  <dd id="brightness">--</dd>
+                </div>
+                <div>
+                  <dt>模糊</dt>
+                  <dd id="blur">--</dd>
+                </div>
+                <div>
+                  <dt>反光</dt>
+                  <dd id="glare">--</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <section class="panel-section ocr-section">
+            <h2>OCR 文本</h2>
+            <pre id="ocrText">--</pre>
+          </section>
+
+          <details class="raw-json">
+            <summary>响应 JSON</summary>
+            <pre id="rawJson">{}</pre>
+          </details>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/bank_card_review.js"></script>
+  </body>
+</html>

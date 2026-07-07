@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import random
+import argparse
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
@@ -37,13 +38,31 @@ def write_labels(labels: list[dict[str, object]]) -> None:
     LABELS_PATH.write_text(json.dumps(labels, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def add_glare(image: Image.Image) -> Image.Image:
+def add_glare(image: Image.Image, rng: random.Random) -> Image.Image:
     result = image.convert("RGBA")
-    overlay = Image.new("RGBA", result.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-    draw.ellipse((390, 35, 810, 250), fill=(255, 255, 255, 95))
-    draw.polygon([(125, 0), (230, 0), (720, 460), (590, 460)], fill=(255, 255, 255, 48))
-    result.alpha_composite(overlay)
+    width, height = result.size
+    long_axis = rng.randint(int(width * 0.36), int(width * 0.48))
+    short_axis = rng.randint(int(height * 0.18), int(height * 0.26))
+    center_x = rng.randint(int(width * 0.35), int(width * 0.72))
+    center_y = rng.randint(int(height * 0.25), int(height * 0.62))
+    angle = rng.uniform(-24, 24)
+
+    patch_size = int(max(long_axis, short_axis) * 1.8)
+    patch = Image.new("RGBA", (patch_size, patch_size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(patch)
+    cx = cy = patch_size // 2
+    for step in range(12, 0, -1):
+        ratio = step / 12
+        rx = int(long_axis * ratio / 2)
+        ry = int(short_axis * ratio / 2)
+        alpha = int(28 + (1 - ratio) * 145)
+        draw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=(255, 255, 255, alpha))
+
+    core_rx = int(long_axis * 0.23)
+    core_ry = int(short_axis * 0.22)
+    draw.ellipse((cx - core_rx, cy - core_ry, cx + core_rx, cy + core_ry), fill=(255, 255, 255, 245))
+    patch = patch.rotate(angle, resample=Image.Resampling.BICUBIC, expand=True)
+    result.alpha_composite(patch, (center_x - patch.size[0] // 2, center_y - patch.size[1] // 2))
     return result.convert("RGB")
 
 
@@ -63,7 +82,7 @@ def augment_image(image: Image.Image, quality_type: str, rng: random.Random) -> 
     if quality_type == "blur":
         return image.filter(ImageFilter.GaussianBlur(radius=2.4))
     if quality_type == "glare":
-        return add_glare(image)
+        return add_glare(image, rng)
     if quality_type == "occlusion":
         return add_occlusion(image)
     if quality_type == "rotate":
@@ -71,7 +90,7 @@ def augment_image(image: Image.Image, quality_type: str, rng: random.Random) -> 
     if quality_type == "dark":
         return ImageEnhance.Brightness(image).enhance(0.55)
     if quality_type == "bright":
-        return ImageEnhance.Brightness(image).enhance(1.45)
+        return image.point(lambda value: min(255, int(value * 1.25 + 125)))
     raise ValueError(f"Unsupported quality type: {quality_type}")
 
 
@@ -83,7 +102,7 @@ def normal_bank_labels(labels: list[dict[str, object]]) -> dict[str, dict[str, o
     return rows
 
 
-def augment(seed: int = 20260615) -> list[dict[str, object]]:
+def augment(quality_types: tuple[str, ...] = QUALITY_TYPES, seed: int = 20260615) -> list[dict[str, object]]:
     rng = random.Random(seed)
     labels = read_labels()
     normal_labels = normal_bank_labels(labels)
@@ -95,7 +114,7 @@ def augment(seed: int = 20260615) -> list[dict[str, object]]:
         if not source_label:
             continue
         image = Image.open(source_path).convert("RGB")
-        for quality_type in QUALITY_TYPES:
+        for quality_type in quality_types:
             output_dir = BANK_CARD_DIR / quality_type
             output_path = output_dir / source_path.name
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -110,14 +129,27 @@ def augment(seed: int = 20260615) -> list[dict[str, object]]:
     preserved = [
         item
         for item in labels
-        if not (item.get("doc_type") == "bank_card" and item.get("quality_type") in QUALITY_TYPES)
+        if not (item.get("doc_type") == "bank_card" and item.get("quality_type") in quality_types)
     ]
     write_labels(preserved + generated)
     return generated
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate bank-card abnormal image samples.")
+    parser.add_argument(
+        "--types",
+        nargs="+",
+        choices=QUALITY_TYPES,
+        default=list(QUALITY_TYPES),
+        help="Quality types to regenerate. Defaults to all abnormal types.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
-    generated = augment()
+    args = parse_args()
+    generated = augment(tuple(args.types))
     print(f"Generated {len(generated)} augmented bank card images")
     print(f"Wrote labels to {relative(LABELS_PATH)}")
 

@@ -1,0 +1,11 @@
+image_path,expected_card_number,predicted_card_number,card_number_correct,expected_name,predicted_name,name_correct,expected_valid_date,predicted_valid_date,valid_date_correct,error_message
+data/processed/bank_card/normal/bank_card_0001.png,6222020202020001,6222020202020001,True,ZHOU YI,ZHOU YI,True,07/32,07/32,True,
+data/processed/bank_card/normal/bank_card_0002.png,6222020202020002,6222020202020002,True,SUN QI,SUN QI,True,04/32,04/32,True,
+data/processed/bank_card/normal/bank_card_0003.png,6222020202020003,6222020202020003,True,WU HAO,WU HAO,True,11/30,11/30,True,
+data/processed/bank_card/normal/bank_card_0004.png,6222020202020004,6222020202020004,True,XU NING,XU NING,True,04/32,04/32,True,
+data/processed/bank_card/normal/bank_card_0005.png,6222020202020005,6222020202020005,True,LI MING,LI MING,True,06/34,06/34,True,
+data/processed/bank_card/normal/bank_card_0006.png,6222020202020006,6222020202020006,True,CHEN JIE,CHEN JIE,True,05/29,05/29,True,
+data/processed/bank_card/normal/bank_card_0007.png,6222020202020007,6222020202020007,True,ZHANG SAN,ZHANG SAN,True,04/33,04/33,True,
+data/processed/bank_card/normal/bank_card_0008.png,6222020202020008,6222020202020008,True,LI MING,LI MING,True,11/33,11/33,True,
+data/processed/bank_card/normal/bank_card_0009.png,6222020202020009,6222020202020009,True,LI MING,LI MING,True,06/31,06/31,True,
+data/processed/bank_card/normal/bank_card_0010.png,6222020202020010,6222020202020010,True,CHEN JIE,CHEN JIE,True,04/33,04/33,True,
