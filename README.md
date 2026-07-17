@@ -1,22 +1,31 @@
 # Bank OCR Test Platform
 
-一个基于 FastAPI 的 OCR 测试平台，用于上传银行卡或身份证图片，执行图片质量检查、OCR 识别、字段解析和规则审核。
+一个面向银行远程开户、信用卡进件场景的影像资料审核测试平台。项目基于 FastAPI，覆盖银行卡和身份证图片从上传、质量检测、OCR、字段解析、规则审核到审核记录追踪的完整测试流程。
+
+当前版本是用于接口测试、规则验证、OCR 适配和性能基线验证的测试开发 Demo，不是生产级银行系统。
 
 当前项目已经接入 Mock/PaddleOCR 双模式。默认使用 mock OCR，适合接口、规则、CI 和性能基线测试；设置 `OCR_MODE=paddle` 后使用真实 PaddleOCR 推理。项目目前支持：
 
 - 银行卡审核：解析银行卡号、有效期、持卡人姓名
 - 身份证审核：自动判断正面/反面，并解析对应字段
+- 审核可追踪：为每次请求生成 `request_id`，并将审核记录写入 SQLite
+- 审核可解释：返回图片质量原因码和最终审核原因码
+- 日志安全：银行卡号和身份证号写入日志前自动脱敏
+- 测试工程：pytest、Allure、Locust 和 GitHub Actions
 - 银行卡前端审核页：上传图片后调用后端接口并展示审核结果、质量结果、字段、OCR 文本和原始 JSON
 
 ## 功能流程
 
 ```text
 上传图片
+ -> 文件校验
  -> 图片质量检测
  -> OCR 文字识别（默认 mock，可切换 PaddleOCR）
  -> 按接口类型解析字段
- -> 业务规则审核
- -> 返回 JSON 结果
+ -> 规则审核
+ -> 生成质量原因码和审核原因码
+ -> 审核记录写入 SQLite
+ -> 通过 request_id 或条件查询追踪
 ```
 
 核心接口：
@@ -24,15 +33,38 @@
 ```http
 POST /bank-card/review
 POST /id-card/review
+GET /review-records/{request_id}
+GET /review-records?doc_type=bank_card&review_result=review
 ```
 
 返回内容包含：
 
+- `request_id`：本次审核请求的唯一追踪标识
 - `review_result`：最终审核结果，可能是 `pass`、`review`、`reject`
+- `review_reasons`：最终审核原因码数组；无异常时为空数组
 - `quality`：图片质量检测结果
+- `quality.quality_reasons`：图片质量原因码数组；质量正常时为空数组
 - `ocr_text`：OCR 识别出的原始文字行
 - `fields`：从 OCR 文本中解析出的结构化字段
 - `side`：身份证接口专用，表示 `front`、`back` 或 `unknown`
+
+## 审核原因码
+
+接口使用稳定的英文原因码支持人工复核、自动化断言、日志定位和审核记录查询。
+
+| 原因码 | 含义 |
+| --- | --- |
+| `image_blur` | 图片模糊，需要人工复核 |
+| `image_dark` | 图片过暗，需要人工复核 |
+| `image_bright` | 图片过亮，需要人工复核 |
+| `glare_detected` | 检测到反光，需要人工复核 |
+| `missing_card_number` | 未解析到银行卡号 |
+| `missing_valid_date` | 未解析到银行卡有效期 |
+| `invalid_card_number` | 银行卡号未通过规则校验 |
+| `unknown_id_card_side` | 无法判断身份证正反面 |
+| `invalid_file_type` | 上传文件类型不受支持 |
+| `unreadable_image` | 文件为空、损坏或不是可读取图片 |
+| `invalid_ocr_mode` | 服务端 `OCR_MODE` 配置非法 |
 
 ## 项目结构
 
@@ -44,6 +76,8 @@ app/
   field_parser.py   银行卡字段解析
   id_card_parser.py 身份证正反面检测和字段解析
   rule_check.py     审核规则判断
+  review_records.py SQLite 审核记录持久化和查询
+  logging_utils.py  银行卡号、身份证号日志脱敏
   static/           银行卡审核前端页面
 
 tests/              pytest 测试
@@ -207,12 +241,15 @@ POST /bank-card/review
 
 ```json
 {
-  "review_result": "review",
+  "request_id": "53f2d96d-0634-40ca-8fe4-12c963ef5ff0",
+  "review_result": "pass",
+  "review_reasons": [],
   "quality": {
     "is_blur": false,
     "brightness": "normal",
     "has_glare": false,
-    "quality_result": "pass"
+    "quality_result": "pass",
+    "quality_reasons": []
   },
   "ocr_text": [
     "TEST BANK",
@@ -244,13 +281,16 @@ POST /id-card/review
 
 ```json
 {
+  "request_id": "d469ad56-ee44-49e1-a8e3-051594784907",
   "review_result": "pass",
+  "review_reasons": [],
   "side": "front",
   "quality": {
     "is_blur": false,
     "brightness": "normal",
     "has_glare": false,
-    "quality_result": "pass"
+    "quality_result": "pass",
+    "quality_reasons": []
   },
   "ocr_text": [
     "姓名 李雷",
@@ -274,13 +314,16 @@ POST /id-card/review
 
 ```json
 {
+  "request_id": "eed3acb5-f51a-4519-8ccd-a5782c96dc22",
   "review_result": "pass",
+  "review_reasons": [],
   "side": "back",
   "quality": {
     "is_blur": false,
     "brightness": "normal",
     "has_glare": false,
-    "quality_result": "pass"
+    "quality_result": "pass",
+    "quality_reasons": []
   },
   "ocr_text": [
     "中华人民共和国",
@@ -295,15 +338,54 @@ POST /id-card/review
 }
 ```
 
+## 审核记录与查询
+
+银行卡和身份证审核都会将成功或失败结果写入 SQLite，并使用响应中的 `request_id` 关联接口响应、日志和审核记录。
+
+按 `request_id` 查询单条记录：
+
+```http
+GET /review-records/53f2d96d-0634-40ca-8fe4-12c963ef5ff0
+```
+
+按证件类型和审核结果筛选记录：
+
+```http
+GET /review-records?doc_type=bank_card&review_result=review
+```
+
+查询结果包含证件类型、文件名、OCR 模式、审核结果、质量结果、`quality_reasons`、`review_reasons`、解析字段、错误信息和创建时间。
+
+默认数据库文件位于：
+
+```text
+reports/review_records.db
+```
+
+该数据库属于本地运行时文件，已经通过 `.gitignore` 排除，不提交到 Git。SQLite 适合当前单机测试和面试演示，不适合作为生产级银行系统的高并发审核存储。
+
+## 日志脱敏
+
+接口日志记录请求接收、文件校验、质量检测、OCR、字段解析、规则审核和审核记录保存等关键步骤，并携带 `request_id` 便于定位。
+
+银行卡号和身份证号在进入日志前会脱敏，只保留用于问题定位的前后部分，例如：
+
+```text
+银行卡号：622202******0001
+身份证号：110101********0011
+```
+
+完整银行卡号和完整身份证号不会写入应用日志。测试数据也应使用合成资料，不得提交真实客户影像或身份信息。
+
 ## 运行测试
 
 运行全部测试：
 
 ```powershell
-python -m pytest
+python -m pytest -v
 ```
 
-普通 pytest 默认使用 mock OCR，不会下载或加载真实 PaddleOCR 模型。
+当前冻结版全量测试结果为 `136 passed`。普通 pytest 会清理外部 `OCR_MODE` 环境变量并使用 mock OCR，不会下载或加载真实 PaddleOCR 模型；GitHub Actions 同样固定使用 mock 路径。
 
 ## OCR 小规模评估
 
@@ -440,7 +522,7 @@ conda run -n bank locust -f performance/locustfile.py --headless -u 10 -r 2 --ru
 - P95 响应时间：Locust `95%ile`，表示 95% 请求在该耗时内完成。
 - 吞吐量：Locust `Current RPS` 或 `Requests/s`，表示每秒完成请求数。
 
-注意：当前 Locust 场景用于 mock OCR 环境下的接口性能测试，不能代表真实 PaddleOCR 推理性能。如果直接压测默认接入真实 PaddleOCR 的服务，指标会包含真实 OCR 推理耗时，结果应单独解释。
+注意：当前 Locust 场景默认用于 mock OCR 环境下的接口性能测试，只反映接口链路和审核流程的性能基线，不能代表真实 PaddleOCR 推理性能。只有显式以 `OCR_MODE=paddle` 启动服务时，压测结果才会包含真实 OCR 推理耗时，且应单独解释。
 
 运行单个测试文件：
 
@@ -466,6 +548,15 @@ reports/ocr-temp/
 rmdir /s /q reports\paddlex-runtime-cache
 rmdir /s /q reports\ocr-temp
 ```
+
+## 项目限制
+
+- 当前项目是测试开发 Demo，用于展示影像审核测试思路，不是生产级银行业务系统。
+- SQLite 只适合单机测试、自动化验证和面试演示，不适合生产环境的并发、容灾和审计要求。
+- mock OCR 用于稳定验证接口、字段解析和规则流程，不代表真实图片识别效果。
+- 真实 OCR 效果需要显式使用 PaddleOCR，并通过 `scripts/evaluate_bank_card_ocr.py` 等评估脚本单独验证。
+- Locust 默认 mock 模式结果仅代表接口流程性能基线，不代表真实 PaddleOCR 推理性能。
+- 项目没有实现生产级权限控制、数据加密、分布式存储、审批工作流和合规审计体系。
 
 ## 常见问题
 

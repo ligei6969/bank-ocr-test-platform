@@ -26,3 +26,7 @@ The repository currently has minimal Git history, so use concise imperative comm
 ## Security & Configuration Tips
 
 Do not commit real customer documents, bank-card numbers, identity data, or secrets. Keep examples synthetic and clearly marked as test data. Large generated datasets and reports should remain in `data/` or `reports/`, not mixed into application modules.
+
+## Change Logging
+
+Only append to `modedify_log.md` when the user request and final response are about the whole project's version record, such as `V1.0`, `V1.2.1`, or another explicit project version. Do not log ordinary troubleshooting, environment setup, command usage, or non-version Q&A. Write the file as UTF-8, preserve existing version entries, and clearly separate each new version entry with a heading or divider. Do not overwrite previous version records.

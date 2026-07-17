@@ -76,6 +76,7 @@ def test_recognize_text_defaults_to_mock_without_loading_paddle(monkeypatch) -> 
     def fail_paddle_ocr(image_path: str) -> list[str]:
         pytest.fail("Paddle OCR should not be used in default mock mode")
 
+    monkeypatch.delenv("OCR_MODE", raising=False)
     monkeypatch.delitem(sys.modules, "paddleocr", raising=False)
     monkeypatch.setattr("app.ocr_service._recognize_text_with_paddle", fail_paddle_ocr)
 

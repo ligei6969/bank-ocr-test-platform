@@ -1,6 +1,11 @@
 """Tests for bank-card rule checks."""
 
-from app.rule_check import is_valid_card_number, is_valid_expiry, review_bank_card
+from app.rule_check import (
+    is_valid_card_number,
+    is_valid_expiry,
+    review_bank_card,
+    review_bank_card_with_reasons,
+)
 
 
 def test_valid_card_number_accepts_16_to_19_digits() -> None:
@@ -63,3 +68,33 @@ def test_pass_when_fields_and_quality_are_valid() -> None:
     )
 
     assert result == "pass"
+
+
+def test_missing_fields_return_specific_review_reasons() -> None:
+    result, reasons = review_bank_card_with_reasons(
+        {"name": "ZHANG SAN"},
+        {"is_blur": False, "brightness": "normal", "has_glare": False},
+    )
+
+    assert result == "review"
+    assert reasons == ["missing_card_number", "missing_valid_date"]
+
+
+def test_invalid_card_number_returns_reject_reason() -> None:
+    result, reasons = review_bank_card_with_reasons(
+        {"card_number": "123", "name": "ZHANG SAN", "valid_date": "12/30"},
+        {"is_blur": False, "brightness": "normal", "has_glare": False},
+    )
+
+    assert result == "reject"
+    assert reasons == ["invalid_card_number"]
+
+
+def test_quality_reason_is_included_in_review_reasons() -> None:
+    result, reasons = review_bank_card_with_reasons(
+        {"card_number": "6222020202020001", "name": "ZHANG SAN", "valid_date": "12/30"},
+        {"is_blur": True, "brightness": "normal", "has_glare": False},
+    )
+
+    assert result == "review"
+    assert reasons == ["image_blur"]

@@ -1,5 +1,6 @@
 """Tests for the bank-card review API."""
 
+import os
 from pathlib import Path
 
 import allure
@@ -74,6 +75,8 @@ def test_bank_card_review_api_returns_review_result(monkeypatch) -> None:
     assert data["fields"]["name"] == "ZHANG SAN"
     assert data["fields"]["valid_date"] == "12/30"
     assert data["quality"]["quality_result"] == "pass"
+    assert data["quality"]["quality_reasons"] == []
+    assert data["review_reasons"] == []
 
 
 def test_root_returns_service_message() -> None:
@@ -92,6 +95,10 @@ def test_bank_card_review_ui_returns_html() -> None:
     assert "/bank-card/review" in response.text or "bank_card_review.js" in response.text
 
 
+def test_pytest_does_not_inherit_shell_ocr_mode() -> None:
+    assert "OCR_MODE" not in os.environ
+
+
 def test_bank_card_review_uses_mock_ocr_mode_by_default(monkeypatch) -> None:
     observed_modes: list[str] = []
 
@@ -106,6 +113,32 @@ def test_bank_card_review_uses_mock_ocr_mode_by_default(monkeypatch) -> None:
         ]
 
     monkeypatch.delenv("OCR_MODE", raising=False)
+    monkeypatch.setattr("app.main.recognize_text", fake_recognize_text)
+    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+    image_path = ARTIFACT_DIR / "default_ocr_mode.png"
+    create_upload_image(image_path)
+
+    with image_path.open("rb") as file:
+        response = client.post("/bank-card/review", files={"file": ("bank_card.png", file, "image/png")})
+
+    assert response.status_code == 200
+    assert observed_modes == ["mock"]
+
+
+def test_bank_card_review_uses_explicit_mock_ocr_mode(monkeypatch) -> None:
+    observed_modes: list[str] = []
+
+    def fake_recognize_text(image_path: str, mode: str = "mock") -> list[str]:
+        observed_modes.append(mode)
+        return [
+            "TEST BANK",
+            "6222 0202 0202 0001",
+            "CARD HOLDER",
+            "ZHANG SAN",
+            "VALID THRU 12/30",
+        ]
+
+    monkeypatch.setenv("OCR_MODE", "mock")
     monkeypatch.setattr("app.main.recognize_text", fake_recognize_text)
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     image_path = ARTIFACT_DIR / "default_ocr_mode.png"
@@ -184,7 +217,11 @@ def test_bank_card_review_rejects_invalid_ocr_mode(monkeypatch) -> None:
         response = client.post("/bank-card/review", files={"file": ("bank_card.png", file, "image/png")})
 
     assert response.status_code == 500
-    assert response.json()["detail"] == "Invalid OCR_MODE. Use 'mock' or 'paddle'."
+    data = response.json()
+    assert data["detail"] == "Invalid OCR_MODE. Use 'mock' or 'paddle'."
+    assert isinstance(data["request_id"], str)
+    assert len(data["request_id"]) == 32
+    assert data["review_reasons"] == ["invalid_ocr_mode"]
 
 
 def test_bank_card_review_requires_file_field() -> None:
@@ -209,6 +246,7 @@ def test_bank_card_review_rejects_text_file(monkeypatch) -> None:
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Unsupported file type. Upload a PNG or JPEG image."
+    assert response.json()["review_reasons"] == ["invalid_file_type"]
 
 
 @allure.description("图片质量读取异常：质量检测抛出解码错误时返回明确 400，且不进入 OCR。")
@@ -250,6 +288,7 @@ def test_bank_card_review_rejects_invalid_card_number(monkeypatch) -> None:
     data = response.json()
     assert data["review_result"] == "reject"
     assert data["fields"]["card_number"] == "123"
+    assert data["review_reasons"] == ["invalid_card_number"]
 
 
 @allure.description("损坏图片拒绝处理：伪装成 PNG 的损坏内容返回 400，后续请求仍可用。")
@@ -300,6 +339,7 @@ def test_bank_card_review_handles_empty_ocr_text(monkeypatch) -> None:
         "valid_date": None,
         "name": None,
     }
+    assert data["review_reasons"] == ["missing_card_number", "missing_valid_date", "missing_name"]
 
 
 def test_bank_card_review_handles_partial_ocr_fields(monkeypatch) -> None:
@@ -319,6 +359,7 @@ def test_bank_card_review_handles_partial_ocr_fields(monkeypatch) -> None:
         "valid_date": None,
         "name": None,
     }
+    assert data["review_reasons"] == ["missing_valid_date", "missing_name"]
 
 
 @allure.description("模糊图片人工复核：真实 blur 样本应被检测为模糊，并返回 review。")
@@ -342,6 +383,8 @@ def test_bank_card_review_returns_review_for_blurry_image(monkeypatch) -> None:
     data = response.json()
     assert data["review_result"] == "review"
     assert data["quality"]["is_blur"] is True
+    assert "image_blur" in data["quality"]["quality_reasons"]
+    assert "image_blur" in data["review_reasons"]
 
 
 def test_bank_card_review_returns_review_for_bad_image_quality(monkeypatch) -> None:
@@ -366,3 +409,5 @@ def test_bank_card_review_returns_review_for_bad_image_quality(monkeypatch) -> N
     data = response.json()
     assert data["review_result"] == "review"
     assert data["quality"]["quality_result"] == "review"
+    assert "image_dark" in data["quality"]["quality_reasons"]
+    assert "image_dark" in data["review_reasons"]

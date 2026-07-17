@@ -8,6 +8,8 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      OCR_MODE: mock
 
     steps:
       - name: Check out repository

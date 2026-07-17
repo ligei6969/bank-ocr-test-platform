@@ -101,3 +101,19 @@ def test_id_card_review_requires_all_fields() -> None:
     )
 
     assert result == "review"
+
+
+def test_id_card_unknown_side_returns_reason(monkeypatch) -> None:
+    monkeypatch.setattr("app.main.recognize_text", lambda image_path, mode="mock": ["UNRELATED OCR TEXT"])
+    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+    image_path = ARTIFACT_DIR / "id_card_front.png"
+    create_upload_image(image_path)
+
+    with image_path.open("rb") as file:
+        response = client.post("/id-card/review", files={"file": ("id_card_front.png", file, "image/png")})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["review_result"] == "review"
+    assert data["side"] == "unknown"
+    assert data["review_reasons"] == ["unknown_id_card_side"]

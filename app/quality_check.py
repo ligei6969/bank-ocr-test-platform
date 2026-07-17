@@ -12,6 +12,25 @@ GLARE_SATURATION_THRESHOLD = 45
 GLARE_COMPONENT_RATIO_THRESHOLD = 0.005
 
 
+def get_quality_reasons(quality: dict) -> list[str]:
+    """Return stable reason codes for an image quality result."""
+    existing_reasons = quality.get("quality_reasons")
+    if isinstance(existing_reasons, list):
+        return [str(reason) for reason in existing_reasons]
+
+    reasons: list[str] = []
+    if quality.get("is_blur"):
+        reasons.append("image_blur")
+    brightness = quality.get("brightness")
+    if brightness == "dark":
+        reasons.append("image_dark")
+    elif brightness == "bright":
+        reasons.append("image_bright")
+    if quality.get("has_glare"):
+        reasons.append("glare_detected")
+    return reasons
+
+
 def _read_image(image_path: str) -> np.ndarray:
     image = cv2.imread(image_path)
     if image is None:
@@ -56,9 +75,11 @@ def check_image_quality(image_path: str) -> dict:
     brightness = detect_brightness(image_path)
     has_glare = detect_glare(image_path)
     quality_result = "review" if is_blur or brightness != "normal" or has_glare else "pass"
-    return {
+    result = {
         "is_blur": is_blur,
         "brightness": brightness,
         "has_glare": has_glare,
         "quality_result": quality_result,
     }
+    result["quality_reasons"] = get_quality_reasons(result)
+    return result

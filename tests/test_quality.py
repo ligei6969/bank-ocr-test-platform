@@ -81,7 +81,35 @@ def test_check_image_quality_pass() -> None:
         "brightness": "normal",
         "has_glare": False,
         "quality_result": "pass",
+        "quality_reasons": [],
     }
+
+
+@pytest.mark.parametrize(
+    ("is_blur", "brightness", "has_glare", "expected_reasons"),
+    [
+        (False, "normal", False, []),
+        (True, "normal", False, ["image_blur"]),
+        (False, "dark", False, ["image_dark"]),
+        (False, "bright", False, ["image_bright"]),
+        (False, "normal", True, ["glare_detected"]),
+    ],
+)
+def test_check_image_quality_returns_reason_codes(
+    monkeypatch,
+    is_blur: bool,
+    brightness: str,
+    has_glare: bool,
+    expected_reasons: list[str],
+) -> None:
+    monkeypatch.setattr("app.quality_check.detect_blur", lambda image_path: is_blur)
+    monkeypatch.setattr("app.quality_check.detect_brightness", lambda image_path: brightness)
+    monkeypatch.setattr("app.quality_check.detect_glare", lambda image_path: has_glare)
+
+    result = check_image_quality("unused.png")
+
+    assert result["quality_reasons"] == expected_reasons
+    assert result["quality_result"] == ("review" if expected_reasons else "pass")
 
 
 @pytest.mark.parametrize(
@@ -122,6 +150,7 @@ def test_processed_normal_bank_cards_pass_quality_gate(image_path: Path) -> None
     result = check_image_quality(str(image_path))
 
     assert result["quality_result"] == "pass"
+    assert result["quality_reasons"] == []
 
 
 @pytest.mark.parametrize(
@@ -133,6 +162,7 @@ def test_processed_blur_bank_cards_are_blurry(image_path: Path) -> None:
     result = check_image_quality(str(image_path))
 
     assert result["is_blur"] is True
+    assert "image_blur" in result["quality_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -144,6 +174,7 @@ def test_processed_dark_bank_cards_are_dark(image_path: Path) -> None:
     result = check_image_quality(str(image_path))
 
     assert result["brightness"] == "dark"
+    assert "image_dark" in result["quality_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -155,6 +186,7 @@ def test_processed_bright_bank_cards_are_bright(image_path: Path) -> None:
     result = check_image_quality(str(image_path))
 
     assert result["brightness"] == "bright"
+    assert "image_bright" in result["quality_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -166,6 +198,7 @@ def test_processed_glare_bank_cards_have_glare(image_path: Path) -> None:
     result = check_image_quality(str(image_path))
 
     assert result["has_glare"] is True
+    assert "glare_detected" in result["quality_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -185,7 +218,7 @@ def test_processed_occlusion_and_rotate_bank_cards_are_processable(quality_type:
     result = check_image_quality(str(image_path))
 
     assert quality_type in {"occlusion", "rotate"}
-    assert set(result) == {"is_blur", "brightness", "has_glare", "quality_result"}
+    assert set(result) == {"is_blur", "brightness", "has_glare", "quality_result", "quality_reasons"}
     assert isinstance(result["is_blur"], bool)
     assert result["brightness"] in {"dark", "normal", "bright"}
     assert isinstance(result["has_glare"], bool)
