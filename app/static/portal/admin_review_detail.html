@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>审核详情</title>
+    <link rel="stylesheet" href="/static/portal/portal.css" />
+  </head>
+  <body>
+    <div class="portal-shell">
+      <aside class="sidebar admin-sidebar" aria-label="管理员端导航">
+        <a class="brand" href="/admin/reviews">
+          <span class="brand-mark" aria-hidden="true">BO</span>
+          <span>
+            <strong>Bank OCR</strong>
+            <small>管理员控制台</small>
+          </span>
+        </a>
+        <nav class="side-nav">
+          <a class="nav-item active" href="/admin/reviews" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">▦</span>
+            审核记录
+          </a>
+          <a class="nav-item" href="/user">
+            <span class="nav-icon" aria-hidden="true">↩</span>
+            返回用户端
+          </a>
+        </nav>
+        <p class="sidebar-note">本地开发与审核演示环境</p>
+      </aside>
+
+      <main class="portal-main">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">REVIEW DETAIL</p>
+            <h1>审核详情</h1>
+            <p class="page-intro">查看单次影像审核的详细信息。</p>
+          </div>
+          <a class="text-link" href="/admin/reviews">返回审核记录</a>
+        </header>
+
+        <div class="notice warning-notice" role="alert">
+          <span class="notice-mark" aria-hidden="true">!</span>
+          <p><strong>当前管理员页面尚未接入登录鉴权</strong>，仅用于本地开发和演示。</p>
+        </div>
+
+        <div class="detail-grid" aria-label="审核详情占位区域">
+          <section class="content-card detail-card">
+            <h2>基本信息</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+          </section>
+          <section class="content-card detail-card">
+            <h2>审核结果</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+          </section>
+          <section class="content-card detail-card">
+            <h2>图片质量</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+          </section>
+          <section class="content-card detail-card">
+            <h2>审核原因</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+          </section>
+          <section class="content-card detail-card">
+            <h2>解析字段</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+          </section>
+          <section class="content-card detail-card">
+            <h2>错误信息</h2>
+            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+          </section>
+        </div>
+
+        <section class="loading-placeholder">
+          <span class="empty-icon" aria-hidden="true">○</span>
+          <strong>审核详情尚未加载</strong>
+          <p>下一阶段将根据 request_id 查询审核详情。</p>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

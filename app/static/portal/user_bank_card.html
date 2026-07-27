@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>银行卡认证</title>
+    <link rel="stylesheet" href="/static/portal/portal.css" />
+  </head>
+  <body>
+    <div class="portal-shell">
+      <aside class="sidebar" aria-label="用户端导航">
+        <a class="brand" href="/user">
+          <span class="brand-mark" aria-hidden="true">认证</span>
+          <span>
+            <strong>影像认证</strong>
+            <small>影像认证平台</small>
+          </span>
+        </a>
+        <nav class="side-nav">
+          <a class="nav-item" href="/user">
+            <span class="nav-icon" aria-hidden="true">⌂</span>
+            业务首页
+          </a>
+          <a class="nav-item active" href="/user/bank-card" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">▣</span>
+            银行卡认证
+          </a>
+          <a class="nav-item" href="/user/id-card">
+            <span class="nav-icon" aria-hidden="true">▤</span>
+            身份证认证
+          </a>
+        </nav>
+        <p class="sidebar-note">安全、清晰地完成影像资料认证</p>
+      </aside>
+
+      <main class="portal-main">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">BANK CARD VERIFICATION</p>
+            <h1>银行卡认证</h1>
+            <p class="page-intro">上传银行卡图片，完成认证资料提交。</p>
+          </div>
+          <a class="text-link" href="/user">返回业务首页</a>
+        </header>
+
+        <div class="form-layout">
+          <section class="content-card">
+            <div class="card-heading">
+              <div>
+                <h2>上传银行卡图片</h2>
+                <p>支持 JPG、JPEG、PNG 格式</p>
+              </div>
+              <span class="step-badge">步骤 1</span>
+            </div>
+
+            <div class="upload-zone" aria-label="银行卡图片上传区域">
+              <span class="upload-icon" aria-hidden="true">↑</span>
+              <strong>选择银行卡图片</strong>
+              <span>页面骨架阶段暂不开放文件选择</span>
+            </div>
+
+            <ul class="upload-tips">
+              <li>请保证图片清晰，银行卡文字和图案可辨认。</li>
+              <li>请保持卡片边缘完整，不要裁切或遮挡。</li>
+              <li>拍摄时请避免反光、阴影和明显倾斜。</li>
+            </ul>
+
+            <button class="primary-button" type="button" disabled>提交认证</button>
+            <p class="stage-note">本阶段只完成页面骨架，提交认证按钮暂未连接审核接口。</p>
+          </section>
+
+          <aside class="content-card result-card" aria-label="审核结果">
+            <div class="card-heading">
+              <div>
+                <h2>认证结果</h2>
+                <p>提交后将在这里显示处理状态</p>
+              </div>
+              <span class="status-badge neutral">未提交</span>
+            </div>
+            <div class="empty-state compact">
+              <span class="empty-icon" aria-hidden="true">○</span>
+              <strong>暂无认证结果</strong>
+              <p>请先上传银行卡图片并提交认证。</p>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

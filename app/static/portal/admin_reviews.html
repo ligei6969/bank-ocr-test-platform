@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>审核记录</title>
+    <link rel="stylesheet" href="/static/portal/portal.css" />
+  </head>
+  <body>
+    <div class="portal-shell">
+      <aside class="sidebar admin-sidebar" aria-label="管理员端导航">
+        <a class="brand" href="/admin/reviews">
+          <span class="brand-mark" aria-hidden="true">BO</span>
+          <span>
+            <strong>Bank OCR</strong>
+            <small>管理员控制台</small>
+          </span>
+        </a>
+        <nav class="side-nav">
+          <a class="nav-item active" href="/admin/reviews" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">▦</span>
+            审核记录
+          </a>
+          <a class="nav-item" href="/user">
+            <span class="nav-icon" aria-hidden="true">↩</span>
+            返回用户端
+          </a>
+        </nav>
+        <p class="sidebar-note">本地开发与审核演示环境</p>
+      </aside>
+
+      <main class="portal-main">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">ADMIN PORTAL</p>
+            <h1>审核记录</h1>
+            <p class="page-intro">查看平台中的影像审核记录。</p>
+          </div>
+          <span class="header-badge">管理员端</span>
+        </header>
+
+        <div class="notice warning-notice" role="alert">
+          <span class="notice-mark" aria-hidden="true">!</span>
+          <p><strong>当前管理员页面尚未接入登录鉴权</strong>，仅用于本地开发和演示。</p>
+        </div>
+
+        <section class="content-card">
+          <div class="card-heading">
+            <div>
+              <h2>查询条件</h2>
+              <p>筛选功能将在下一阶段接入审核记录接口。</p>
+            </div>
+            <span class="status-badge neutral">静态骨架</span>
+          </div>
+
+          <form class="filter-grid">
+            <label>
+              <span>证件类型</span>
+              <select name="doc_type">
+                <option value="">全部类型</option>
+                <option value="bank_card">银行卡</option>
+                <option value="id_card">身份证</option>
+              </select>
+            </label>
+            <label>
+              <span>审核结果</span>
+              <select name="review_result">
+                <option value="">全部结果</option>
+                <option value="pass">通过</option>
+                <option value="review">待复核</option>
+                <option value="reject">拒绝</option>
+                <option value="error">处理异常</option>
+              </select>
+            </label>
+            <label class="request-search">
+              <span>request_id</span>
+              <input name="request_id" type="search" placeholder="输入 request_id" />
+            </label>
+            <button class="primary-button filter-button" type="button" disabled>查询</button>
+          </form>
+        </section>
+
+        <section class="content-card table-card">
+          <div class="card-heading">
+            <div>
+              <h2>记录列表</h2>
+              <p>审核记录接口接入后将在这里展示数据。</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>创建时间</th>
+                  <th>request_id</th>
+                  <th>证件类型</th>
+                  <th>文件名</th>
+                  <th>OCR 模式</th>
+                  <th>审核结果</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state table-empty">
+                      <span class="empty-icon" aria-hidden="true">□</span>
+                      <strong>暂无审核记录</strong>
+                      <p>下一阶段将接入审核记录接口。</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

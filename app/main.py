@@ -20,6 +20,7 @@ from app.field_parser import parse_bank_card_fields
 from app.id_card_parser import parse_id_card_fields
 from app.logging_utils import mask_sensitive_data, sanitize_for_log
 from app.ocr_service import recognize_text
+from app.page_routes import router as page_router
 from app.quality_check import check_image_quality, get_quality_reasons
 from app.review_records import get_review_record, list_review_records, save_review_record
 from app.rule_check import review_bank_card_with_reasons
@@ -34,6 +35,7 @@ ALLOWED_BANK_CARD_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
 ALLOWED_OCR_MODES = {"mock", "paddle"}
 REVIEW_PATHS = {"/bank-card/review", "/id-card/review"}
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.include_router(page_router)
 
 
 def _quality_reasons(quality: dict) -> list[str]:
