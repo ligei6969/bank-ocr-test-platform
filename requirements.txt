@@ -11,3 +11,5 @@ locust
 httpx
 paddlepaddle
 paddleocr
+openai
+python-dotenv

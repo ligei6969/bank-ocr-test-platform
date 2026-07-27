@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import sqlite3
 from pathlib import Path
@@ -68,6 +69,37 @@ def post_bank_card(monkeypatch, tmp_path: Path, *, quality_result: str = "pass")
         )
 
 
+def configure_id_card_review(monkeypatch, *, fields: dict[str, str | None]) -> None:
+    monkeypatch.setattr(
+        "app.main.check_image_quality",
+        lambda image_path: {
+            "is_blur": False,
+            "brightness": "normal",
+            "has_glare": False,
+            "quality_result": "pass",
+        },
+    )
+    monkeypatch.setattr("app.main.recognize_text", lambda image_path, mode="mock": ["ID CARD"])
+    monkeypatch.setattr(
+        "app.main.parse_id_card_fields",
+        lambda ocr_text: {
+            "side": "front",
+            "fields": fields,
+        },
+    )
+
+
+def post_id_card(monkeypatch, tmp_path: Path, *, fields: dict[str, str | None]):
+    configure_id_card_review(monkeypatch, fields=fields)
+    image_path = tmp_path / "id_card.png"
+    create_upload_image(image_path)
+    with image_path.open("rb") as image_file:
+        return client.post(
+            "/id-card/review",
+            files={"file": (image_path.name, image_file, "image/png")},
+        )
+
+
 def test_bank_card_review_returns_request_id_and_writes_record(review_db, monkeypatch, tmp_path) -> None:
     response = post_bank_card(monkeypatch, tmp_path)
 
@@ -86,38 +118,18 @@ def test_bank_card_review_returns_request_id_and_writes_record(review_db, monkey
 
 
 def test_id_card_review_returns_request_id_and_can_be_queried(review_db, monkeypatch, tmp_path) -> None:
-    monkeypatch.setattr(
-        "app.main.check_image_quality",
-        lambda image_path: {
-            "is_blur": False,
-            "brightness": "normal",
-            "has_glare": False,
-            "quality_result": "pass",
+    response = post_id_card(
+        monkeypatch,
+        tmp_path,
+        fields={
+            "name": "LI LEI",
+            "gender": "M",
+            "nation": "HAN",
+            "birth": "1986-01-22",
+            "address": "TEST ADDRESS",
+            "id_number": "110101198601220011",
         },
     )
-    monkeypatch.setattr("app.main.recognize_text", lambda image_path, mode="mock": ["ID CARD"])
-    monkeypatch.setattr(
-        "app.main.parse_id_card_fields",
-        lambda ocr_text: {
-            "side": "front",
-            "fields": {
-                "name": "LI LEI",
-                "gender": "M",
-                "nation": "HAN",
-                "birth": "1986-01-22",
-                "address": "TEST ADDRESS",
-                "id_number": "110101198601220011",
-            },
-        },
-    )
-    image_path = tmp_path / "id_card.png"
-    create_upload_image(image_path)
-
-    with image_path.open("rb") as image_file:
-        response = client.post(
-            "/id-card/review",
-            files={"file": (image_path.name, image_file, "image/png")},
-        )
 
     assert response.status_code == 200
     request_id = response.json()["request_id"]
@@ -128,6 +140,67 @@ def test_id_card_review_returns_request_id_and_can_be_queried(review_db, monkeyp
     assert record["doc_type"] == "id_card"
     assert record["fields_json"]["id_number"] == "110101198601220011"
     assert record["review_reasons"] == []
+
+
+def test_bank_card_and_id_card_records_share_table_but_keep_distinct_payloads(
+    review_db,
+    monkeypatch,
+    tmp_path,
+) -> None:
+    bank_response = post_bank_card(monkeypatch, tmp_path)
+    id_response = post_id_card(
+        monkeypatch,
+        tmp_path,
+        fields={
+            "name": "LI LEI",
+            "gender": "M",
+            "nation": "HAN",
+            "birth": "1986-01-22",
+            "address": "TEST ADDRESS",
+            "id_number": None,
+        },
+    )
+
+    assert bank_response.status_code == 200
+    assert id_response.status_code == 200
+    bank_request_id = bank_response.json()["request_id"]
+    id_request_id = id_response.json()["request_id"]
+
+    with sqlite3.connect(review_db) as connection:
+        table_names = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'review_records'"
+            ).fetchall()
+        }
+        rows = connection.execute(
+            """
+            SELECT request_id, doc_type, review_result, review_reasons, fields_json
+            FROM review_records
+            WHERE request_id IN (?, ?)
+            """,
+            (bank_request_id, id_request_id),
+        ).fetchall()
+
+    assert table_names == {"review_records"}
+    records = {row[0]: row for row in rows}
+    assert set(records) == {bank_request_id, id_request_id}
+
+    bank_record = records[bank_request_id]
+    bank_reasons = json.loads(bank_record[3])
+    bank_fields = json.loads(bank_record[4])
+    assert bank_record[1:3] == ("bank_card", "pass")
+    assert bank_reasons == []
+    assert set(bank_fields) == {"card_number", "valid_date", "name"}
+    assert "id_number" not in bank_fields
+
+    id_record = records[id_request_id]
+    id_reasons = json.loads(id_record[3])
+    id_fields = json.loads(id_record[4])
+    assert id_record[1:3] == ("id_card", "review")
+    assert id_reasons == ["missing_id_number"]
+    assert "id_number" in id_fields
+    assert "card_number" not in id_fields
 
 
 def test_review_records_can_be_filtered_by_result(review_db, monkeypatch, tmp_path) -> None:

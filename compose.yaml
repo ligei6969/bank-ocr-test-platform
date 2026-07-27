@@ -1,0 +1,24 @@
+name: bank-ocr-platform
+
+services:
+  bank-ocr:
+    build:
+      context: .
+      target: ${DOCKER_TARGET:-mock}
+    image: bank-ocr-test-platform:${IMAGE_TAG:-local}
+    init: true
+    restart: unless-stopped
+    environment:
+      OCR_MODE: ${OCR_MODE:-mock}
+      REVIEW_RECORDS_DB_PATH: /app/reports/review_records.db
+    ports:
+      - "${BANK_OCR_BIND_HOST:-127.0.0.1}:${BANK_OCR_PORT:-8000}:8000"
+    volumes:
+      - bank_ocr_reports:/app/reports
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  bank_ocr_reports:

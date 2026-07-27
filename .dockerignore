@@ -1,0 +1,7 @@
+*
+!.dockerignore
+!Dockerfile
+!app/
+!app/**
+!requirements-runtime.txt
+!requirements-paddle.txt

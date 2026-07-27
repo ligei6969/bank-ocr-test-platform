@@ -1,0 +1,3 @@
+# Optional dependencies used by the Dockerfile's "paddle" build target.
+paddlepaddle>=3,<4
+paddleocr>=3,<4
