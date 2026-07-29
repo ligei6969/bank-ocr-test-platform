@@ -26,6 +26,12 @@ USER_PATHS = (
 )
 
 
+def get_csrf_token(client: TestClient) -> str:
+    response = client.get("/csrf-token")
+    assert response.status_code == 200
+    return response.json()["csrf_token"]
+
+
 def create_account(
     *,
     username: str,
@@ -42,11 +48,16 @@ def create_account(
 
 
 def login(client: TestClient, *, username: str, password: str):
-    return client.post(
+    token = get_csrf_token(client)
+    response = client.post(
         "/login",
         data={"username": username, "password": password},
+        headers={"X-CSRF-Token": token},
         follow_redirects=False,
     )
+    if response.status_code == 303 and response.headers["location"] == "/user":
+        client.headers["X-CSRF-Token"] = get_csrf_token(client)
+    return response
 
 
 def create_and_login_admin(client: TestClient) -> dict:
@@ -91,7 +102,9 @@ def test_admin_login_still_redirects_to_user_home_and_session_is_minimal(
     encoded_payload = cookie.split(".", maxsplit=1)[0]
     session_data = json.loads(base64.b64decode(encoded_payload))
 
-    assert session_data == {"user_id": admin["id"]}
+    assert session_data["user_id"] == admin["id"]
+    assert isinstance(session_data["csrf_token"], str)
+    assert set(session_data) == {"user_id", "csrf_token"}
     assert "role" not in cookie
     assert "password" not in cookie
     assert admin["password_hash"] not in cookie
@@ -126,7 +139,10 @@ def test_disabled_admin_cannot_log_in(
 
     assert response.status_code == 303
     assert response.headers["location"] == "/login?error=1"
-    assert isolated_auth_client.cookies.get("bank_ocr_session") is None
+    cookie = isolated_auth_client.cookies.get("bank_ocr_session")
+    assert cookie is not None
+    session_data = json.loads(base64.b64decode(cookie.split(".", maxsplit=1)[0]))
+    assert set(session_data) == {"csrf_token"}
 
 
 @pytest.mark.parametrize("path", ADMIN_PATHS)

@@ -99,8 +99,8 @@ def test_interaction_scripts_use_existing_single_file_endpoints(
     bank_script = isolated_auth_client.get("/static/portal/user_bank_card.js").text
     id_script = isolated_auth_client.get("/static/portal/user_id_card.js").text
 
-    assert 'fetch("/bank-card/review"' in bank_script
-    assert 'fetch("/id-card/review"' in id_script
+    assert 'fetchWithCsrf("/bank-card/review"' in bank_script
+    assert 'fetchWithCsrf("/id-card/review"' in id_script
     assert 'formData.append("file"' in bank_script
     assert 'formData.append("file"' in id_script
     assert "Promise.all([submitSide(front), submitSide(back)])" in id_script

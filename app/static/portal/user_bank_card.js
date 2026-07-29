@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     formData.append("file", selectedFile, selectedFile.name);
 
     try {
-      const response = await fetch("/bank-card/review", {
+      const response = await window.portalSecurity.fetchWithCsrf("/bank-card/review", {
         method: "POST",
         body: formData,
       });
@@ -187,6 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) {
         const currentRequestId = typeof data.request_id === "string" ? data.request_id : "";
+        if (response.status === 403 && data.detail === "CSRF validation failed.") {
+          renderResult(
+            "error",
+            "请求安全校验失败",
+            "请求安全校验失败，请刷新页面后重试。",
+          );
+          return;
+        }
         renderResult(
           "error",
           "处理失败",

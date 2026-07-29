@@ -18,6 +18,18 @@ TEST_PASSWORD = "Auth-test-password-123!"
 LOGIN_ERROR_LOCATION = "/login?error=1"
 
 
+def get_csrf_token(client: TestClient) -> str:
+    response = client.get("/csrf-token")
+    assert response.status_code == 200
+    return response.json()["csrf_token"]
+
+
+def decode_session(client: TestClient) -> dict:
+    cookie = client.cookies.get("bank_ocr_session")
+    assert cookie is not None
+    return json.loads(base64.b64decode(cookie.split(".", maxsplit=1)[0]))
+
+
 def create_login_user(*, is_active: bool = True) -> dict:
     return create_user(
         username=TEST_USERNAME,
@@ -32,11 +44,16 @@ def login(
     username: str = TEST_USERNAME,
     password: str = TEST_PASSWORD,
 ):
-    return client.post(
+    token = get_csrf_token(client)
+    response = client.post(
         "/login",
         data={"username": username, "password": password},
+        headers={"X-CSRF-Token": token},
         follow_redirects=False,
     )
+    if response.status_code == 303 and response.headers["location"] == "/user":
+        client.headers["X-CSRF-Token"] = get_csrf_token(client)
+    return response
 
 
 def test_login_page_contains_required_safe_controls(
@@ -53,6 +70,7 @@ def test_login_page_contains_required_safe_controls(
     assert 'type="password"' in response.text
     assert 'autocomplete="current-password"' in response.text
     assert 'href="/static/portal/portal.css"' in response.text
+    assert 'src="/static/portal/portal_security.js"' in response.text
     assert 'src="/static/portal/login.js"' in response.text
     for forbidden_text in ("test_user", "默认密码", "忘记密码", "短信验证码"):
         assert forbidden_text not in response.text
@@ -66,6 +84,8 @@ def test_login_script_uses_inline_safe_feedback(
     assert response.status_code == 200
     assert "用户名或密码错误。" in response.text
     assert "登录中..." in response.text
+    assert "请求安全校验失败，请刷新页面后重试。" in response.text
+    assert "fetchWithCsrf" in response.text
     assert "textContent" in response.text
     assert "innerHTML" not in response.text
     assert "alert(" not in response.text
@@ -90,9 +110,10 @@ def test_successful_login_redirects_and_sets_minimal_session_cookie(
 
     cookie = isolated_auth_client.cookies.get("bank_ocr_session")
     assert cookie is not None
-    encoded_payload = cookie.split(".", maxsplit=1)[0]
-    session_data = json.loads(base64.b64decode(encoded_payload))
-    assert session_data == {"user_id": user["id"]}
+    session_data = decode_session(isolated_auth_client)
+    assert session_data["user_id"] == user["id"]
+    assert isinstance(session_data["csrf_token"], str)
+    assert set(session_data) == {"user_id", "csrf_token"}
 
 
 @pytest.mark.parametrize(
@@ -153,7 +174,9 @@ def test_login_failures_share_one_response_and_create_no_valid_session(
     assert scenario
     assert response.status_code == 303
     assert response.headers["location"] == LOGIN_ERROR_LOCATION
-    assert isolated_auth_client.cookies.get("bank_ocr_session") is None
+    session_data = decode_session(isolated_auth_client)
+    assert set(session_data) == {"csrf_token"}
+    assert "user_id" not in session_data
     protected = isolated_auth_client.get("/user", follow_redirects=False)
     assert protected.status_code == 303
     assert protected.headers["location"] == "/login"

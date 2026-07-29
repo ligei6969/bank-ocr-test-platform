@@ -14,6 +14,35 @@ from app.main import app  # noqa: E402
 from app.users import create_user  # noqa: E402
 
 
+def get_csrf_token(client: TestClient) -> str:
+    """Fetch the current Session-bound CSRF token through the public endpoint."""
+    response = client.get("/csrf-token")
+    assert response.status_code == 200
+    token = response.json()["csrf_token"]
+    assert isinstance(token, str)
+    assert token
+    return token
+
+
+def login_with_csrf(
+    client: TestClient,
+    *,
+    username: str,
+    password: str,
+):
+    """Log in through the real CSRF flow and configure the rotated token."""
+    token = get_csrf_token(client)
+    response = client.post(
+        "/login",
+        data={"username": username, "password": password},
+        headers={"X-CSRF-Token": token},
+        follow_redirects=False,
+    )
+    if response.status_code == 303 and response.headers["location"] == "/user":
+        client.headers["X-CSRF-Token"] = get_csrf_token(client)
+    return response
+
+
 @pytest.fixture(autouse=True)
 def isolate_ocr_mode(monkeypatch) -> None:
     """Prevent a developer shell OCR_MODE from changing test behavior."""
@@ -43,10 +72,10 @@ def authenticated_client(
     """Provide an authenticated user client for protected portal page tests."""
     password = "Portal-test-password-123!"
     create_user(username="portal-test-user", password=password)
-    response = isolated_auth_client.post(
-        "/login",
-        data={"username": "portal-test-user", "password": password},
-        follow_redirects=False,
+    response = login_with_csrf(
+        isolated_auth_client,
+        username="portal-test-user",
+        password=password,
     )
     assert response.status_code == 303
     yield isolated_auth_client
@@ -63,10 +92,10 @@ def authenticated_admin_client(
         password=password,
         role="admin",
     )
-    response = isolated_auth_client.post(
-        "/login",
-        data={"username": "portal-test-admin", "password": password},
-        follow_redirects=False,
+    response = login_with_csrf(
+        isolated_auth_client,
+        username="portal-test-admin",
+        password=password,
     )
     assert response.status_code == 303
     assert response.headers["location"] == "/user"

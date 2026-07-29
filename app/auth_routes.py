@@ -6,8 +6,14 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
+from app.csrf import (
+    CSRF_SESSION_KEY,
+    get_or_create_csrf_token,
+    rotate_csrf_token,
+    validate_csrf_request,
+)
 from app.users import get_user_by_id, get_user_by_username, verify_password
 
 
@@ -78,6 +84,16 @@ def require_admin_api_user(request: Request) -> dict[str, Any]:
     return user
 
 
+@router.get("/csrf-token")
+def csrf_token(request: Request) -> JSONResponse:
+    """Return the Session-bound CSRF token without allowing response caching."""
+    token = get_or_create_csrf_token(request)
+    return JSONResponse(
+        content={"csrf_token": token},
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request) -> Response:
     user = get_active_session_user(request)
@@ -92,6 +108,8 @@ def login(
     username: str = Form(default=""),
     password: str = Form(default=""),
 ) -> RedirectResponse:
+    validate_csrf_request(request)
+    current_csrf_token = get_or_create_csrf_token(request)
     normalized_username = username.strip()
     user = get_user_by_username(normalized_username) if normalized_username else None
     authenticated = bool(
@@ -101,15 +119,19 @@ def login(
         and verify_password(password, user["password_hash"])
     )
 
-    request.session.clear()
     if not authenticated or user is None:
+        request.session.clear()
+        request.session[CSRF_SESSION_KEY] = current_csrf_token
         return RedirectResponse(url=LOGIN_ERROR_LOCATION, status_code=303)
 
+    request.session.clear()
     request.session["user_id"] = user["id"]
+    rotate_csrf_token(request)
     return RedirectResponse(url="/user", status_code=303)
 
 
 @router.post("/logout")
 def logout(request: Request) -> RedirectResponse:
+    validate_csrf_request(request)
     request.session.clear()
     return RedirectResponse(url="/login", status_code=303)

@@ -23,6 +23,7 @@ from app.auth_routes import (
     require_authenticated_api_user,
     router as auth_router,
 )
+from app.csrf import validate_csrf_request
 from app.field_parser import parse_bank_card_fields
 from app.id_card_parser import parse_id_card_fields
 from app.logging_utils import mask_sensitive_data, sanitize_for_log
@@ -124,7 +125,7 @@ async def add_review_request_id(request: Request, call_next):
     response = await call_next(request)
     if (
         response.status_code >= 400
-        and response.status_code != 401
+        and response.status_code not in {401, 403}
         and not request.state.record_saved
     ):
         doc_type = "bank_card" if request.url.path == "/bank-card/review" else "id_card"
@@ -242,6 +243,7 @@ def review_bank_card_image(
     request: Request,
     file: UploadFile = File(...),
     _authenticated_user: dict = Depends(require_authenticated_api_user),
+    _csrf_valid: None = Depends(validate_csrf_request),
 ) -> dict:
     request_id = request.state.request_id
     filename = file.filename or ""
@@ -355,6 +357,7 @@ def review_id_card_image(
     request: Request,
     file: UploadFile = File(...),
     _authenticated_user: dict = Depends(require_authenticated_api_user),
+    _csrf_valid: None = Depends(validate_csrf_request),
 ) -> dict:
     request_id = request.state.request_id
     filename = file.filename or ""

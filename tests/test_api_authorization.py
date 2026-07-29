@@ -22,6 +22,12 @@ REVIEW_ENDPOINTS = ("/bank-card/review", "/id-card/review")
 ADMIN_API_PATHS = ("/review-records", "/review-records/test-request-id")
 
 
+def get_csrf_token(client: TestClient) -> str:
+    response = client.get("/csrf-token")
+    assert response.status_code == 200
+    return response.json()["csrf_token"]
+
+
 def create_account_and_login(
     client: TestClient,
     *,
@@ -34,13 +40,16 @@ def create_account_and_login(
         password=password,
         role=role,
     )
+    token = get_csrf_token(client)
     response = client.post(
         "/login",
         data={"username": username, "password": password},
+        headers={"X-CSRF-Token": token},
         follow_redirects=False,
     )
     assert response.status_code == 303
     assert response.headers["location"] == "/user"
+    client.headers["X-CSRF-Token"] = get_csrf_token(client)
     return user
 
 
@@ -429,7 +438,9 @@ def test_authenticated_api_session_still_contains_only_user_id(
     assert cookie is not None
     session_data = json.loads(base64.b64decode(cookie.split(".", maxsplit=1)[0]))
 
-    assert session_data == {"user_id": user["id"]}
+    assert session_data["user_id"] == user["id"]
+    assert isinstance(session_data["csrf_token"], str)
+    assert set(session_data) == {"user_id", "csrf_token"}
     assert "role" not in session_data
 
 
