@@ -3,21 +3,30 @@
 import pytest
 from fastapi.testclient import TestClient
 
-PORTAL_ROUTES = [
+USER_PORTAL_ROUTES = [
     "/user",
     "/user/bank-card",
     "/user/id-card",
+]
+ADMIN_PORTAL_ROUTES = [
     "/admin/reviews",
     "/admin/reviews/test-request-id",
 ]
+PORTAL_ROUTES = USER_PORTAL_ROUTES + ADMIN_PORTAL_ROUTES
 
 
 @pytest.mark.parametrize("path", PORTAL_ROUTES)
 def test_portal_page_returns_html(
-    authenticated_client: TestClient,
+    request: pytest.FixtureRequest,
     path: str,
 ) -> None:
-    response = authenticated_client.get(path)
+    fixture_name = (
+        "authenticated_admin_client"
+        if path in ADMIN_PORTAL_ROUTES
+        else "authenticated_client"
+    )
+    client: TestClient = request.getfixturevalue(fixture_name)
+    response = client.get(path)
 
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
@@ -25,10 +34,16 @@ def test_portal_page_returns_html(
 
 @pytest.mark.parametrize("path", PORTAL_ROUTES)
 def test_portal_page_uses_shared_stylesheet(
-    authenticated_client: TestClient,
+    request: pytest.FixtureRequest,
     path: str,
 ) -> None:
-    response = authenticated_client.get(path)
+    fixture_name = (
+        "authenticated_admin_client"
+        if path in ADMIN_PORTAL_ROUTES
+        else "authenticated_client"
+    )
+    client: TestClient = request.getfixturevalue(fixture_name)
+    response = client.get(path)
 
     assert 'href="/static/portal/portal.css"' in response.text
 
@@ -62,17 +77,19 @@ def test_id_card_page_describes_front_and_back_upload_capability(
     assert "请分别上传人像面和国徽面" in response.text
 
 
-def test_admin_pages_show_authentication_warning(
-    isolated_auth_client: TestClient,
+def test_admin_pages_show_authorization_boundary(
+    authenticated_admin_client: TestClient,
 ) -> None:
     for path in ("/admin/reviews", "/admin/reviews/test-request-id"):
-        response = isolated_auth_client.get(path)
+        response = authenticated_admin_client.get(path)
 
-        assert "尚未接入登录鉴权" in response.text
+        assert "当前页面已限制管理员账号访问" in response.text
+        assert "审核记录接口尚未完成接口级鉴权" in response.text
 
 
 def test_primary_portal_pages_use_precision_workspace_design(
     authenticated_client: TestClient,
+    authenticated_admin_client: TestClient,
 ) -> None:
     expected_markers = {
         "/user": 'class="service-list"',
@@ -82,7 +99,12 @@ def test_primary_portal_pages_use_precision_workspace_design(
     }
 
     for path, marker in expected_markers.items():
-        response = authenticated_client.get(path)
+        client = (
+            authenticated_admin_client
+            if path in ADMIN_PORTAL_ROUTES
+            else authenticated_client
+        )
+        response = client.get(path)
 
         assert '<span class="brand-code">BOCR</span>' in response.text
         assert marker in response.text

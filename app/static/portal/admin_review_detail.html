@@ -26,6 +26,9 @@
             返回用户端
           </a>
         </nav>
+        <form class="logout-form" method="post" action="/logout">
+          <button class="logout-button" type="submit">退出登录</button>
+        </form>
         <p class="sidebar-note">本地开发与审核演示环境</p>
       </aside>
 
@@ -39,10 +42,10 @@
           <a class="text-link" href="/admin/reviews">返回审核记录</a>
         </header>
 
-        <div class="notice warning-notice" role="alert">
-          <span class="notice-mark" aria-hidden="true">!</span>
-          <p><strong>当前管理员页面尚未接入登录鉴权</strong>，仅用于本地开发和演示。</p>
-        </div>
+        <section class="notice warning-notice" aria-label="权限与安全范围提示">
+          <strong>权限范围</strong>
+          <p>当前页面已限制管理员账号访问，但审核记录接口尚未完成接口级鉴权，仅用于本地开发与演示。</p>
+        </section>
 
         <section class="loading-placeholder" id="adminReviewDetailStatus" role="status" aria-live="polite">
           <span class="empty-icon" aria-hidden="true">○</span>

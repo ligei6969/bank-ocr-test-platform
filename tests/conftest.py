@@ -50,3 +50,24 @@ def authenticated_client(
     )
     assert response.status_code == 303
     yield isolated_auth_client
+
+
+@pytest.fixture
+def authenticated_admin_client(
+    isolated_auth_client: TestClient,
+) -> Iterator[TestClient]:
+    """Provide an authenticated administrator for protected admin page tests."""
+    password = "Portal-admin-password-123!"
+    create_user(
+        username="portal-test-admin",
+        password=password,
+        role="admin",
+    )
+    response = isolated_auth_client.post(
+        "/login",
+        data={"username": "portal-test-admin", "password": password},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/user"
+    yield isolated_auth_client

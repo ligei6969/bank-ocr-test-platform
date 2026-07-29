@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
-from app.auth_routes import require_active_user
+from app.auth_routes import require_active_user, require_admin_user
 
 
 router = APIRouter()
@@ -45,10 +45,16 @@ def user_id_card(request: Request) -> Response:
 
 
 @router.get("/admin/reviews", response_class=HTMLResponse)
-def admin_reviews() -> HTMLResponse:
+def admin_reviews(request: Request) -> Response:
+    authorization_response = require_admin_user(request)
+    if authorization_response is not None:
+        return authorization_response
     return _read_portal_page("admin_reviews.html")
 
 
 @router.get("/admin/reviews/{request_id}", response_class=HTMLResponse)
-def admin_review_detail(request_id: str) -> HTMLResponse:
+def admin_review_detail(request: Request, request_id: str) -> Response:
+    authorization_response = require_admin_user(request)
+    if authorization_response is not None:
+        return authorization_response
     return _read_portal_page("admin_review_detail.html")

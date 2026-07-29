@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>无权访问 | Bank OCR</title>
+    <link rel="stylesheet" href="/static/portal/portal.css" />
+  </head>
+  <body class="page-login page-forbidden">
+    <main class="login-shell forbidden-shell">
+      <section class="login-brand-panel">
+        <a class="login-brand" href="/user" aria-label="Bank OCR 用户首页">
+          <span class="brand-code">BOCR</span>
+          <span class="brand-name">银行 OCR 测试平台</span>
+        </a>
+        <div class="login-brand-copy">
+          <p class="eyebrow">ACCESS CONTROL</p>
+          <h1>页面访问受到保护</h1>
+          <p>管理员工作区仅向具有管理员权限的账号开放。</p>
+        </div>
+        <p class="login-environment">LOCAL DEVELOPMENT ENVIRONMENT</p>
+      </section>
+
+      <section class="login-form-panel">
+        <div class="login-form-wrap">
+          <p class="section-number">403 / FORBIDDEN</p>
+          <h2>无权访问</h2>
+          <p class="login-form-intro">当前账号没有访问管理员后台的权限。</p>
+          <div class="forbidden-actions">
+            <a class="primary-button forbidden-home-link" href="/user">返回用户首页</a>
+            <form method="post" action="/logout">
+              <button class="outline-button forbidden-logout-button" type="submit">
+                退出登录
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

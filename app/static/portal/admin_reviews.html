@@ -23,6 +23,9 @@
             <span>用户端</span>
           </a>
         </nav>
+        <form class="logout-form" method="post" action="/logout">
+          <button class="logout-button" type="submit">退出登录</button>
+        </form>
         <p class="sidebar-note">ADMIN<br />PORTAL</p>
       </aside>
 
@@ -39,10 +42,10 @@
           </span>
         </header>
 
-        <div class="notice warning-notice" role="alert">
-          <strong>鉴权提示</strong>
-          <p>当前管理员页面尚未接入登录鉴权，仅用于本地开发和项目演示。</p>
-        </div>
+        <section class="notice warning-notice" aria-label="权限与安全范围提示">
+          <strong>权限范围</strong>
+          <p>当前页面已限制管理员账号访问，但审核记录接口尚未完成接口级鉴权，仅用于本地开发与演示。</p>
+        </section>
 
         <section class="admin-toolbar" aria-labelledby="filterHeading">
           <div class="toolbar-heading">

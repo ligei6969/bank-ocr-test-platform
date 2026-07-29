@@ -1553,6 +1553,26 @@ tbody tr:last-child td {
   margin-top: 4px;
 }
 
+.forbidden-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.forbidden-actions form {
+  display: grid;
+}
+
+.forbidden-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.forbidden-logout-button {
+  width: 100%;
+}
+
 @media (max-width: 1100px) {
   .workbench-grid,
   .id-workbench {

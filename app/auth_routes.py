@@ -14,7 +14,9 @@ from app.users import get_user_by_id, get_user_by_username, verify_password
 router = APIRouter()
 ROOT_DIR = Path(__file__).resolve().parents[1]
 LOGIN_PAGE_PATH = ROOT_DIR / "app" / "static" / "portal" / "login.html"
+FORBIDDEN_PAGE_PATH = ROOT_DIR / "app" / "static" / "portal" / "forbidden.html"
 LOGIN_ERROR_LOCATION = "/login?error=1"
+ADMIN_ROLE = "admin"
 
 
 def get_active_session_user(request: Request) -> dict[str, Any] | None:
@@ -39,9 +41,23 @@ def require_active_user(request: Request) -> RedirectResponse | None:
     return None
 
 
+def require_admin_user(request: Request) -> Response | None:
+    """Require an active administrator without storing role in the session."""
+    user = get_active_session_user(request)
+    if user is None:
+        return RedirectResponse(url="/login", status_code=303)
+    if user["role"] != ADMIN_ROLE:
+        return HTMLResponse(
+            content=FORBIDDEN_PAGE_PATH.read_text(encoding="utf-8"),
+            status_code=403,
+        )
+    return None
+
+
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request) -> Response:
-    if get_active_session_user(request) is not None:
+    user = get_active_session_user(request)
+    if user is not None:
         return RedirectResponse(url="/user", status_code=303)
     return HTMLResponse(content=LOGIN_PAGE_PATH.read_text(encoding="utf-8"))
 

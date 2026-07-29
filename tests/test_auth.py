@@ -244,12 +244,13 @@ def test_user_pages_contain_post_logout_form(
         assert 'action="/logout"' in response.text
 
 
-def test_admin_pages_remain_unprotected(
+def test_admin_pages_redirect_anonymous_users_to_login(
     isolated_auth_client: TestClient,
 ) -> None:
     for path in ("/admin/reviews", "/admin/reviews/test-request-id"):
         response = isolated_auth_client.get(path, follow_redirects=False)
-        assert response.status_code == 200
+        assert response.status_code == 303
+        assert response.headers["location"] == "/login"
 
 
 def test_existing_bank_card_debug_page_remains_unprotected(
