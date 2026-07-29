@@ -13,3 +13,4 @@ paddlepaddle
 paddleocr
 openai
 python-dotenv
+bcrypt
