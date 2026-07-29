@@ -179,6 +179,21 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus("正在加载审核详情", "正在根据 request_id 查询数据库记录。", "loading");
     try {
       const response = await fetch(`/review-records/${encodeURIComponent(requestId)}`);
+      if (response.status === 401) {
+        content.hidden = true;
+        setStatus("登录状态已失效", "登录状态已失效，请重新登录。", "error");
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status === 403) {
+        content.hidden = true;
+        setStatus(
+          "无权查看审核记录",
+          "当前账号没有查看审核记录的权限。",
+          "error",
+        );
+        return;
+      }
       if (response.status === 404) {
         setStatus("未找到该审核记录", "请检查 request_id 是否完整、正确。", "error");
         return;

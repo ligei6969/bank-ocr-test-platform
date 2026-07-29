@@ -9,12 +9,20 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
 from app.field_parser import parse_bank_card_fields
-from app.main import app
 
 
-client = TestClient(app)
+client: TestClient
 ARTIFACT_DIR = Path("reports") / "test-artifacts" / "api"
 BANK_CARD_DATA_DIR = Path("data") / "processed" / "bank_card"
+
+
+@pytest.fixture(autouse=True)
+def use_authenticated_user_client(
+    authenticated_client: TestClient,
+) -> None:
+    """Run existing review assertions as an isolated active user."""
+    global client
+    client = authenticated_client
 
 
 def create_upload_image(path: Path) -> None:

@@ -12,10 +12,18 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
 from app.logging_utils import mask_sensitive_data
-from app.main import app
 
 
-client = TestClient(app)
+client: TestClient
+
+
+@pytest.fixture(autouse=True)
+def use_authenticated_admin_client(
+    authenticated_admin_client: TestClient,
+) -> None:
+    """Run existing audit-record assertions as an isolated administrator."""
+    global client
+    client = authenticated_admin_client
 
 
 @pytest.fixture

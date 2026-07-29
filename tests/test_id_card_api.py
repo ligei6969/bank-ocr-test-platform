@@ -2,14 +2,24 @@
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
-from app.main import app, review_id_card
+from app.main import review_id_card
 
 
-client = TestClient(app)
+client: TestClient
 ARTIFACT_DIR = Path("reports") / "test-artifacts" / "api"
+
+
+@pytest.fixture(autouse=True)
+def use_authenticated_user_client(
+    authenticated_client: TestClient,
+) -> None:
+    """Run existing review assertions as an isolated active user."""
+    global client
+    client = authenticated_client
 
 
 def create_upload_image(path: Path) -> None:

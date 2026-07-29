@@ -155,6 +155,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(endpoint);
+      if (response.status === 401) {
+        renderTableMessage(
+          "登录状态已失效",
+          "登录状态已失效，请重新登录。",
+          "error",
+        );
+        setListStatus("error", "登录失效", "登录状态已失效，请重新登录。");
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status === 403) {
+        renderTableMessage(
+          "无权查看审核记录",
+          "当前账号没有查看审核记录的权限。",
+          "error",
+        );
+        setListStatus(
+          "error",
+          "无权限",
+          "当前账号没有查看审核记录的权限。",
+        );
+        return;
+      }
       if (!response.ok) {
         throw new Error("review list request failed");
       }

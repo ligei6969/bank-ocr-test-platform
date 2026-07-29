@@ -339,7 +339,7 @@ def test_get_logout_is_not_an_exit_endpoint_for_admin(
     assert isolated_auth_client.get("/admin/reviews").status_code == 200
 
 
-def test_review_record_read_apis_keep_existing_anonymous_behavior(
+def test_review_record_read_apis_reject_anonymous_requests_with_json(
     isolated_auth_client: TestClient,
 ) -> None:
     list_response = isolated_auth_client.get(
@@ -351,5 +351,7 @@ def test_review_record_read_apis_keep_existing_anonymous_behavior(
         follow_redirects=False,
     )
 
-    assert list_response.status_code == 200
-    assert detail_response.status_code == 404
+    assert list_response.status_code == 401
+    assert detail_response.status_code == 401
+    assert list_response.json() == {"detail": "Authentication required."}
+    assert detail_response.json() == {"detail": "Authentication required."}

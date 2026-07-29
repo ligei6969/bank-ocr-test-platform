@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Form, Request
+from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from app.users import get_user_by_id, get_user_by_username, verify_password
@@ -17,6 +17,8 @@ LOGIN_PAGE_PATH = ROOT_DIR / "app" / "static" / "portal" / "login.html"
 FORBIDDEN_PAGE_PATH = ROOT_DIR / "app" / "static" / "portal" / "forbidden.html"
 LOGIN_ERROR_LOCATION = "/login?error=1"
 ADMIN_ROLE = "admin"
+AUTHENTICATION_REQUIRED_DETAIL = "Authentication required."
+ADMINISTRATOR_REQUIRED_DETAIL = "Administrator access required."
 
 
 def get_active_session_user(request: Request) -> dict[str, Any] | None:
@@ -52,6 +54,28 @@ def require_admin_user(request: Request) -> Response | None:
             status_code=403,
         )
     return None
+
+
+def require_authenticated_api_user(request: Request) -> dict[str, Any]:
+    """Return the active API user or raise a JSON 401 response."""
+    user = get_active_session_user(request)
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail=AUTHENTICATION_REQUIRED_DETAIL,
+        )
+    return user
+
+
+def require_admin_api_user(request: Request) -> dict[str, Any]:
+    """Return the active administrator or raise a JSON API error."""
+    user = require_authenticated_api_user(request)
+    if user["role"] != ADMIN_ROLE:
+        raise HTTPException(
+            status_code=403,
+            detail=ADMINISTRATOR_REQUIRED_DETAIL,
+        )
+    return user
 
 
 @router.get("/login", response_class=HTMLResponse)

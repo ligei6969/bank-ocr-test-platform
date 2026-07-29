@@ -9,7 +9,7 @@ import shutil
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
@@ -18,7 +18,11 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.auth_routes import router as auth_router
+from app.auth_routes import (
+    require_admin_api_user,
+    require_authenticated_api_user,
+    router as auth_router,
+)
 from app.field_parser import parse_bank_card_fields
 from app.id_card_parser import parse_id_card_fields
 from app.logging_utils import mask_sensitive_data, sanitize_for_log
@@ -118,7 +122,11 @@ async def add_review_request_id(request: Request, call_next):
         request.url.path,
     )
     response = await call_next(request)
-    if response.status_code >= 400 and not request.state.record_saved:
+    if (
+        response.status_code >= 400
+        and response.status_code != 401
+        and not request.state.record_saved
+    ):
         doc_type = "bank_card" if request.url.path == "/bank-card/review" else "id_card"
         try:
             _save_audit_record(
@@ -146,7 +154,7 @@ async def add_review_request_id(request: Request, call_next):
 async def review_http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     content: dict[str, object] = {"detail": exc.detail}
     request_id = getattr(request.state, "request_id", None)
-    if request_id:
+    if request_id and exc.status_code not in {401, 403}:
         content["request_id"] = request_id
         content["review_reasons"] = [_error_reason(exc.detail)]
     return JSONResponse(
@@ -230,7 +238,11 @@ def validate_readable_image(image_path: Path) -> None:
 
 
 @app.post("/bank-card/review")
-def review_bank_card_image(request: Request, file: UploadFile = File(...)) -> dict:
+def review_bank_card_image(
+    request: Request,
+    file: UploadFile = File(...),
+    _authenticated_user: dict = Depends(require_authenticated_api_user),
+) -> dict:
     request_id = request.state.request_id
     filename = file.filename or ""
     ocr_mode: str | None = None
@@ -339,7 +351,11 @@ def review_id_card(side: str, fields: dict, quality: dict) -> str:
 
 
 @app.post("/id-card/review")
-def review_id_card_image(request: Request, file: UploadFile = File(...)) -> dict:
+def review_id_card_image(
+    request: Request,
+    file: UploadFile = File(...),
+    _authenticated_user: dict = Depends(require_authenticated_api_user),
+) -> dict:
     request_id = request.state.request_id
     filename = file.filename or ""
     ocr_mode: str | None = None
@@ -429,14 +445,17 @@ def review_id_card_image(request: Request, file: UploadFile = File(...)) -> dict
 
 @app.get("/review-records")
 def query_review_records(
+    request: Request,
     doc_type: str | None = Query(default=None),
     review_result: str | None = Query(default=None),
 ) -> list[dict]:
+    require_admin_api_user(request)
     return list_review_records(doc_type=doc_type, review_result=review_result)
 
 
 @app.get("/review-records/{request_id}")
-def read_review_record(request_id: str) -> dict:
+def read_review_record(request: Request, request_id: str) -> dict:
+    require_admin_api_user(request)
     record = get_review_record(request_id)
     if record is None:
         raise HTTPException(status_code=404, detail="Review record not found.")

@@ -167,6 +167,16 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
+      if (response.status === 401) {
+        renderResult(
+          "error",
+          "登录状态已失效",
+          "登录状态已失效，请重新登录。",
+        );
+        window.location.href = "/login";
+        return;
+      }
+
       let data;
       try {
         data = await response.json();
