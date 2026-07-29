@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
+
+from app.auth_routes import require_active_user
 
 
 router = APIRouter()
@@ -19,17 +21,26 @@ def _read_portal_page(filename: str) -> HTMLResponse:
 
 
 @router.get("/user", response_class=HTMLResponse)
-def user_home() -> HTMLResponse:
+def user_home(request: Request) -> Response:
+    redirect = require_active_user(request)
+    if redirect is not None:
+        return redirect
     return _read_portal_page("user_home.html")
 
 
 @router.get("/user/bank-card", response_class=HTMLResponse)
-def user_bank_card() -> HTMLResponse:
+def user_bank_card(request: Request) -> Response:
+    redirect = require_active_user(request)
+    if redirect is not None:
+        return redirect
     return _read_portal_page("user_bank_card.html")
 
 
 @router.get("/user/id-card", response_class=HTMLResponse)
-def user_id_card() -> HTMLResponse:
+def user_id_card(request: Request) -> Response:
+    redirect = require_active_user(request)
+    if redirect is not None:
+        return redirect
     return _read_portal_page("user_id_card.html")
 
 

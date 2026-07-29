@@ -11,6 +11,7 @@ from app.review_records import save_review_record
 from app.users import (
     UserAlreadyExistsError,
     create_user,
+    get_user_by_id,
     get_user_by_username,
     hash_password,
     initialize_user_database,
@@ -91,6 +92,8 @@ def test_get_user_by_username_returns_user_and_handles_missing(user_db: Path) ->
     assert found == created
     assert found["role"] == "user"
     assert found["is_active"] is True
+    assert get_user_by_id(created["id"]) == created
+    assert get_user_by_id(0) is None
     assert get_user_by_username("missing") is None
 
 

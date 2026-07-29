@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import secrets
 import shutil
 from pathlib import Path
 from uuid import uuid4
@@ -15,7 +16,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
+from starlette.middleware.sessions import SessionMiddleware
 
+from app.auth_routes import router as auth_router
 from app.field_parser import parse_bank_card_fields
 from app.id_card_parser import parse_id_card_fields
 from app.logging_utils import mask_sensitive_data, sanitize_for_log
@@ -26,7 +29,6 @@ from app.review_records import get_review_record, list_review_records, save_revi
 from app.rule_check import review_bank_card_with_reasons
 
 
-app = FastAPI(title="Bank OCR Test Platform")
 logger = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).resolve().parents[1]
 UPLOAD_DIR = ROOT_DIR / "reports" / "tmp_uploads"
@@ -34,7 +36,28 @@ STATIC_DIR = ROOT_DIR / "app" / "static"
 ALLOWED_BANK_CARD_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
 ALLOWED_OCR_MODES = {"mock", "paddle"}
 REVIEW_PATHS = {"/bank-card/review", "/id-card/review"}
+
+
+def _get_session_secret() -> str:
+    configured_secret = os.getenv("SESSION_SECRET")
+    if configured_secret:
+        return configured_secret
+    logger.warning(
+        "SESSION_SECRET is not set; using an ephemeral development session key."
+    )
+    return secrets.token_urlsafe(32)
+
+
+app = FastAPI(title="Bank OCR Test Platform")
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=_get_session_secret(),
+    session_cookie="bank_ocr_session",
+    same_site="lax",
+    https_only=False,
+)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.include_router(auth_router)
 app.include_router(page_router)
 
 

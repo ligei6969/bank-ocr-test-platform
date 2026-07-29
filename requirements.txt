@@ -14,3 +14,4 @@ paddleocr
 openai
 python-dotenv
 bcrypt
+itsdangerous

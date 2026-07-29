@@ -84,6 +84,20 @@ def get_user_by_username(username: str) -> dict[str, Any] | None:
     return _deserialize_user(row) if row else None
 
 
+def get_user_by_id(user_id: int) -> dict[str, Any] | None:
+    """Look up one user by its numeric primary key."""
+    if isinstance(user_id, bool) or not isinstance(user_id, int) or user_id < 1:
+        return None
+
+    initialize_user_database()
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT * FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+    return _deserialize_user(row) if row else None
+
+
 def create_user(
     *,
     username: str,
