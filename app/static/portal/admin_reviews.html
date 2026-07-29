@@ -3,60 +3,60 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>审核记录</title>
+    <title>管理员审核记录</title>
     <link rel="stylesheet" href="/static/portal/portal.css" />
   </head>
-  <body>
+  <body class="page-admin-reviews">
     <div class="portal-shell">
       <aside class="sidebar admin-sidebar" aria-label="管理员端导航">
-        <a class="brand" href="/admin/reviews">
-          <span class="brand-mark" aria-hidden="true">BO</span>
-          <span>
-            <strong>Bank OCR</strong>
-            <small>管理员控制台</small>
-          </span>
+        <a class="brand" href="/admin/reviews" aria-label="Bank OCR 管理端">
+          <span class="brand-code">BOCR</span>
+          <span class="brand-name">审核控制台</span>
         </a>
         <nav class="side-nav">
           <a class="nav-item active" href="/admin/reviews" aria-current="page">
-            <span class="nav-icon" aria-hidden="true">▦</span>
-            审核记录
+            <span class="nav-index">01</span>
+            <span>审核记录</span>
           </a>
           <a class="nav-item" href="/user">
-            <span class="nav-icon" aria-hidden="true">↩</span>
-            返回用户端
+            <span class="nav-index">02</span>
+            <span>用户端</span>
           </a>
         </nav>
-        <p class="sidebar-note">本地开发与审核演示环境</p>
+        <p class="sidebar-note">ADMIN<br />PORTAL</p>
       </aside>
 
-      <main class="portal-main">
-        <header class="page-header">
+      <main class="portal-main admin-main">
+        <header class="page-header admin-page-header">
           <div>
-            <p class="eyebrow">ADMIN PORTAL</p>
+            <p class="eyebrow">ADMIN REVIEW WORKSPACE</p>
             <h1>审核记录</h1>
-            <p class="page-intro">查看平台中的影像审核记录。</p>
+            <p class="page-intro">查询数据库当前保存的影像审核记录。</p>
           </div>
-          <span class="header-badge">管理员端</span>
+          <span class="environment-tag admin-environment">
+            <span>环境</span>
+            <strong>本地开发</strong>
+          </span>
         </header>
 
         <div class="notice warning-notice" role="alert">
-          <span class="notice-mark" aria-hidden="true">!</span>
-          <p><strong>当前管理员页面尚未接入登录鉴权</strong>，仅用于本地开发和演示。</p>
+          <strong>鉴权提示</strong>
+          <p>当前管理员页面尚未接入登录鉴权，仅用于本地开发和项目演示。</p>
         </div>
 
-        <section class="content-card">
-          <div class="card-heading">
+        <section class="admin-toolbar" aria-labelledby="filterHeading">
+          <div class="toolbar-heading">
             <div>
-              <h2>查询条件</h2>
-              <p>筛选功能将在下一阶段接入审核记录接口。</p>
+              <p class="section-number">01 / 筛选</p>
+              <h2 id="filterHeading">记录查询</h2>
             </div>
-            <span class="status-badge neutral">静态骨架</span>
+            <span class="status-badge neutral" id="adminReviewListStatus" data-state="idle">等待加载</span>
           </div>
 
-          <form class="filter-grid">
+          <form class="filter-grid" id="adminReviewFilterForm">
             <label>
               <span>证件类型</span>
-              <select name="doc_type">
+              <select id="adminDocTypeFilter" name="doc_type">
                 <option value="">全部类型</option>
                 <option value="bank_card">银行卡</option>
                 <option value="id_card">身份证</option>
@@ -64,7 +64,7 @@
             </label>
             <label>
               <span>审核结果</span>
-              <select name="review_result">
+              <select id="adminReviewResultFilter" name="review_result">
                 <option value="">全部结果</option>
                 <option value="pass">通过</option>
                 <option value="review">待复核</option>
@@ -72,22 +72,37 @@
                 <option value="error">处理异常</option>
               </select>
             </label>
+            <div class="filter-actions">
+              <button class="primary-button filter-button" id="adminFilterButton" type="submit">查询</button>
+              <button class="outline-button filter-button" id="adminResetButton" type="button">重置</button>
+            </div>
+          </form>
+
+          <form class="request-lookup" id="adminRequestSearchForm">
             <label class="request-search">
-              <span>request_id</span>
-              <input name="request_id" type="search" placeholder="输入 request_id" />
+              <span>request_id 精确查询</span>
+              <input
+                id="adminRequestIdSearch"
+                name="request_id"
+                type="search"
+                autocomplete="off"
+                placeholder="输入完整 request_id"
+              />
             </label>
-            <button class="primary-button filter-button" type="button" disabled>查询</button>
+            <button class="outline-button" type="submit">查看指定记录</button>
           </form>
         </section>
 
-        <section class="content-card table-card">
-          <div class="card-heading">
+        <section class="table-card" aria-labelledby="recordsHeading">
+          <div class="table-heading">
             <div>
-              <h2>记录列表</h2>
-              <p>审核记录接口接入后将在这里展示数据。</p>
+              <p class="section-number">02 / 数据</p>
+              <h2 id="recordsHeading">审核记录列表</h2>
             </div>
+            <p>数据来自现有审核记录接口，页面不提供修改或删除操作。</p>
           </div>
-          <div class="table-wrap">
+          <div class="table-message" id="adminReviewListMessage" role="status" aria-live="polite"></div>
+          <div class="table-wrap" id="adminReviewTableWrap">
             <table>
               <thead>
                 <tr>
@@ -100,21 +115,12 @@
                   <th>操作</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td colspan="7">
-                    <div class="empty-state table-empty">
-                      <span class="empty-icon" aria-hidden="true">□</span>
-                      <strong>暂无审核记录</strong>
-                      <p>下一阶段将接入审核记录接口。</p>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
+              <tbody id="adminReviewTableBody"></tbody>
             </table>
           </div>
         </section>
       </main>
     </div>
+    <script defer src="/static/portal/admin_reviews.js"></script>
   </body>
 </html>

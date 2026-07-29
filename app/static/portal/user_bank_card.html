@@ -3,88 +3,147 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>银行卡认证</title>
+    <title>银行卡影像认证</title>
     <link rel="stylesheet" href="/static/portal/portal.css" />
   </head>
-  <body>
+  <body class="page-bank-card">
     <div class="portal-shell">
       <aside class="sidebar" aria-label="用户端导航">
-        <a class="brand" href="/user">
-          <span class="brand-mark" aria-hidden="true">认证</span>
-          <span>
-            <strong>影像认证</strong>
-            <small>影像认证平台</small>
-          </span>
+        <a class="brand" href="/user" aria-label="Bank OCR 用户首页">
+          <span class="brand-code">BOCR</span>
+          <span class="brand-name">影像审核</span>
         </a>
         <nav class="side-nav">
           <a class="nav-item" href="/user">
-            <span class="nav-icon" aria-hidden="true">⌂</span>
-            业务首页
+            <span class="nav-index">01</span>
+            <span>首页</span>
           </a>
           <a class="nav-item active" href="/user/bank-card" aria-current="page">
-            <span class="nav-icon" aria-hidden="true">▣</span>
-            银行卡认证
+            <span class="nav-index">02</span>
+            <span>银行卡</span>
           </a>
           <a class="nav-item" href="/user/id-card">
-            <span class="nav-icon" aria-hidden="true">▤</span>
-            身份证认证
+            <span class="nav-index">03</span>
+            <span>身份证</span>
           </a>
         </nav>
-        <p class="sidebar-note">安全、清晰地完成影像资料认证</p>
+        <p class="sidebar-note">USER<br />PORTAL</p>
       </aside>
 
-      <main class="portal-main">
-        <header class="page-header">
-          <div>
-            <p class="eyebrow">BANK CARD VERIFICATION</p>
-            <h1>银行卡认证</h1>
-            <p class="page-intro">上传银行卡图片，完成认证资料提交。</p>
-          </div>
-          <a class="text-link" href="/user">返回业务首页</a>
-        </header>
+      <main class="portal-main workbench-main">
+        <div class="workbench-grid bank-workbench">
+          <section class="task-column" aria-labelledby="bankCardPageTitle">
+            <header class="task-header">
+              <a class="back-link" href="/user">返回业务首页</a>
+              <p class="eyebrow">BANK CARD VERIFICATION</p>
+              <h1 id="bankCardPageTitle">银行卡影像认证</h1>
+              <p>上传影像并提交审核。用户端仅提供必要结果提示。</p>
+            </header>
 
-        <div class="form-layout">
-          <section class="content-card">
-            <div class="card-heading">
-              <div>
-                <h2>上传银行卡图片</h2>
-                <p>支持 JPG、JPEG、PNG 格式</p>
+            <section class="task-step">
+              <div class="step-heading">
+                <span>01</span>
+                <div>
+                  <h2>图片上传</h2>
+                  <p>支持 JPG、JPEG、PNG 格式</p>
+                </div>
               </div>
-              <span class="step-badge">步骤 1</span>
-            </div>
+              <label class="upload-zone interactive-upload" id="bankCardDropZone" for="bankCardFileInput">
+                <input
+                  class="file-input"
+                  id="bankCardFileInput"
+                  type="file"
+                  name="file"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                />
+                <span class="upload-kicker">DROP FILE</span>
+                <strong>点击选择或拖入银行卡图片</strong>
+                <span>单张图片 · JPG / JPEG / PNG</span>
+              </label>
+            </section>
 
-            <div class="upload-zone" aria-label="银行卡图片上传区域">
-              <span class="upload-icon" aria-hidden="true">↑</span>
-              <strong>选择银行卡图片</strong>
-              <span>页面骨架阶段暂不开放文件选择</span>
-            </div>
+            <section class="task-step">
+              <div class="step-heading">
+                <span>02</span>
+                <div>
+                  <h2>文件确认</h2>
+                  <p>提交前可删除并重新选择</p>
+                </div>
+              </div>
+              <div class="selected-file selected-file-empty" id="bankCardSelectedFile" hidden>
+                <div class="file-details">
+                  <span>已选择图片</span>
+                  <strong id="bankCardFileName">--</strong>
+                </div>
+                <button class="secondary-button" id="bankCardRemoveButton" type="button">删除</button>
+              </div>
+              <p class="file-empty-hint">选择图片后，文件名和预览将在此页面同步显示。</p>
+            </section>
 
-            <ul class="upload-tips">
-              <li>请保证图片清晰，银行卡文字和图案可辨认。</li>
-              <li>请保持卡片边缘完整，不要裁切或遮挡。</li>
-              <li>拍摄时请避免反光、阴影和明显倾斜。</li>
-            </ul>
+            <section class="task-step capture-guidance">
+              <div class="step-heading">
+                <span>03</span>
+                <div>
+                  <h2>拍摄要求</h2>
+                  <p>清晰、完整、无反光</p>
+                </div>
+              </div>
+              <ul class="upload-tips">
+                <li><strong>保持清晰</strong><span>银行卡文字和图案应可辨认</span></li>
+                <li><strong>边缘完整</strong><span>不要裁切、折叠或遮挡卡片</span></li>
+                <li><strong>光线均匀</strong><span>避免反光、阴影和明显倾斜</span></li>
+              </ul>
+            </section>
 
-            <button class="primary-button" type="button" disabled>提交认证</button>
-            <p class="stage-note">本阶段只完成页面骨架，提交认证按钮暂未连接审核接口。</p>
+            <button class="primary-button task-submit" id="bankCardSubmitButton" type="button" disabled>
+              提交认证
+            </button>
+            <p class="stage-note">提交后请等待处理完成，请勿重复点击。</p>
           </section>
 
-          <aside class="content-card result-card" aria-label="审核结果">
-            <div class="card-heading">
+          <section class="preview-stage bank-preview-stage" aria-label="银行卡影像预览和审核状态">
+            <header class="preview-header">
               <div>
-                <h2>认证结果</h2>
-                <p>提交后将在这里显示处理状态</p>
+                <p class="eyebrow">LOCAL PREVIEW</p>
+                <h2>影像预览</h2>
               </div>
-              <span class="status-badge neutral">未提交</span>
+              <span>仅在当前浏览器显示</span>
+            </header>
+
+            <div class="bank-card-canvas">
+              <img
+                class="bank-card-reference"
+                src="/static/portal/assets/synthetic-bank-card.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img id="bankCardPreview" alt="已选择的银行卡图片预览" />
+              <p>选择图片后将显示实际上传影像</p>
             </div>
-            <div class="empty-state compact">
-              <span class="empty-icon" aria-hidden="true">○</span>
-              <strong>暂无认证结果</strong>
-              <p>请先上传银行卡图片并提交认证。</p>
+
+            <div class="status-key" aria-label="可能的审核状态">
+              <span data-state="idle">未提交</span>
+              <span data-state="loading">处理中</span>
+              <span data-state="pass">通过</span>
+              <span data-state="review">待复核</span>
+              <span data-state="reject">拒绝</span>
+              <span data-state="error">错误</span>
             </div>
-          </aside>
+
+            <aside class="result-drawer" id="bankCardResult" data-state="idle" aria-live="polite">
+              <div class="result-drawer-heading">
+                <span class="status-badge neutral" id="bankCardResultStatus" data-state="idle">未提交</span>
+                <strong id="bankCardResultTitle">等待提交</strong>
+              </div>
+              <p id="bankCardResultMessage">请先上传银行卡图片并提交认证。</p>
+              <p class="request-id" id="bankCardRequestRow" hidden>
+                request_id · <span id="bankCardRequestId"></span>
+              </p>
+            </aside>
+          </section>
         </div>
       </main>
     </div>
+    <script defer src="/static/portal/user_bank_card.js"></script>
   </body>
 </html>

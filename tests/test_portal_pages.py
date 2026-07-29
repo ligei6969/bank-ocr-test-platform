@@ -47,11 +47,11 @@ def test_user_home_contains_business_links() -> None:
     assert "身份证认证" in response.text
 
 
-def test_id_card_page_describes_single_image_capability() -> None:
+def test_id_card_page_describes_front_and_back_upload_capability() -> None:
     response = client.get("/user/id-card")
 
-    assert "当前版本支持单张身份证图片审核" in response.text
-    assert "自动判断人像面或国徽面" in response.text
+    assert "分别上传身份证人像面和国徽面" in response.text
+    assert "请分别上传人像面和国徽面" in response.text
 
 
 def test_admin_pages_show_authentication_warning() -> None:
@@ -59,3 +59,27 @@ def test_admin_pages_show_authentication_warning() -> None:
         response = client.get(path)
 
         assert "尚未接入登录鉴权" in response.text
+
+
+def test_primary_portal_pages_use_precision_workspace_design() -> None:
+    expected_markers = {
+        "/user": 'class="service-list"',
+        "/user/bank-card": 'class="workbench-grid bank-workbench"',
+        "/user/id-card": 'class="workbench-grid id-workbench"',
+        "/admin/reviews": 'class="admin-toolbar"',
+    }
+
+    for path, marker in expected_markers.items():
+        response = client.get(path)
+
+        assert '<span class="brand-code">BOCR</span>' in response.text
+        assert marker in response.text
+
+
+def test_bank_card_page_uses_safe_synthetic_preview_asset() -> None:
+    page = client.get("/user/bank-card")
+    asset = client.get("/static/portal/assets/synthetic-bank-card.png")
+
+    assert 'src="/static/portal/assets/synthetic-bank-card.png"' in page.text
+    assert asset.status_code == 200
+    assert asset.headers["content-type"] == "image/png"

@@ -44,39 +44,50 @@
           <p><strong>当前管理员页面尚未接入登录鉴权</strong>，仅用于本地开发和演示。</p>
         </div>
 
-        <div class="detail-grid" aria-label="审核详情占位区域">
-          <section class="content-card detail-card">
+        <section class="loading-placeholder" id="adminReviewDetailStatus" role="status" aria-live="polite">
+          <span class="empty-icon" aria-hidden="true">○</span>
+          <strong id="adminReviewDetailStatusTitle">正在加载审核详情</strong>
+          <p id="adminReviewDetailStatusMessage">正在根据 request_id 查询数据库记录。</p>
+        </section>
+
+        <div class="detail-grid" id="adminReviewDetailContent" aria-label="审核详情" hidden>
+          <section class="content-card detail-card detail-card-wide">
             <h2>基本信息</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+            <dl class="admin-detail-list">
+              <div><dt>request_id</dt><dd id="detailRequestId"></dd></div>
+              <div><dt>证件类型</dt><dd id="detailDocType"></dd></div>
+              <div><dt>文件名</dt><dd id="detailFilename"></dd></div>
+              <div><dt>OCR 模式</dt><dd id="detailOcrMode"></dd></div>
+              <div><dt>创建时间</dt><dd id="detailCreatedAt"></dd></div>
+            </dl>
           </section>
+
           <section class="content-card detail-card">
             <h2>审核结果</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+            <dl class="admin-detail-list">
+              <div><dt>审核结果</dt><dd id="detailReviewResult"></dd></div>
+              <div><dt>质量结果</dt><dd id="detailQualityResult"></dd></div>
+              <div><dt>错误信息</dt><dd id="detailErrorMessage"></dd></div>
+            </dl>
           </section>
+
           <section class="content-card detail-card">
-            <h2>图片质量</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h2>质量原因</h2>
+            <ul class="reason-list" id="detailQualityReasons"></ul>
           </section>
+
           <section class="content-card detail-card">
             <h2>审核原因</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+            <ul class="reason-list" id="detailReviewReasons"></ul>
           </section>
-          <section class="content-card detail-card">
+
+          <section class="content-card detail-card detail-card-wide">
             <h2>解析字段</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
-          </section>
-          <section class="content-card detail-card">
-            <h2>错误信息</h2>
-            <div class="skeleton-lines" aria-hidden="true"><span></span><span></span></div>
+            <div class="admin-fields" id="detailFieldsJson"></div>
           </section>
         </div>
-
-        <section class="loading-placeholder">
-          <span class="empty-icon" aria-hidden="true">○</span>
-          <strong>审核详情尚未加载</strong>
-          <p>下一阶段将根据 request_id 查询审核详情。</p>
-        </section>
       </main>
     </div>
+    <script defer src="/static/portal/admin_review_detail.js"></script>
   </body>
 </html>

@@ -3,93 +3,194 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>身份证图片审核</title>
+    <title>身份证影像审核</title>
     <link rel="stylesheet" href="/static/portal/portal.css" />
   </head>
-  <body>
+  <body class="page-id-card">
     <div class="portal-shell">
       <aside class="sidebar" aria-label="用户端导航">
-        <a class="brand" href="/user">
-          <span class="brand-mark" aria-hidden="true">认证</span>
-          <span>
-            <strong>影像认证</strong>
-            <small>影像认证平台</small>
-          </span>
+        <a class="brand" href="/user" aria-label="Bank OCR 用户首页">
+          <span class="brand-code">BOCR</span>
+          <span class="brand-name">影像审核</span>
         </a>
         <nav class="side-nav">
           <a class="nav-item" href="/user">
-            <span class="nav-icon" aria-hidden="true">⌂</span>
-            业务首页
+            <span class="nav-index">01</span>
+            <span>首页</span>
           </a>
           <a class="nav-item" href="/user/bank-card">
-            <span class="nav-icon" aria-hidden="true">▣</span>
-            银行卡认证
+            <span class="nav-index">02</span>
+            <span>银行卡</span>
           </a>
           <a class="nav-item active" href="/user/id-card" aria-current="page">
-            <span class="nav-icon" aria-hidden="true">▤</span>
-            身份证认证
+            <span class="nav-index">03</span>
+            <span>身份证</span>
           </a>
         </nav>
-        <p class="sidebar-note">安全、清晰地完成影像资料认证</p>
+        <p class="sidebar-note">USER<br />PORTAL</p>
       </aside>
 
-      <main class="portal-main">
-        <header class="page-header">
-          <div>
-            <p class="eyebrow">ID CARD REVIEW</p>
-            <h1>身份证图片审核</h1>
-            <p class="page-intro">上传一张身份证图片，提交证件审核。</p>
-          </div>
-          <a class="text-link" href="/user">返回业务首页</a>
-        </header>
+      <main class="portal-main workbench-main">
+        <div class="workbench-grid id-workbench">
+          <section class="task-column id-task-column" aria-labelledby="idCardPageTitle">
+            <header class="task-header">
+              <a class="back-link" href="/user">返回业务首页</a>
+              <p class="eyebrow">ID CARD VERIFICATION</p>
+              <h1 id="idCardPageTitle">身份证影像审核</h1>
+              <p>分别上传身份证人像面和国徽面，提交完整证件审核。</p>
+            </header>
 
-        <div class="notice info-notice" role="note">
-          <span class="notice-mark" aria-hidden="true">i</span>
-          <p><strong>当前版本支持单张身份证图片审核</strong>，系统会自动判断人像面或国徽面。</p>
-        </div>
-
-        <div class="form-layout">
-          <section class="content-card">
-            <div class="card-heading">
-              <div>
-                <h2>上传身份证图片</h2>
-                <p>人像面或国徽面均可上传</p>
-              </div>
-              <span class="step-badge">单张上传</span>
+            <div class="inline-notice" role="note">
+              <strong>双面独立识别</strong>
+              <p>请分别上传人像面和国徽面，系统会识别证件面并提示放置是否正确。</p>
             </div>
 
-            <div class="upload-zone id-card-zone" aria-label="身份证图片上传区域">
-              <span class="upload-icon" aria-hidden="true">↑</span>
-              <strong>选择身份证图片</strong>
-              <span>页面骨架阶段暂不开放文件选择</span>
+            <div class="id-upload-stack">
+              <section class="id-card-side-upload" aria-labelledby="idCardFrontHeading">
+                <div class="step-heading compact-heading">
+                  <span>01</span>
+                  <div>
+                    <h2 id="idCardFrontHeading">人像面</h2>
+                    <p>包含头像、姓名和身份证号码的一面</p>
+                  </div>
+                </div>
+                <label
+                  class="upload-zone id-card-zone interactive-upload"
+                  id="idCardFrontDropZone"
+                  for="idCardFrontFileInput"
+                >
+                  <input
+                    class="file-input"
+                    id="idCardFrontFileInput"
+                    type="file"
+                    name="front_file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                  />
+                  <span class="upload-kicker">PORTRAIT SIDE</span>
+                  <strong>选择或拖入人像面图片</strong>
+                  <span>JPG / JPEG / PNG</span>
+                </label>
+                <div class="selected-file id-side-selected-file" id="idCardFrontSelectedFile" hidden>
+                  <div class="preview-box id-preview-box">
+                    <img id="idCardFrontPreview" alt="身份证人像面图片预览" />
+                  </div>
+                  <div class="file-details">
+                    <span>人像面文件</span>
+                    <strong id="idCardFrontFileName">--</strong>
+                  </div>
+                  <button class="secondary-button" id="idCardFrontRemoveButton" type="button">删除</button>
+                </div>
+              </section>
+
+              <section class="id-card-side-upload" aria-labelledby="idCardBackHeading">
+                <div class="step-heading compact-heading">
+                  <span>02</span>
+                  <div>
+                    <h2 id="idCardBackHeading">国徽面</h2>
+                    <p>包含国徽、签发机关和有效期限的一面</p>
+                  </div>
+                </div>
+                <label
+                  class="upload-zone id-card-zone interactive-upload"
+                  id="idCardBackDropZone"
+                  for="idCardBackFileInput"
+                >
+                  <input
+                    class="file-input"
+                    id="idCardBackFileInput"
+                    type="file"
+                    name="back_file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                  />
+                  <span class="upload-kicker">EMBLEM SIDE</span>
+                  <strong>选择或拖入国徽面图片</strong>
+                  <span>JPG / JPEG / PNG</span>
+                </label>
+                <div class="selected-file id-side-selected-file" id="idCardBackSelectedFile" hidden>
+                  <div class="preview-box id-preview-box">
+                    <img id="idCardBackPreview" alt="身份证国徽面图片预览" />
+                  </div>
+                  <div class="file-details">
+                    <span>国徽面文件</span>
+                    <strong id="idCardBackFileName">--</strong>
+                  </div>
+                  <button class="secondary-button" id="idCardBackRemoveButton" type="button">删除</button>
+                </div>
+              </section>
             </div>
 
-            <ul class="upload-tips">
-              <li>人像面或国徽面均可单独提交审核。</li>
-              <li>系统会根据 OCR 文本判断证件面。</li>
-              <li>请保持证件完整、文字清晰，并避免遮挡和反光。</li>
-            </ul>
-
-            <button class="primary-button" type="button" disabled>提交审核</button>
-            <p class="stage-note">本阶段只完成页面骨架，提交审核按钮暂未连接审核接口。</p>
+            <button class="primary-button task-submit" id="idCardSubmitButton" type="button" disabled>
+              提交双面审核
+            </button>
+            <p class="stage-note">两面图片将分别调用现有身份证审核接口，并生成独立 request_id。</p>
           </section>
 
-          <aside class="content-card result-card" aria-label="审核结果">
-            <div class="card-heading">
+          <section class="preview-stage id-result-stage" aria-label="身份证双面审核结果">
+            <header class="preview-header">
               <div>
-                <h2>审核结果</h2>
-                <p>提交后将在这里显示处理状态</p>
+                <p class="eyebrow">REVIEW STATUS</p>
+                <h2>双面处理状态</h2>
               </div>
-              <span class="status-badge neutral">未提交</span>
+              <span class="status-badge neutral" id="idCardResultStatus" data-state="idle">未提交</span>
+            </header>
+
+            <div class="id-stage-guide">
+              <div>
+                <span>01</span>
+                <strong>人像面</strong>
+                <p>确认头像、姓名与证件号码区域完整。</p>
+              </div>
+              <div>
+                <span>02</span>
+                <strong>国徽面</strong>
+                <p>确认国徽、签发机关与有效期限区域完整。</p>
+              </div>
+              <div>
+                <span>03</span>
+                <strong>提交审核</strong>
+                <p>系统会分别识别两张影像并汇总处理状态。</p>
+              </div>
             </div>
-            <div class="empty-state compact">
-              <span class="empty-icon" aria-hidden="true">○</span>
-              <strong>暂无审核结果</strong>
-              <p>请先上传一张身份证图片并提交审核。</p>
+
+            <div class="id-side-results" id="idCardResult" data-state="idle" aria-live="polite">
+              <section class="id-side-result" id="idCardFrontResult" data-state="idle">
+                <div class="id-side-result-heading">
+                  <div>
+                    <span>01 / PORTRAIT</span>
+                    <strong>人像面</strong>
+                  </div>
+                  <span id="idCardFrontResultStatus">未提交</span>
+                </div>
+                <p id="idCardFrontResultMessage">请先上传人像面图片。</p>
+                <p class="result-meta" id="idCardFrontDetectedSideRow" hidden>
+                  实际识别 · <span id="idCardFrontDetectedSide"></span>
+                </p>
+                <p class="request-id" id="idCardFrontRequestRow" hidden>
+                  request_id · <span id="idCardFrontRequestId"></span>
+                </p>
+              </section>
+
+              <section class="id-side-result" id="idCardBackResult" data-state="idle">
+                <div class="id-side-result-heading">
+                  <div>
+                    <span>02 / EMBLEM</span>
+                    <strong>国徽面</strong>
+                  </div>
+                  <span id="idCardBackResultStatus">未提交</span>
+                </div>
+                <p id="idCardBackResultMessage">请先上传国徽面图片。</p>
+                <p class="result-meta" id="idCardBackDetectedSideRow" hidden>
+                  实际识别 · <span id="idCardBackDetectedSide"></span>
+                </p>
+                <p class="request-id" id="idCardBackRequestRow" hidden>
+                  request_id · <span id="idCardBackRequestId"></span>
+                </p>
+              </section>
             </div>
-          </aside>
+          </section>
         </div>
       </main>
     </div>
+    <script defer src="/static/portal/user_id_card.js"></script>
   </body>
 </html>

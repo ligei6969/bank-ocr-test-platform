@@ -6,75 +6,95 @@
     <title>银行影像认证中心</title>
     <link rel="stylesheet" href="/static/portal/portal.css" />
   </head>
-  <body>
+  <body class="page-user-home">
     <div class="portal-shell">
       <aside class="sidebar" aria-label="用户端导航">
-        <a class="brand" href="/user">
-          <span class="brand-mark" aria-hidden="true">认证</span>
-          <span>
-            <strong>影像认证</strong>
-            <small>影像认证平台</small>
-          </span>
+        <a class="brand" href="/user" aria-label="Bank OCR 用户首页">
+          <span class="brand-code">BOCR</span>
+          <span class="brand-name">影像审核</span>
         </a>
         <nav class="side-nav">
           <a class="nav-item active" href="/user" aria-current="page">
-            <span class="nav-icon" aria-hidden="true">⌂</span>
-            业务首页
+            <span class="nav-index">01</span>
+            <span>首页</span>
           </a>
           <a class="nav-item" href="/user/bank-card">
-            <span class="nav-icon" aria-hidden="true">▣</span>
-            银行卡认证
+            <span class="nav-index">02</span>
+            <span>银行卡</span>
           </a>
           <a class="nav-item" href="/user/id-card">
-            <span class="nav-icon" aria-hidden="true">▤</span>
-            身份证认证
+            <span class="nav-index">03</span>
+            <span>身份证</span>
           </a>
         </nav>
-        <p class="sidebar-note">安全、清晰地完成影像资料认证</p>
+        <p class="sidebar-note">USER<br />PORTAL</p>
       </aside>
 
-      <main class="portal-main">
-        <header class="page-header">
+      <main class="portal-main home-main">
+        <header class="page-header home-header">
           <div>
-            <p class="eyebrow">USER PORTAL</p>
+            <p class="eyebrow">BANK IMAGE VERIFICATION</p>
             <h1>银行影像认证中心</h1>
-            <p class="page-intro">请选择需要办理的认证业务，并按照页面提示上传影像资料。</p>
+            <p class="page-intro">选择证件类型，上传清晰影像并提交审核。</p>
           </div>
-          <span class="header-badge">用户端</span>
+          <div class="environment-tag">
+            <span>运行环境</span>
+            <strong>本地测试</strong>
+          </div>
         </header>
 
-        <section class="section-heading">
+        <section class="home-intro" aria-labelledby="homeIntroTitle">
+          <p class="section-number">01 / 业务入口</p>
           <div>
-            <h2>选择认证业务</h2>
-            <p>上传前请确认图片清晰、内容完整。</p>
+            <h2 id="homeIntroTitle">开始一次影像审核</h2>
+            <p>平台仅展示必要的用户提示与申请编号，不展示 OCR 原文、完整证件号码或内部审核原因。</p>
           </div>
         </section>
 
-        <section class="service-grid" aria-label="认证业务入口">
-          <a class="service-card" href="/user/bank-card">
-            <span class="service-icon" aria-hidden="true">▣</span>
+        <section class="service-list" aria-label="认证业务入口">
+          <a class="service-row" href="/user/bank-card">
+            <span class="service-order">01</span>
             <span class="service-copy">
               <strong>银行卡认证</strong>
-              <span>上传银行卡图片，提交影像认证申请。</span>
+              <span>上传单张银行卡图片，查看预览并提交审核。</span>
             </span>
-            <span class="card-link">进入认证 <span aria-hidden="true">→</span></span>
+            <span class="service-meta">
+              <span>支持 JPG / JPEG / PNG</span>
+              <strong>进入认证</strong>
+            </span>
           </a>
 
-          <a class="service-card" href="/user/id-card">
-            <span class="service-icon" aria-hidden="true">▤</span>
+          <a class="service-row" href="/user/id-card">
+            <span class="service-order">02</span>
             <span class="service-copy">
               <strong>身份证认证</strong>
-              <span>上传身份证图片，提交证件审核申请。</span>
+              <span>分别上传人像面与国徽面，确认后提交双面审核。</span>
             </span>
-            <span class="card-link">进入认证 <span aria-hidden="true">→</span></span>
+            <span class="service-meta">
+              <span>人像面 / 国徽面</span>
+              <strong>进入认证</strong>
+            </span>
           </a>
         </section>
 
-        <section class="content-card guidance-card">
-          <div class="guidance-icon" aria-hidden="true">i</div>
+        <section class="home-guidance" aria-labelledby="guidanceTitle">
+          <p class="section-number">02 / 上传规范</p>
           <div>
-            <h2>上传前提示</h2>
-            <p>请使用证件原件拍摄，确保画面稳定、边缘完整，并避免遮挡和强光反射。</p>
+            <h2 id="guidanceTitle">影像质量会直接影响审核结果</h2>
+            <div class="guidance-grid">
+              <div>
+                <strong>边缘完整</strong>
+                <p>确保证件四边位于画面内，不裁切、不遮挡。</p>
+              </div>
+              <div>
+                <strong>文字清晰</strong>
+                <p>保持镜头稳定，避免失焦、抖动和过度压缩。</p>
+              </div>
+              <div>
+                <strong>光线均匀</strong>
+                <p>避免强光反射、明显阴影以及过亮或过暗。</p>
+              </div>
+            </div>
           </div>
         </section>
       </main>
