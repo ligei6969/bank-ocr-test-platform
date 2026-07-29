@@ -6,6 +6,7 @@ htmlcov/
 reports/allure-results/
 reports/locust/
 reports/pytest-tmp/
+reports/pytest-tmp-*/
 reports/review_records.db
 reports/review_records.db-*
 modedify_log.md
