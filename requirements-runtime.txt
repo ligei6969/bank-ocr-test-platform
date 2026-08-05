@@ -5,3 +5,5 @@ python-multipart>=0.0.9,<1
 pillow>=10.4,<13
 numpy>=1.26,<3
 opencv-python-headless>=4.10,<5
+bcrypt>=4,<6
+itsdangerous>=2.2,<3

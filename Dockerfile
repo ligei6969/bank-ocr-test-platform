@@ -1,10 +1,37 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.10-slim-bookworm AS base
+ARG PYTHON_VERSION=3.10
+
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime-dependencies
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:${PATH}"
+
+WORKDIR /build
+
+RUN python -m venv "${VIRTUAL_ENV}"
+
+COPY requirements-runtime.txt .
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -r requirements-runtime.txt
+
+
+FROM runtime-dependencies AS paddle-dependencies
+
+COPY requirements-paddle.txt .
+RUN python -m pip install -r requirements-paddle.txt
+
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:${PATH}" \
     OCR_MODE=mock \
     REVIEW_RECORDS_DB_PATH=/app/reports/review_records.db
 
@@ -16,9 +43,7 @@ RUN apt-get update \
         libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements-runtime.txt .
-RUN python -m pip install --no-cache-dir --upgrade pip \
-    && python -m pip install --no-cache-dir -r requirements-runtime.txt
+COPY --from=runtime-dependencies /opt/venv /opt/venv
 
 COPY app ./app
 
@@ -37,12 +62,9 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
-FROM base AS paddle
-
-USER root
-COPY requirements-paddle.txt .
-RUN python -m pip install --no-cache-dir -r requirements-paddle.txt
-USER appuser
+FROM runtime AS mock
 
 
-FROM base AS mock
+FROM runtime AS paddle
+
+COPY --from=paddle-dependencies /opt/venv /opt/venv
