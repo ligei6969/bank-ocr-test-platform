@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 os.environ.setdefault("SESSION_SECRET", "pytest-only-bank-ocr-session-secret")
 
+from app.ai_client import set_ai_client  # noqa: E402
 from app.main import app  # noqa: E402
 from app.users import create_user  # noqa: E402
 
@@ -47,6 +48,31 @@ def login_with_csrf(
 def isolate_ocr_mode(monkeypatch) -> None:
     """Prevent a developer shell OCR_MODE from changing test behavior."""
     monkeypatch.delenv("OCR_MODE", raising=False)
+
+
+AI_ENV_VARS = (
+    "AI_ASSIST_ENABLED",
+    "AI_SERVICE_URL",
+    "AI_ASSIST_TIMEOUT_S",
+    "AI_ASSIST_FAILURE_THRESHOLD",
+    "AI_ASSIST_RECOVERY_S",
+)
+
+
+@pytest.fixture(autouse=True)
+def isolate_ai_assist(monkeypatch) -> Iterator[None]:
+    """Keep AI assistant calls deterministic and offline during tests.
+
+    A developer shell with ``AI_ASSIST_ENABLED=true`` would otherwise make the
+    suite perform real HTTP calls to a local AI service. Clearing the variables
+    and dropping the shared client forces every test to build its own client
+    from an explicit environment.
+    """
+    for name in AI_ENV_VARS:
+        monkeypatch.delenv(name, raising=False)
+    set_ai_client(None)
+    yield
+    set_ai_client(None)
 
 
 @pytest.fixture

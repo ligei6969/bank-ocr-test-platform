@@ -35,4 +35,61 @@ def sanitize_for_log(value: Any) -> Any:
     if isinstance(value, tuple):
         return tuple(sanitize_for_log(item) for item in value)
     return value
+
+
+# Text fields that carry personal data but cannot be handled by the numeric
+# patterns above. Names and addresses are not digit strings, so the regex based
+# masking silently leaves them intact — which is exactly the leak that matters
+# when a payload leaves the process boundary.
+REDACT_TEXT_FIELDS = frozenset(
+    {
+        "name",
+        "holder",
+        "holder_name",
+        "card_holder",
+        "account_name",
+        "customer_name",
+        "address",
+        "home_address",
+        "姓名",
+        "持卡人",
+        "户名",
+        "客户姓名",
+        "住址",
+        "地址",
+    }
+)
+
+
+def mask_text_keep_prefix(value: str) -> str:
+    """Keep the first character and star the rest.
+
+    Used for personal-data text such as names and addresses where the numeric
+    patterns do not apply. A single-character value is masked completely so a
+    one-character name is never echoed back in full.
+    """
+    text = value.strip()
+    if not text:
+        return ""
+    if len(text) == 1:
+        return "*"
+    return f"{text[0]}{'*' * (len(text) - 1)}"
+
+
+def sanitize_review_fields(fields: Any) -> Any:
+    """Mask a parsed-field mapping before it leaves the process boundary.
+
+    Numeric values go through :func:`sanitize_for_log`; values whose key is in
+    :data:`REDACT_TEXT_FIELDS` are additionally reduced to a single character.
+    """
+    masked = sanitize_for_log(fields)
+    if not isinstance(fields, dict) or not isinstance(masked, dict):
+        return masked
+
+    for key, raw in fields.items():
+        if not isinstance(raw, str):
+            continue
+        if str(key).strip().lower() in REDACT_TEXT_FIELDS:
+            masked[key] = mask_text_keep_prefix(raw)
+    return masked
     

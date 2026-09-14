@@ -88,6 +88,45 @@
             <h2>解析字段</h2>
             <div class="admin-fields" id="detailFieldsJson"></div>
           </section>
+
+          <section
+            class="content-card detail-card detail-card-wide ai-assistant-card"
+            aria-labelledby="aiAssistantHeading"
+          >
+            <div class="ai-assistant-head">
+              <h2 id="aiAssistantHeading">AI 复核助手</h2>
+              <div class="ai-assistant-actions">
+                <span class="status-badge neutral" id="aiAssistantStatus" data-state="idle">未请求</span>
+                <button class="primary-button" id="aiExplainButton" type="button">
+                  让 AI 解释这条记录
+                </button>
+              </div>
+            </div>
+            <p class="ai-assistant-note">
+              解释由独立 AI 服务依据审核知识库生成，请求前会自动对证件号码与姓名脱敏。
+              AI 服务不可用时不影响审核记录本身的查看与判定。
+            </p>
+            <p class="ai-assistant-message" id="aiAssistantMessage" role="status" aria-live="polite"></p>
+            <div class="ai-assistant-result" id="aiAssistantResult" hidden>
+              <section class="ai-block">
+                <h3>综合解释</h3>
+                <p class="ai-explanation" id="aiExplanationText"></p>
+              </section>
+              <section class="ai-block">
+                <h3>原因码逐条释义</h3>
+                <ul class="ai-reason-list" id="aiReasonList"></ul>
+              </section>
+              <section class="ai-block">
+                <h3>处置建议</h3>
+                <ul class="ai-action-list" id="aiActionList"></ul>
+              </section>
+              <section class="ai-block">
+                <h3>知识引用</h3>
+                <ul class="ai-citation-list" id="aiCitationList"></ul>
+              </section>
+              <dl class="ai-meta" id="aiMeta"></dl>
+            </div>
+          </section>
         </div>
       </main>
     </div>

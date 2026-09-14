@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.ai_routes import router as ai_router
 from app.auth_routes import (
     require_admin_api_user,
     require_authenticated_api_user,
@@ -64,6 +65,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(auth_router)
 app.include_router(page_router)
+app.include_router(ai_router)
 
 
 def _quality_reasons(quality: dict) -> list[str]:

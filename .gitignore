@@ -9,6 +9,7 @@ reports/pytest-tmp/
 reports/pytest-tmp-*/
 reports/review_records.db
 reports/review_records.db-*
+reports/tmp_uploads/
 modedify_log.md
 data/processed/bank_card/*/*.png
 !data/processed/bank_card/*/bank_card_0001.png
