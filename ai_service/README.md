@@ -200,22 +200,241 @@ python -m ai_service --explain payload.json
 
 ```
 ai_service/
-  api.py          FastAPI 接口
-  explain.py      业务编排：上下文 → 检索 → 事实 → 措辞
+  api.py          FastAPI 接口（/explain、/agent/explain、/search、/health、/tools/stats）
+  explain.py      业务编排：上下文 → 检索 → 事实 → 措辞（P0 固定流水线）
+  agent.py        P1 审核 Agent：planner + executor 的多步工具决策循环
+  tools.py        P1 工具白名单与四个工具的实现
+  thresholds.py   影像质检阈值的机器可读副本（供 recompute_quality 反推）
   corpus.py       知识库语料（唯一事实来源）
   retrieval.py    切片 / 分词 / BM25 + 哈希向量混合检索
   tool_manager.py 工具框架：改写、并行召回、去重、重排、熔断、缓存、降级
   llm.py          可插拔 LLM 适配层（openai / anthropic / none）
-  __main__.py     CLI：起服务、--demo、--search、--explain
-  tests/          75 个单测，全部离线可跑
+  prompts.py      Prompt 版本化注册表（id@version，进 trace 与响应）
+  structured.py   结构化输出解析与校验（pydantic，失败抛可捕获异常）
+  cassette.py     LLM / 工具的录制回放（replay 未命中直接失败，绝不回退联网）
+  agentkit.py     测试工具箱：轨迹断言、故障注入、cassette 装配
+  eval/           评测层：golden 集、四层指标、judge 校准、回归门禁
+  __main__.py     CLI：起服务、--demo、--agent、--live、--search、--explain
+  tests/          260 个单测，全部离线可跑
 ```
 
 ---
 
-## 已知边界（P0 范围外）
+## P1：从解释器到 Agent
 
-- **单轮解释**，不支持多轮追问 —— 需要会话记忆，属 P4。
-- **解释不落库** —— 避免「解释版本与记录版本不一致」，落库留到 P2 与 `llm_override` 一起做。
-- **不做双判** —— 本服务只解释不改判，规则 + LLM 双判属 P2。
+### 为什么要做这一步
+
+P0 交付的是**固定流水线的 RAG**：改写 → 召回 → 重排 → 生成，每条记录都走这四步。
+能回答「这条记录为什么是这个结论」，但回答不了「你是怎么做决策的」。
+P1 把它变成**会调工具、多步决策**的 Agent，并配上一整套「怎么测一个不确定系统」的答案。
+
+```
+记录 + 问题
+    │
+    ▼   ┌────────────────────────────────────────────┐
+        │ 1. planner：决定下一步（LLM 结构化输出）    │
+        │ 2. 白名单校验 → schema 校验 → 拒绝 / 放行    │
+        │ 3. executor：调工具，拿观察结果              │
+        │ 4. 预算检查（步数 / token / 工具调用次数）   │
+        │ 5. 收敛判定：finish / escalate / 超预算      │
+        └────────────────────────────────────────────┘
+    │
+    ▼
+结构化答复 + 完整 trace（工具序列 / 参数 / 步数 / token / 耗时）
+```
+
+`POST /explain`（P0 流水线）与 `POST /agent/explain`（P1 Agent）**并存**，不是替换：
+简单记录用前者更快更省，需要「自己决定查什么」时才走 Agent。
+
+### 工具白名单
+
+Agent 只能调用下面四个工具。名字不在白名单里一律拒绝，并留下拒绝记录。
+
+| 工具 | 作用 | 降级行为 |
+| --- | --- | --- |
+| `search_knowledge` | 查原因码释义 / 拍摄规范 / 审核规则 | 退回原因码直查表（释义本来就在结构化表里，不依赖检索） |
+| `get_review_record` | 按 request_id 取**本次**记录 | 换别的 id 一律 `not_found`（越权防线） |
+| `recompute_quality` | 用线上阈值核对影像质量判定 | 拿不到原始指标时只做自洽性核对，并在输出里标注 `mode` |
+| `escalate_to_human` | 证据不足时主动请求人工 | 本身就是兜底；**无副作用**，不写库、不改判 |
+
+两条设计约束值得单独说：
+
+**白名单是硬的，不是 prompt 里的请求。** prompt 写「你只能用这些工具」是软约束，
+模型可以不听；白名单不听就执行不了。参数校验放在**调用前**，参数不合法连工具都不碰。
+
+**工具全都不产生副作用。** 四个工具全是只读或纯计算 —— 这既是安全边界，
+也让「非法调用被拒绝且无副作用」这条验收标准天然成立。改判审核结论属 P2。
+
+### 三重预算与收敛
+
+步数、token、工具调用次数任一超限即收敛，`truncated=true` 照常返回已有结果，
+**不抛异常**。Agent 超预算是正常结局，不是故障。
+
+还有两条反打转机制：连续被拒 3 次直接收敛；同一「工具 + 参数」重复超过 2 次
+判定为原地打转并收敛。不设这两条的话，一个执着的模型能把预算烧干净。
+
+一个细节：**「证据不足必须转人工」是规则，不是模型的判断。**
+早期实现只在降级路径检查它，结果是模型（或被 prompt injection 影响的模型）
+回一句 `finish` 就把规则跳过去了。现在两条路径在收敛前都必须过这道规则。
+唯一例外是预算耗尽 —— 那时不再增加步骤，只如实标记 `truncated=true`，
+因为「超了就停」要是能被规则打破，预算就不可信了。
+
+### 每一步都能降级
+
+LLM 不可用、或决策输出解析不了、或工具挂了 —— 三种情况都不会让链路中断：
+
+| 失败点 | 行为 |
+| --- | --- |
+| LLM 不可用 | 走**确定性工具序列**（读记录 → 查知识 → 核质检 → 需要时举手），产出结构完全一致的结果 |
+| 决策输出不是合法 JSON / 超长 / 缺字段 | 记录 `decision_failed`，同样切到确定性序列 |
+| 工具超时 / 报错 | 工具层兜住，退化为 `ToolResult(success=False)`，Agent 继续走；检索挂了还会退回原因码直查 |
+| 工具返回结构不对 | 不吸收为证据；随后「证据不足」规则接管，如实转人工 |
+
+### Prompt 版本化与结构化输出
+
+Prompt 从内联字符串抽成 `prompts.py` 里的 `PromptTemplate`，每条有稳定 `id` 和手写
+`version`，`label`（形如 `agent_decide@v1`）会写进 trace 与响应 ——
+「这条解释是哪版 prompt 产出的」在数据里就能查到。
+
+版本号是手写的而不是内容哈希：哈希区分不了「改了错别字」和「改了语义」，
+而评审时真正关心的是后者。
+
+`structured.py` 负责把模型输出变成经过校验的对象，处理三类真实会遇到的输入：
+Markdown 围栏、JSON 前后夹着寒暄、以及**结构合法但语义非法**（缺字段、类型不对）。
+解析失败一律抛 `StructuredOutputError`，绝不返回 `None` 让调用方自己猜 ——
+静默返回 `None` 会把降级路径吞掉，这个坑 P0 已经踩过一次。
+
+---
+
+## Agent 测试体系
+
+这是 P1 真正的交付重点：**怎么测量一个不确定、会调工具、会多步决策的系统。**
+
+### record / replay（cassette）
+
+```python
+from ai_service.agentkit import cassette_agent, LIVE, REPLAY
+
+agent, cassette = cassette_agent("cassette.json", mode=LIVE)   # 录
+await agent.run(context)
+cassette.save()
+
+agent, _ = cassette_agent("cassette.json", mode=REPLAY)        # 放
+await agent.run(context)                                       # 不需要 API key
+```
+
+关键契约：**replay 未命中时抛 `CassetteMissError`，绝不回退到真实调用。**
+一个「未命中就顺手联网」的回放层比没有回放层更危险 —— CI 依然是随机且烧钱的，
+只是更难发现。
+
+`CassetteMissError` 刻意派生自 `BaseException` 而不是 `Exception`：
+工具层有一圈 `except Exception`，如果它是普通异常，会被安静吃掉 ——
+Agent 退化成「工具坏了」继续跑完，测试**绿着骗人**。派生自 `BaseException`
+和 `KeyboardInterrupt` 同一个思路：这不是正常业务流程里该被兜住的东西。
+
+按「请求内容哈希」而不是「第 N 次调用」匹配：顺序匹配在 Agent 场景很脆弱，
+模型多调一次工具后面全部错位，报出来的错还很难懂。
+
+### 轨迹断言
+
+断言的是 `outcome["trace"]`，不是 `outcome["answer"]` —— Agent 的失败方式往往是
+**输出看起来对、过程是错的**：恰好蒙对结论、绕了十步、或者重复调同一个工具。
+
+```python
+from ai_service.agentkit import Trajectory
+
+view = Trajectory(outcome.to_dict())
+view.assert_sequence("get_review_record", "search_knowledge")
+view.assert_called("get_review_record", request_id="req-001")
+view.assert_within_budget().assert_no_infinite_loop()
+view.assert_rejected("not_whitelisted")
+view.assert_every_step_has_audit_fields()
+```
+
+### 故障注入与对抗用例
+
+```python
+from ai_service.agentkit import inject_fault, inject_all_faults, RAISE, TIMEOUT, BAD_PAYLOAD
+
+inject_fault(agent, "search_knowledge", TIMEOUT, sleep_s=0.4, timeout_s=0.05)
+```
+
+五种故障模式：`RAISE` / `HTTP_500` / `TIMEOUT` / `BAD_PAYLOAD` / `EMPTY`。
+注意后两种在工具层看起来是**成功**的（返回了东西，只是结构不对），
+比抛错更阴险 —— 它们容易一路带进摘要、带进 prompt。
+
+对抗用例覆盖三类，主要防线是**结构性**的而不是 prompt 里的「请勿听信」：
+
+* **审核结论不是模型产出的** —— `review_result` 从入参原样带出，模型说什么都改不了它；
+* **事实层不经过模型** —— 阈值与处置建议来自语料 + 规则，injection 改不动；
+* **工具白名单** —— injection 无法让 Agent 去调一个没注册的工具。
+
+残留风险写进了测试注释而不是假装不存在：模型仍能影响**措辞**。
+这正是 P2 要做「规则 + LLM 双判 + `llm_override` 落库」的原因 ——
+改判必须显式、可追溯、可回滚，而不是靠模型自觉。
+
+---
+
+## 评测与回归门禁
+
+```bash
+python -m scripts.evaluate_ai_review                    # 四层指标 + baseline 比对
+python -m scripts.evaluate_ai_review --calibrate        # 额外跑 judge 校准
+python -m scripts.evaluate_ai_review --save-baseline    # 把当前指标写成新基线
+python -m scripts.evaluate_ai_review --allure           # 写 Allure 结果，复用平台报告栈
+python -m scripts.evaluate_ai_review --live             # 真实模型参与（会出网）
+```
+
+默认**全离线**：Agent 走确定性序列、judge 走确定性 rubric，CI 不需要任何 API key。
+指标退化超过容忍度（默认 5%）时命令返回 1，直接把 CI 打红。
+
+### golden 集从哪来，以及为什么决策层算不了
+
+任务书要求先确认 `data/annotations/labels.json` 标的是什么。结论是：
+
+**它标的是字段真值 + 注入的质量退化类型，不含审核结论。** 2134 条样本里
+没有 `pass/review/reject`，也没有原因码标签。这直接决定了两件事：
+
+* **能算**：期望的**质量原因码**可由 `quality_type` 按已文档化的映射推出，
+  所以「原因码集合匹配率」是可信的；
+* **不能算**：期望的**审核结论**推不出来（结论取决于质量判定与字段解析的联合结果，
+  而字段层没有结论标注）。所以任务层的「结论正确率」只能退化成
+  「原因码集合匹配率」这个**代理指标**，报告里显式标为 proxy。
+
+与其编一份假标注，不如把缺口写进报告。要算真正的结论层指标，必须先补人工结论标注 ——
+这是 P2 的输入。
+
+两个取样上的坑也记在这：`occlusion` / `rotate` 这类退化平台并不检测（没有对应阈值），
+影响落在字段层，所以不进 golden 集；`id_card_front` / `id_card_back` 必须归一到
+`id_card`、`application_form` 必须排除，否则会喂给服务一个它从没见过的 doc_type，
+检索的 doc_type 过滤全部落空，指标会莫名其妙地低还找不出原因。
+
+### LLM-as-Judge 必须校准
+
+Judge 本身也会飘（系统性偏高、长度偏好），所以不能盲信分数。校准输出三个数字：
+完全一致率、±1 分内一致率、平均绝对误差，并**按维度分解**。
+主指标是 ±1 分内 —— 评审里「4 分还是 5 分」常常无差别，但「1 分还是 4 分」有区别。
+
+当前校准集的标注是**项目作者自评的占位标注**，不是审核员标注：
+它能验证校准管线跑得通、能暴露 judge 的系统性偏差方向，但**不具备统计意义**。
+替换成真实审核员标注后，一致率数字才有对外引用价值。这一点在报告里也会标明。
+
+---
+
+## 已知边界（P1 之后仍未做的）
+
+- **不做双判** —— 本服务只解释不改判，规则 + LLM 双判属 P2，
+  且必须与 `llm_override` 落库一起做（改判不落库就无法评估 AI 是帮忙还是添乱）。
+- **解释不落库** —— 避免「解释版本与记录不一致」，落库同样留到 P2。
+- **单轮内多步决策，不做跨记录挖掘** —— Agent 只能读本次请求那一条记录。
+  跨进程直连平台数据库会同时破坏服务边界、安全边界与部署边界，
+  代价不划算；多轮会话记忆属 P4。
+- **决策层指标缺失** —— 缺人工结论标注，任务层目前用「原因码集合匹配率」代理。
+  这是数据缺口，不是代码缺口，见上文「golden 集从哪来」。
+- **judge 校准集是占位标注** —— 管线可用，数字暂无统计意义。
+- **Agent 未接进管理端 UI** —— `/agent/explain` 已可用，但前端仍渲染 P0 的解释结构。
+  接进去要新增一个 trace / 预算面板，留给后续。
 - **置信度是启发式** —— 由知识覆盖率、检索最高分、生成引擎三因子拼出来的，
   没有做概率校准。展示时应当配合解释正文，不要单独当作准确性背书。
+- **token 计量是字符估算** —— `LLMClient` 协议只返回文本，拿不到 provider 的 usage。
+  它用于预算兜底，不是计费依据。

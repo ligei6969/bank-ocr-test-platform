@@ -1,0 +1,58 @@
+{
+  "directions": {
+    "explain.accuracy": "higher",
+    "explain.completeness": "higher",
+    "explain.relevance": "higher",
+    "explain.usefulness": "higher",
+    "task.action_rate": "higher",
+    "task.degraded_rate": "lower",
+    "task.escalation_accuracy": "higher",
+    "task.evidence_rate": "higher",
+    "task.reason_code_match_rate": "higher",
+    "task.truncated_rate": "lower",
+    "tools.avg_steps": "lower",
+    "tools.parameter_accuracy": "higher",
+    "tools.sequence_accuracy": "higher",
+    "tools.sequence_subsequence_accuracy": "higher"
+  },
+  "golden": {
+    "balance": {
+      "bank_card/blur": 4,
+      "bank_card/bright": 4,
+      "bank_card/dark": 4,
+      "bank_card/glare": 4,
+      "bank_card/normal": 4,
+      "id_card/blur": 4,
+      "id_card/bright": 4,
+      "id_card/dark": 4,
+      "id_card/glare": 4,
+      "id_card/normal": 4
+    },
+    "labels_path": "data\\annotations\\labels.json",
+    "notes": [
+      "labels.json 只标字段真值与注入的退化类型，不含审核结论。",
+      "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。",
+      "doc_type 已归一：id_card_front / id_card_back → id_card；application_form 不在审核链路上，已排除。",
+      "未映射的退化类型（occlusion, rotate）未纳入 golden 集。"
+    ],
+    "size": 40,
+    "verdict_layer_available": false
+  },
+  "judge_engine": "deterministic-rubric",
+  "metrics": {
+    "explain.accuracy": 5.0,
+    "explain.completeness": 5.0,
+    "explain.relevance": 5.0,
+    "explain.usefulness": 4.6,
+    "task.action_rate": 1.0,
+    "task.degraded_rate": 1.0,
+    "task.escalation_accuracy": 1.0,
+    "task.evidence_rate": 1.0,
+    "task.reason_code_match_rate": 1.0,
+    "task.truncated_rate": 0.0,
+    "tools.avg_steps": 2.8,
+    "tools.parameter_accuracy": 1.0,
+    "tools.sequence_accuracy": 1.0,
+    "tools.sequence_subsequence_accuracy": 1.0
+  }
+}

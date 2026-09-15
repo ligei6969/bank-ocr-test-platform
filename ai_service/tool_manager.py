@@ -34,7 +34,9 @@ from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence
 
 from ai_service.llm import LLMClient, LLMUnavailableError, NullLLMClient
+from ai_service.prompts import QUERY_REWRITE, RERANK
 from ai_service.retrieval import RetrievalHit, expand_query
+from ai_service.structured import StructuredOutputError, parse_index_array, parse_string_array
 
 logger = logging.getLogger(__name__)
 
@@ -324,26 +326,13 @@ class ToolManager:
         if not self._llm.available:
             return expand_query(query), "rule"
 
-        prompt = (
-            f"将以下审核场景的查询改写为 {n} 个不同角度的检索子查询，用于检索审核知识库。\n"
-            "要求：每个子查询角度不同，分别覆盖「原因码含义」「处置建议」「拍摄规范」等不同方面。\n"
-            f'原始查询: "{query}"\n'
-            '只返回 JSON 数组，例如: ["子查询1", "子查询2", "子查询3"]'
-        )
+        prompt = QUERY_REWRITE.render(n=n, query=query)
         try:
             raw = await self._llm.complete(prompt, max_tokens=256, temperature=0.3)
-            start, end = raw.find("["), raw.rfind("]") + 1
-            if start < 0 or end <= start:
-                raise ValueError("no JSON array in rewrite response")
-            queries = json.loads(raw[start:end])
-            if not isinstance(queries, list):
-                raise ValueError("rewrite response is not a list")
-            cleaned = [str(item).strip() for item in queries if str(item).strip()]
-            if not cleaned:
-                raise ValueError("empty rewrite result")
+            cleaned = parse_string_array(raw)
             # 原始查询也保留，按出现顺序去重
             return list(dict.fromkeys([query] + cleaned)), "llm"
-        except (LLMUnavailableError, ValueError, json.JSONDecodeError) as exc:
+        except (LLMUnavailableError, StructuredOutputError) as exc:
             logger.warning("查询改写降级为规则扩展: %s", exc)
             return expand_query(query), "rule"
 
@@ -364,7 +353,17 @@ class ToolManager:
         """
         sink: TraceSink = trace if trace is not None else []
         sub_queries, rewrite_strategy = await self.rewrite_query(query, n=3)
-        _trace(sink, "rewrite", strategy=rewrite_strategy, sub_queries=sub_queries)
+        rewrite_step: Dict[str, Any] = {
+            "strategy": rewrite_strategy,
+            "sub_queries": sub_queries,
+        }
+        if self._llm.available:
+            # 模型被调用过就留痕：即使随后失败，也要能查到是哪一版 prompt 参与的。
+            # 与 rerank 的降级留痕保持同一语义。
+            rewrite_step["prompt"] = QUERY_REWRITE.label
+            if rewrite_strategy != "llm":
+                rewrite_step["prompt_failed"] = True
+        _trace(sink, "rewrite", **rewrite_step)
 
         recall_k = max(top_k, 5)
         tasks = [
@@ -418,7 +417,13 @@ class ToolManager:
                             if isinstance(r, ToolResult) and isinstance(r.data, list)))
 
         reranked, rerank_strategy = await self._rerank(query, candidates, top_k, sink)
-        _trace(sink, "rerank", strategy=rerank_strategy, kept=len(reranked))
+        rerank_step: Dict[str, Any] = {
+            "strategy": rerank_strategy,
+            "kept": len(reranked),
+        }
+        if rerank_strategy == "llm":
+            rerank_step["prompt"] = RERANK.label
+        _trace(sink, "rerank", **rerank_step)
 
         return ToolResult(
             success=True,
@@ -460,22 +465,11 @@ class ToolManager:
             f"{index}. {json.dumps(item, ensure_ascii=False)[:200]}"
             for index, item in enumerate(items)
         )
-        prompt = (
-            "根据审核员的查询，对以下检索结果按相关性从高到低排序，返回 JSON 索引数组。\n"
-            f'查询: "{query}"\n'
-            f"检索结果:\n{listing}\n\n"
-            "只返回 JSON 数组，例如 [最相关索引, ..., 最不相关索引]，不要任何其他文字。"
-        )
+        prompt = RERANK.render(query=query, listing=listing)
         try:
             raw = await self._llm.complete(prompt, max_tokens=256, temperature=0.0)
-            start, end = raw.find("["), raw.rfind("]") + 1
-            if start < 0 or end <= start:
-                raise ValueError("no JSON array in rerank response")
-            order = json.loads(raw[start:end])
-            if not isinstance(order, list):
-                raise ValueError("rerank response is not a list")
-            picked = [items[int(i)] for i in order
-                      if isinstance(i, (int, float)) and 0 <= int(i) < len(items)]
+            order = parse_index_array(raw, upper_bound=len(items))
+            picked = [items[index] for index in order]
             seen: set[str] = set()
             deduped: List[Dict[str, Any]] = []
             for item in picked + items:  # 补上 LLM 漏掉的，避免结果缩水
@@ -484,11 +478,11 @@ class ToolManager:
                     seen.add(key)
                     deduped.append(item)
             if not deduped:
-                raise ValueError("empty rerank result")
+                raise StructuredOutputError("重排后结果为空")
             return deduped[:top_k], "llm"
-        except (LLMUnavailableError, ValueError, json.JSONDecodeError) as exc:
+        except (LLMUnavailableError, StructuredOutputError) as exc:
             logger.warning("重排降级为共识度排序: %s", exc)
-            _trace(sink, "rerank_fallback", error=str(exc))
+            _trace(sink, "rerank_fallback", prompt=RERANK.label, error=str(exc))
             return self._consensus_order(items)[:top_k], "consensus"
 
     @staticmethod
@@ -554,6 +548,25 @@ class ToolManager:
                     f"工具 {tool.name} 参数 {key} 类型错误: "
                     f"期望 {expected}，实际 {type(value).__name__}"
                 )
+
+    def validate_params(self, name: str, params: Dict[str, Any]) -> Optional[str]:
+        """调用前的显式校验，合法返回 ``None``，否则返回错误说明。
+
+        为什么要在 ``call`` 之外再开一个入口
+        -----------------------------------
+        ``call`` 里已经有校验，但它的失败被包成 ``ToolResult``，Agent 只能从
+        ``error`` 字段反推「是参数不合法还是工具挂了」。Agent 需要把这两件事
+        分开记账（参数被拒 vs 工具故障），所以这里提供一个能拿到原因的问询口，
+        由调用方决定是否真的发起调用 —— 校验逻辑仍然只有一份，不重复实现。
+        """
+        tool = self._tools.get(name)
+        if tool is None:
+            return f"工具不存在: {name}"
+        try:
+            self._validate_params(tool, params)
+        except ValueError as exc:
+            return str(exc)
+        return None
 
     # ── 统计 ──────────────────────────────────────────────────────────────────
 

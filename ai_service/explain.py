@@ -23,7 +23,7 @@ import logging
 import re
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from ai_service.corpus import (
     DOC_TYPE_BANK_CARD,
@@ -33,6 +33,7 @@ from ai_service.corpus import (
     reason_code_lookup,
 )
 from ai_service.llm import LLMClient, LLMUnavailableError, NullLLMClient
+from ai_service.prompts import EXPLAIN_GENERATE, PROMPT_REGISTRY_VERSION, collect_labels
 from ai_service.retrieval import KnowledgeRetriever
 from ai_service.tool_manager import Tool, ToolManager, ToolResult
 
@@ -83,6 +84,9 @@ class ReviewContext:
     error_message: Optional[str] = None
     ocr_mode: Optional[str] = None
     question: str = ""
+    #: 原始影像质量指标（可选）。平台带过来的话 ``recompute_quality`` 就能真重算，
+    #: 不带就只能做结论自洽性核对 —— 工具输出里会明示是哪一种。
+    quality_metrics: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def all_reason_codes(self) -> List[str]:
@@ -115,7 +119,31 @@ class ReviewContext:
             ),
             ocr_mode=str(payload["ocr_mode"]) if payload.get("ocr_mode") else None,
             question=str(payload.get("question") or ""),
+            quality_metrics=(
+                payload["quality_metrics"]
+                if isinstance(payload.get("quality_metrics"), dict)
+                else {}
+            ),
         )
+
+    def to_record_fields(self) -> Dict[str, Any]:
+        """给 Agent ``get_review_record`` 工具用的记录视图。
+
+        ``fields`` 里含证件号码与姓名，**入参这里的值已经是平台脱敏后的结果**
+        （脱敏在 ``app/ai_client.py`` 出站前统一执行）。这里不二次脱敏，
+        避免两处逻辑不一致 —— 但也不额外放行任何平台没发过来的字段。
+        """
+        return {
+            "request_id": self.request_id,
+            "doc_type": self.doc_type,
+            "review_result": self.review_result,
+            "quality_result": self.quality_result,
+            "quality_reasons": list(self.quality_reasons),
+            "review_reasons": list(self.review_reasons),
+            "fields": dict(self.fields),
+            "error_message": self.error_message,
+            "ocr_mode": self.ocr_mode,
+        }
 
 
 def _string_list(value: Any) -> List[str]:
@@ -157,6 +185,165 @@ def classify_reason_code(code: str) -> str:
     return "field"
 
 
+# ── 事实层（模块级函数）──────────────────────────────────────────────────────
+#
+# 这三个函数刻意放在模块级而不是 ReviewExplainer 的私有方法里：
+# P1 的 Agent 与 P0 的 explain 必须**共用同一套事实**，否则「事实与措辞分离」
+# 会退化成「两套事实各自表述」，两边的阈值和处置建议迟早对不上。
+
+def build_reason_details(
+    codes: Sequence[str],
+    reason_lookup: Mapping[str, KnowledgeDoc],
+) -> List[Dict[str, Any]]:
+    """按原因码从语料取出结构化事实条目；未收录的码显式标注 ``known=False``。"""
+    details: List[Dict[str, Any]] = []
+    for code in codes:
+        doc = reason_lookup.get(code)
+        if doc is None:
+            details.append(
+                {
+                    "code": code,
+                    "known": False,
+                    "title": f"{code}（语料未收录）",
+                    "root_cause": "unknown",
+                    "meaning": "该原因码尚未收录到知识库语料中，无法给出准确释义。",
+                    "trigger": None,
+                    "implementation": None,
+                    "advice": None,
+                    "user_message": None,
+                    "doc_id": None,
+                }
+            )
+            continue
+
+        lead, sections = split_labeled_sections(doc.content)
+        details.append(
+            {
+                "code": code,
+                "known": True,
+                "title": doc.title,
+                "root_cause": classify_reason_code(code),
+                "meaning": sections.get("业务含义") or lead,
+                "trigger": sections.get("触发条件") or sections.get("为什么重要"),
+                "implementation": sections.get("实现位置"),
+                "advice": sections.get("处置建议") or sections.get("正确做法"),
+                "user_message": sections.get("用户话术"),
+                "doc_id": doc.doc_id,
+            }
+        )
+    return details
+
+
+def build_actions(
+    context: "ReviewContext",
+    reason_details: Sequence[Dict[str, Any]],
+) -> List[str]:
+    """跨原因码的专家规则 + 各原因码自带的处置建议。顺序即优先级。"""
+    actions: List[str] = []
+    known_codes = {item["code"] for item in reason_details}
+    has_quality = bool(known_codes & QUALITY_CODES)
+    has_field = any(item["root_cause"] == "field" for item in reason_details)
+    has_infra = any(item["root_cause"] == "infrastructure" for item in reason_details)
+
+    if has_infra:
+        actions.append(
+            "本条属于服务端或调用方问题，**不要**向用户发出重拍提示；"
+            "按 request_id 报障并核对服务端配置或请求格式。"
+        )
+    if has_quality and has_field:
+        actions.append(
+            "质量原因码与字段原因码同时出现，字段缺失大概率是影像质量的下游后果 —— "
+            "先修影像质量，不必单独追问用户字段内容。"
+        )
+    if "glare_detected" in known_codes and not has_field:
+        actions.append(
+            "仅有反光原因码且字段全部解析成功，高光大概率未遮挡关键字段，"
+            "核对位置后可直接放行，并把该记录标记为规则误报样本。"
+        )
+    if "invalid_card_number" in known_codes and has_quality:
+        actions.append(
+            "卡号非法同时伴随质量原因码，优先怀疑 OCR 误识而不是伪造卡，"
+            "按 review 处理并让用户重拍，不建议直接拒绝。"
+        )
+    if "image_blur" in known_codes:
+        actions.append("让用户重新拍摄时，重点提示对焦与防抖，并建议不要用聊天软件二次传输。")
+
+    for item in reason_details:
+        if item.get("advice") and item["advice"] not in actions:
+            actions.append(f"{item['code']}：{item['advice']}")
+
+    if not actions:
+        if context.review_result == "pass":
+            actions.append("本次审核无异常原因码，无需额外处置。")
+        else:
+            actions.append("未匹配到具体原因码，建议人工核对影像与解析字段后再判定。")
+
+    return actions
+
+
+def to_citation(hit: Dict[str, Any]) -> Dict[str, Any]:
+    """把检索命中压成给前端展示的引用条目（正文截断到 160 字）。"""
+    content = str(hit.get("content", ""))
+    return {
+        "doc_id": hit.get("doc_id"),
+        "title": hit.get("title", ""),
+        "category": hit.get("category", ""),
+        "score": hit.get("score", 0.0),
+        "matched_reason_codes": hit.get("matched_reason_codes", []),
+        "retrieval_channels": hit.get("retrieval_channels", []),
+        "snippet": content[:160] + ("…" if len(content) > 160 else ""),
+        "content": content,
+    }
+
+
+def render_template_explanation(
+    context: "ReviewContext",
+    reason_details: Sequence[Dict[str, Any]],
+    actions: Sequence[str],
+) -> str:
+    """无 LLM 时的确定性措辞。
+
+    刻意写得完整可读，而不是一句「AI 不可用」——
+    因为事实层本来就是齐的，损失的不该是可用性。
+
+    Agent 的确定性降级路径复用这一段，保证两条路的措辞风格与事实口径一致。
+    """
+    doc_label = DOC_TYPE_LABELS.get(context.doc_type, context.doc_type)
+    result_label = REVIEW_RESULT_LABELS.get(
+        context.review_result, context.review_result or "未知"
+    )
+    sentences: List[str] = [f"本次{doc_label}审核的结论是「{result_label}」。"]
+
+    if not reason_details:
+        sentences.append(
+            "记录中没有审核原因码，说明质量检测与字段解析均无异常，"
+            "结论由规则判定直接给出，无需额外处置。"
+        )
+        return "".join(sentences)
+
+    root_causes = {item["root_cause"] for item in reason_details}
+    root_labels = {
+        "quality": "影像质量层",
+        "field": "字段解析层",
+        "infrastructure": "服务端或调用方",
+        "unknown": "未收录层",
+    }
+    layers = "、".join(root_labels.get(item, item) for item in sorted(root_causes))
+    sentences.append(f"共命中 {len(reason_details)} 个原因码，根因涉及{layers}。")
+
+    for item in reason_details:
+        if not item["known"]:
+            sentences.append(f"原因码 {item['code']} 尚未收录语料，需人工确认含义。")
+            continue
+        meaning = _first_sentence(item.get("meaning") or "")
+        sentences.append(f"{item['code']}：{meaning}")
+
+    if actions:
+        sentences.append(f"处置方向：{actions[0]}")
+
+    return "".join(sentences)
+
+
 # ── 解释器 ────────────────────────────────────────────────────────────────────
 
 class ReviewExplainer:
@@ -173,6 +360,15 @@ class ReviewExplainer:
         self._llm: LLMClient = llm or NullLLMClient()
         self._reason_lookup: Dict[str, KnowledgeDoc] = reason_code_lookup()
         self._register_tool()
+
+    @property
+    def retriever(self) -> KnowledgeRetriever:
+        """检索器。Agent 与 ``/health`` 都要复用同一份索引，不重复建。"""
+        return self._retriever
+
+    @property
+    def llm(self) -> LLMClient:
+        return self._llm
 
     # ── 工具注册 ──────────────────────────────────────────────────────────────
 
@@ -267,9 +463,13 @@ class ReviewExplainer:
         citations = [self._to_citation(hit) for hit in hits]
         actions = self._build_actions(context, reason_details)
 
-        explanation, generation_engine = await self._generate(
+        explanation, generation_engine, generation_prompt = await self._generate(
             context, reason_details, actions, citations
         )
+        if generation_prompt:
+            trace.append(
+                {"step": "generate", "engine": generation_engine, "prompt": generation_prompt}
+            )
 
         confidence = self._confidence(hits, reason_details, unknown_codes, generation_engine)
         latency_ms = (time.monotonic() - started) * 1000
@@ -301,6 +501,10 @@ class ReviewExplainer:
                 "rerank": _trace_value(trace, "rerank", "strategy", "n/a"),
                 "recall": "ok" if result.success else "degraded",
             },
+            "prompt_versions": {
+                "registry": PROMPT_REGISTRY_VERSION,
+                "used": collect_labels(trace),
+            },
             "latency_ms": round(latency_ms, 1),
             "trace": trace,
             "disclaimer": DISCLAIMER,
@@ -328,42 +532,8 @@ class ReviewExplainer:
     # ── 事实层 ────────────────────────────────────────────────────────────────
 
     def _build_reason_details(self, codes: Sequence[str]) -> List[Dict[str, Any]]:
-        details: List[Dict[str, Any]] = []
-        for code in codes:
-            doc = self._reason_lookup.get(code)
-            if doc is None:
-                details.append(
-                    {
-                        "code": code,
-                        "known": False,
-                        "title": f"{code}（语料未收录）",
-                        "root_cause": "unknown",
-                        "meaning": "该原因码尚未收录到知识库语料中，无法给出准确释义。",
-                        "trigger": None,
-                        "implementation": None,
-                        "advice": None,
-                        "user_message": None,
-                        "doc_id": None,
-                    }
-                )
-                continue
-
-            lead, sections = split_labeled_sections(doc.content)
-            details.append(
-                {
-                    "code": code,
-                    "known": True,
-                    "title": doc.title,
-                    "root_cause": classify_reason_code(code),
-                    "meaning": sections.get("业务含义") or lead,
-                    "trigger": sections.get("触发条件") or sections.get("为什么重要"),
-                    "implementation": sections.get("实现位置"),
-                    "advice": sections.get("处置建议") or sections.get("正确做法"),
-                    "user_message": sections.get("用户话术"),
-                    "doc_id": doc.doc_id,
-                }
-            )
-        return details
+        """委托给模块级 :func:`build_reason_details`，Agent 走同一份实现。"""
+        return build_reason_details(codes, self._reason_lookup)
 
     # ── 处置建议（跨原因码的专家规则）────────────────────────────────────────
 
@@ -372,48 +542,8 @@ class ReviewExplainer:
         context: ReviewContext,
         reason_details: Sequence[Dict[str, Any]],
     ) -> List[str]:
-        actions: List[str] = []
-        known_codes = {item["code"] for item in reason_details}
-        has_quality = bool(known_codes & QUALITY_CODES)
-        has_field = any(item["root_cause"] == "field" for item in reason_details)
-        has_infra = any(item["root_cause"] == "infrastructure" for item in reason_details)
-
-        # 跨原因码的判读规则，顺序即优先级
-        if has_infra:
-            actions.append(
-                "本条属于服务端或调用方问题，**不要**向用户发出重拍提示；"
-                "按 request_id 报障并核对服务端配置或请求格式。"
-            )
-        if has_quality and has_field:
-            actions.append(
-                "质量原因码与字段原因码同时出现，字段缺失大概率是影像质量的下游后果 —— "
-                "先修影像质量，不必单独追问用户字段内容。"
-            )
-        if "glare_detected" in known_codes and not has_field:
-            actions.append(
-                "仅有反光原因码且字段全部解析成功，高光大概率未遮挡关键字段，"
-                "核对位置后可直接放行，并把该记录标记为规则误报样本。"
-            )
-        if "invalid_card_number" in known_codes and has_quality:
-            actions.append(
-                "卡号非法同时伴随质量原因码，优先怀疑 OCR 误识而不是伪造卡，"
-                "按 review 处理并让用户重拍，不建议直接拒绝。"
-            )
-        if "image_blur" in known_codes:
-            actions.append("让用户重新拍摄时，重点提示对焦与防抖，并建议不要用聊天软件二次传输。")
-
-        # 再汇总每个原因码自己的处置建议，保持原文可核对
-        for item in reason_details:
-            if item.get("advice") and item["advice"] not in actions:
-                actions.append(f"{item['code']}：{item['advice']}")
-
-        if not actions:
-            if context.review_result == "pass":
-                actions.append("本次审核无异常原因码，无需额外处置。")
-            else:
-                actions.append("未匹配到具体原因码，建议人工核对影像与解析字段后再判定。")
-
-        return actions
+        """委托给模块级 :func:`build_actions`。"""
+        return build_actions(context, reason_details)
 
     # ── 措施层 ────────────────────────────────────────────────────────────────
 
@@ -423,16 +553,24 @@ class ReviewExplainer:
         reason_details: Sequence[Dict[str, Any]],
         actions: Sequence[str],
         citations: Sequence[Dict[str, Any]],
-    ) -> tuple[str, str]:
-        """生成解释措辞。返回 ``(文本, 生效引擎)``。"""
+    ) -> tuple[str, str, Optional[str]]:
+        """生成解释措辞。返回 ``(文本, 生效引擎, 生效 prompt 版本)``。
+
+        prompt 版本只在真调了模型时才有值 —— 模板降级并不是「用了 prompt」，
+        报一个版本号上去会让排查者误以为模型参与了生成。
+        """
         if self._llm.available:
             try:
                 text = await self._generate_with_llm(context, reason_details, citations)
                 if text:
-                    return text, "llm"
+                    return text, "llm", EXPLAIN_GENERATE.label
             except LLMUnavailableError as exc:
                 logger.warning("解释生成降级为模板: %s", exc)
-        return self._generate_with_template(context, reason_details, actions), "template"
+        return (
+            self._generate_with_template(context, reason_details, actions),
+            "template",
+            None,
+        )
 
     async def _generate_with_llm(
         self,
@@ -447,22 +585,15 @@ class ReviewExplainer:
         knowledge = "\n".join(
             f"- {item['title']}：{item['content'][:200]}" for item in citations
         )
-        system = (
-            "你是银行影像审核的复核助手，服务对象是审核员。"
-            "你只能用给定的【事实条目】和【知识片段】作答，不得编造阈值、规则或字段。"
-            "输出中文，语气克制、专业，不使用营销语言，不重复免责声明。"
-        )
-        prompt = (
-            f"审核员的问题：{context.effective_question}\n\n"
-            f"证件类型：{doc_label}\n"
-            f"审核结论：{result_label}\n"
-            f"质量结果：{context.quality_result or '无'}\n"
-            f"错误信息：{context.error_message or '无'}\n\n"
-            f"【事实条目】（取自审核知识库，阈值与实现位置以这里为准）\n{facts}\n\n"
-            f"【知识片段】\n{knowledge or '（无）'}\n\n"
-            "请输出一段 120 到 220 字的中文解释，回答三个问题："
-            "① 这条记录为什么是这个结论；② 根因在哪一层（影像质量 / 字段解析 / 服务端）；"
-            "③ 审核员接下来该做什么。直接输出解释正文，不要标题、不要 JSON、不要分点编号。"
+        system = EXPLAIN_GENERATE.system
+        prompt = EXPLAIN_GENERATE.render(
+            question=context.effective_question,
+            doc_label=doc_label,
+            result_label=result_label,
+            quality_result=context.quality_result or "无",
+            error_message=context.error_message or "无",
+            facts=facts,
+            knowledge=knowledge or "（无）",
         )
         return (await self._llm.complete(prompt, system=system, max_tokens=512, temperature=0.2)).strip()
 
@@ -472,45 +603,8 @@ class ReviewExplainer:
         reason_details: Sequence[Dict[str, Any]],
         actions: Sequence[str],
     ) -> str:
-        """无 LLM 时的确定性措辞。
-
-        刻意写得完整可读，而不是一句「AI 不可用」——
-        因为事实层本来就是齐的，损失的不该是可用性。
-        """
-        doc_label = DOC_TYPE_LABELS.get(context.doc_type, context.doc_type)
-        result_label = REVIEW_RESULT_LABELS.get(context.review_result, context.review_result or "未知")
-        sentences: List[str] = [
-            f"本次{doc_label}审核的结论是「{result_label}」。"
-        ]
-
-        if not reason_details:
-            sentences.append(
-                "记录中没有审核原因码，说明质量检测与字段解析均无异常，"
-                "结论由规则判定直接给出，无需额外处置。"
-            )
-            return "".join(sentences)
-
-        root_causes = {item["root_cause"] for item in reason_details}
-        root_labels = {
-            "quality": "影像质量层",
-            "field": "字段解析层",
-            "infrastructure": "服务端或调用方",
-            "unknown": "未收录层",
-        }
-        layers = "、".join(root_labels.get(item, item) for item in sorted(root_causes))
-        sentences.append(f"共命中 {len(reason_details)} 个原因码，根因涉及{layers}。")
-
-        for item in reason_details:
-            if not item["known"]:
-                sentences.append(f"原因码 {item['code']} 尚未收录语料，需人工确认含义。")
-                continue
-            meaning = _first_sentence(item.get("meaning") or "")
-            sentences.append(f"{item['code']}：{meaning}")
-
-        if actions:
-            sentences.append(f"处置方向：{actions[0]}")
-
-        return "".join(sentences)
+        """委托给模块级 :func:`render_template_explanation`。"""
+        return render_template_explanation(context, reason_details, actions)
 
     # ── 置信度 ────────────────────────────────────────────────────────────────
 
@@ -549,17 +643,7 @@ class ReviewExplainer:
 
     @staticmethod
     def _to_citation(hit: Dict[str, Any]) -> Dict[str, Any]:
-        content = str(hit.get("content", ""))
-        return {
-            "doc_id": hit.get("doc_id"),
-            "title": hit.get("title", ""),
-            "category": hit.get("category", ""),
-            "score": hit.get("score", 0.0),
-            "matched_reason_codes": hit.get("matched_reason_codes", []),
-            "retrieval_channels": hit.get("retrieval_channels", []),
-            "snippet": content[:160] + ("…" if len(content) > 160 else ""),
-            "content": content,
-        }
+        return to_citation(hit)
 
 
 def _first_sentence(text: str) -> str:

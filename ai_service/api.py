@@ -1,10 +1,12 @@
 """AI 复核助手的 HTTP 接口。
 
-对外只暴露三个端点，都很窄：
+对外暴露的端点都很窄：
 
-* ``GET  /health``  —— 平台侧探测用，报告 LLM 是否可用与索引规模
-* ``POST /explain`` —— 主接口，传入脱敏后的审核上下文，返回解释与处置建议
-* ``POST /search``  —— 检索调试用，方便单独验证召回质量
+* ``GET  /health``        —— 平台侧探测用，报告 LLM 是否可用、索引规模与工具清单
+* ``POST /explain``       —— P0 主接口：固定流水线，传入脱敏上下文，返回解释与处置建议
+* ``POST /agent/explain`` —— P1 接口：多步工具决策，额外返回 trace 与预算使用情况
+* ``POST /search``        —— 检索调试用，方便单独验证召回质量
+* ``GET  /tools/stats``   —— 工具调用统计与熔断状态
 
 平台侧调用统一走 ``app/ai_client.py``，带超时、熔断和降级；
 本服务不反向依赖平台，也不访问平台数据库（记录由平台取好并脱敏后传入）。
@@ -20,8 +22,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from ai_service import __version__
+from ai_service.agent import run_agent_for_context
 from ai_service.explain import ReviewContext, ReviewExplainer, build_explainer
 from ai_service.llm import build_llm_client
+from ai_service.tools import TOOL_WHITELIST
 
 logger = logging.getLogger(__name__)
 
@@ -65,14 +69,18 @@ def create_app(explainer: Optional[ReviewExplainer] = None) -> FastAPI:
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
-        llm = active_explainer._llm  # noqa: SLF001 - 同包内读取，保持单一实例
+        llm = active_explainer.llm
         return {
             "status": "ok",
             "version": __version__,
             "llm_available": llm.available,
             "llm": llm.name,
-            "doc_count": active_explainer._retriever.doc_count,  # noqa: SLF001
-            "chunk_count": active_explainer._retriever.chunk_count,  # noqa: SLF001
+            "doc_count": active_explainer.retriever.doc_count,
+            "chunk_count": active_explainer.retriever.chunk_count,
+            "agent": {
+                "endpoint": "/agent/explain",
+                "tools": sorted(TOOL_WHITELIST),
+            },
         }
 
     @app.get("/tools/stats")
@@ -89,6 +97,26 @@ def create_app(explainer: Optional[ReviewExplainer] = None) -> FastAPI:
         except Exception as exc:  # noqa: BLE001 - 服务边界统一兜底
             logger.exception("解释生成失败 request_id=%s", payload.request_id)
             raise HTTPException(status_code=500, detail=f"解释生成失败: {exc}") from exc
+
+    @app.post("/agent/explain")
+    async def agent_explain(payload: ExplainRequest) -> Dict[str, Any]:
+        """Agent 路径：多步工具决策，返回完整 trace 与预算使用情况。
+
+        与 ``/explain`` 并存而不是替换：P0 的固定流水线更快、更省，
+        简单记录用它就够了；需要「自己决定查什么」时才走 Agent。
+        """
+        if payload.doc_type not in {"bank_card", "id_card"}:
+            raise HTTPException(status_code=422, detail="doc_type 必须是 bank_card 或 id_card")
+        context = ReviewContext.from_payload(payload.model_dump())
+        try:
+            return await run_agent_for_context(
+                context,
+                llm=active_explainer.llm,
+                retriever=active_explainer.retriever,
+            )
+        except Exception as exc:  # noqa: BLE001 - Agent 内部已兜底，这里是最后一道
+            logger.exception("Agent 运行失败 request_id=%s", payload.request_id)
+            raise HTTPException(status_code=500, detail=f"Agent 运行失败: {exc}") from exc
 
     @app.post("/search")
     def search(payload: SearchRequest) -> Dict[str, Any]:

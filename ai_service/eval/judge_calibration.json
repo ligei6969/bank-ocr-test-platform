@@ -1,0 +1,172 @@
+{
+  "_comment": [
+    "judge 校准样本。用途：量出 judge 与人工打分的一致率，判断 judge 分数能不能信。",
+    "",
+    "⚠️ 当前 human 字段是**项目作者按 rubric 自评的占位标注**，不是审核员标注。",
+    "   它能验证校准管线跑得通、能暴露 judge 的系统性偏差方向，但**不具备统计意义**。",
+    "   替换成真实审核员标注后，一致率数字才有对外引用价值 —— 这一点在报告里也会标明。",
+    "",
+    "每条的 human 分严格按 ai_service/prompts.py 的 JUDGE_RUBRIC 给分，",
+    "不做「凑一致率」的回填：校准的价值就在于量出真实偏差。"
+  ],
+  "cases": [
+    {
+      "case_id": "calib-01-complete",
+      "context": {"question": "这张卡为什么需要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_blur",
+          "meaning": "模糊会直接导致 OCR 识别错误，属于影像质量问题而不是用户资质问题。",
+          "trigger": "图像清晰度过低，文字边缘无法稳定分割。",
+          "implementation": "app/quality_check.py 的 detect_blur()，方差小于 80.0 判定为模糊。",
+          "advice": "让用户重新拍摄，镜头对准证件保持稳定，避免逆光和抖动。"
+        }
+      ],
+      "answer": "本次银行卡审核的结论是「待人工复核」。命中的原因码是 image_blur，根因在影像质量层：模糊会直接导致 OCR 识别错误，属于影像质量问题而不是用户资质问题。判定依据是 app/quality_check.py 的 detect_blur()，图像清晰度过低、文字边缘无法稳定分割，方差小于 80.0 即判为模糊。处置方向：让用户重新拍摄，镜头对准证件保持稳定，避免逆光和抖动。",
+      "human": {"relevance": 5, "accuracy": 5, "completeness": 5, "usefulness": 5}
+    },
+    {
+      "case_id": "calib-02-hallucinated-threshold",
+      "context": {"question": "为什么这条要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_blur",
+          "meaning": "模糊会直接导致 OCR 识别错误。",
+          "trigger": "图像清晰度过低。",
+          "implementation": "app/quality_check.py 的 detect_blur()，方差小于 80.0 判定为模糊。",
+          "advice": "让用户重新拍摄，注意对焦与防抖。"
+        }
+      ],
+      "answer": "结论是待人工复核，因为 image_blur 命中了。按 detect_blur 的规则，方差小于 120 就会被判为模糊，这说明本系统的清晰度门槛设得偏低，误报率约 15%，建议把阈值上调。",
+      "human": {"relevance": 4, "accuracy": 1, "completeness": 2, "usefulness": 2}
+    },
+    {
+      "case_id": "calib-03-vague",
+      "context": {"question": "这张卡为什么需要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_blur",
+          "meaning": "模糊会直接导致 OCR 识别错误。",
+          "trigger": "图像清晰度过低。",
+          "implementation": "app/quality_check.py 的 detect_blur()，方差小于 80.0 判定为模糊。",
+          "advice": "让用户重新拍摄，注意对焦与防抖。"
+        }
+      ],
+      "answer": "这条记录的影像质量存在问题，因此需要人工复核。建议审核员结合实际情况判断后再做决定。",
+      "human": {"relevance": 3, "accuracy": 3, "completeness": 2, "usefulness": 1}
+    },
+    {
+      "case_id": "calib-04-two-codes",
+      "context": {"question": "这条为什么是 review？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_blur",
+          "meaning": "模糊会直接导致 OCR 识别错误。",
+          "trigger": "图像清晰度过低。",
+          "implementation": "app/quality_check.py 的 detect_blur()，方差小于 80.0 判定为模糊。",
+          "advice": "让用户重新拍摄，注意对焦与防抖。"
+        },
+        {
+          "code": "missing_valid_date",
+          "meaning": "有效期是判断卡片是否过期的唯一依据，缺失时无法自动放行。",
+          "trigger": "OCR 文本中没有解析出有效期字段。",
+          "implementation": "app/rule_check.py 的 review_bank_card_with_reasons()。",
+          "advice": "先确认是否为影像质量导致的漏识，再决定是否要求用户重拍。"
+        }
+      ],
+      "answer": "结论是待人工复核，共命中 image_blur 与 missing_valid_date 两个原因码，根因涉及影像质量层与字段解析层。image_blur 说明模糊会直接导致 OCR 识别错误，detect_blur() 用的判据是方差小于 80.0；missing_valid_date 说明有效期是判断卡片是否过期的唯一依据，缺失时无法自动放行。两码同时出现时，字段缺失大概率是影像质量的下游后果，建议先修影像质量，让用户重新拍摄并注意对焦与防抖，不必单独追问用户字段内容。",
+      "human": {"relevance": 5, "accuracy": 5, "completeness": 5, "usefulness": 5}
+    },
+    {
+      "case_id": "calib-05-missing-next-step",
+      "context": {"question": "这条记录为什么是这个结论？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_dark",
+          "meaning": "过暗会让 OCR 丢失对比度低的文字。",
+          "trigger": "图像整体亮度低于正常范围。",
+          "implementation": "app/quality_check.py 的 detect_brightness()，灰度均值低于 65 判定为 dark。",
+          "advice": "让用户在光线充足处重拍，避免背光。"
+        }
+      ],
+      "answer": "结论是待人工复核。原因是 image_dark：图像整体亮度低于正常范围，灰度均值低于 65 即判定为 dark，过暗会让 OCR 丢失对比度低的文字，尤其是身份证背面的签发机关与有效期小字。",
+      "human": {"relevance": 5, "accuracy": 5, "completeness": 3, "usefulness": 2}
+    },
+    {
+      "case_id": "calib-06-off-topic",
+      "context": {"question": "这张卡为什么需要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "glare_detected",
+          "meaning": "反光会遮挡关键字段，导致 OCR 漏识。",
+          "trigger": "图像中存在高亮且低饱和度的连通区域。",
+          "implementation": "app/quality_check.py 的 detect_glare()，像素值大于 245 且饱和度小于 45。",
+          "advice": "核对高光位置是否遮挡关键字段，未遮挡可直接放行。"
+        }
+      ],
+      "answer": "银行影像审核系统通常包含影像采集、质量检测、OCR 识别、字段解析与规则判定五个环节。影像质量检测主要关注清晰度、亮度与反光三个维度，其中反光检测使用连通域分析，可以较好地识别高光区域。本系统的整体架构是 FastAPI 加 SQLite。",
+      "human": {"relevance": 1, "accuracy": 3, "completeness": 1, "usefulness": 1}
+    },
+    {
+      "case_id": "calib-07-infra-code",
+      "context": {"question": "这条为什么是错误状态？", "review_result": "error"},
+      "facts": [
+        {
+          "code": "invalid_request",
+          "meaning": "请求本身不合法，属于服务端或调用方问题。",
+          "trigger": "上传的文件类型、大小或格式不满足校验。",
+          "implementation": "app/main.py 的文件校验分支。",
+          "advice": "按 request_id 报障并核对服务端配置或请求格式，不要向用户发出重拍提示。"
+        }
+      ],
+      "answer": "结论是处理异常，命中 invalid_request，根因在服务端或调用方：请求本身不合法，通常是上传的文件类型、大小或格式不满足校验。按 request_id 报障并核对服务端配置或请求格式即可。这条明确不应该向用户发出重拍提示 —— 问题不在用户的影像上。",
+      "human": {"relevance": 5, "accuracy": 5, "completeness": 5, "usefulness": 5}
+    },
+    {
+      "case_id": "calib-08-overlong",
+      "context": {"question": "为什么需要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "glare_detected",
+          "meaning": "反光会遮挡关键字段，导致 OCR 漏识。",
+          "trigger": "图像中存在高亮且低饱和度的连通区域。",
+          "implementation": "app/quality_check.py 的 detect_glare()，像素值大于 245 且饱和度小于 45。",
+          "advice": "核对高光位置是否遮挡关键字段，未遮挡可直接放行。"
+        }
+      ],
+      "answer": "结论是待人工复核。这涉及反光检测，反光检测在图像处理领域是一个经典问题，常见做法包括基于阈值的分割、基于形态学的处理、基于深度学习的分割网络等等。从工程角度看，基于 HSV 空间的高值与低饱和度组合判据实现简单、可解释性好、推理成本低，适合本项目的规模。阈值方面，像素值大于 245 且饱和度小于 45 是常见取值，本系统也采用了这组参数，此外还需要考虑连通域的面积占比，过小的连通域往往是噪声。综上，反光会遮挡关键字段导致 OCR 漏识，因此需要人工复核。",
+      "human": {"relevance": 4, "accuracy": 5, "completeness": 3, "usefulness": 2}
+    },
+    {
+      "case_id": "calib-09-empty",
+      "context": {"question": "为什么需要人工复核？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_bright",
+          "meaning": "过亮会让文字与背景的对比度下降。",
+          "trigger": "图像整体亮度过高。",
+          "implementation": "app/quality_check.py 的 detect_brightness()，灰度均值大于 210 判定为 bright。",
+          "advice": "让用户避免强光直射或闪光灯，在均匀光线下重拍。"
+        }
+      ],
+      "answer": "",
+      "human": {"relevance": 0, "accuracy": 0, "completeness": 0, "usefulness": 0}
+    },
+    {
+      "case_id": "calib-10-user-facing",
+      "context": {"question": "该怎么跟用户说？", "review_result": "review"},
+      "facts": [
+        {
+          "code": "image_blur",
+          "meaning": "模糊会直接导致 OCR 识别错误。",
+          "trigger": "图像清晰度过低，文字边缘无法稳定分割。",
+          "implementation": "app/quality_check.py 的 detect_blur()，方差小于 80.0 判定为模糊。",
+          "advice": "让用户重新拍摄，镜头对准证件保持稳定，避免逆光和抖动。",
+          "user_message": "图片有些模糊，请重新拍摄，请把证件放平、镜头对准、手别抖。"
+        }
+      ],
+      "answer": "结论是待人工复核，原因是 image_blur，根因在影像质量层：文字边缘无法稳定分割，方差小于 80.0 即判为模糊，这会让 OCR 直接识别错误。给用户的话术可以这样说：「图片有些模糊，请重新拍摄，请把证件放平、镜头对准、手别抖。」同时建议提醒用户不要用聊天软件二次传输，避免二次压缩导致再次模糊。",
+      "human": {"relevance": 5, "accuracy": 5, "completeness": 4, "usefulness": 5}
+    }
+  ]
+}

@@ -20,6 +20,7 @@ from ai_service.explain import (
     split_labeled_sections,
 )
 from ai_service.llm import NullLLMClient
+from ai_service.prompts import EXPLAIN_GENERATE, QUERY_REWRITE, RERANK
 
 
 class FakeLLM:
@@ -327,3 +328,31 @@ def test_llm_path_still_returns_corpus_facts_unchanged() -> None:
 
     assert with_llm["reason_details"] == degraded["reason_details"]
     assert with_llm["actions"] == degraded["actions"]
+
+
+# ── Prompt 版本回传 ───────────────────────────────────────────────────────────
+
+def test_degraded_path_reports_no_prompt_versions() -> None:
+    """没调模型就不能报 prompt 版本 —— 报了会让人误以为模型参与了生成。"""
+    result = explain(blurred_card_context())
+
+    assert result["prompt_versions"]["used"] == {}
+    assert result["prompt_versions"]["registry"]
+
+
+def test_llm_path_reports_the_prompt_versions_it_used() -> None:
+    result = explain(blurred_card_context(), llm=FakeLLM())
+
+    used = result["prompt_versions"]["used"]
+    assert used["query_rewrite"] == QUERY_REWRITE.label
+    assert used["rerank"] == RERANK.label
+    assert used["explain_generate"] == EXPLAIN_GENERATE.label
+
+
+def test_prompt_version_labels_are_reachable_from_the_trace() -> None:
+    """trace 是排查的第一手材料，prompt 版本必须能在里面直接看到。"""
+    result = explain(blurred_card_context(), llm=FakeLLM())
+
+    steps = {entry["step"]: entry for entry in result["trace"]}
+    assert steps["rewrite"]["prompt"] == QUERY_REWRITE.label
+    assert steps["generate"]["prompt"] == EXPLAIN_GENERATE.label

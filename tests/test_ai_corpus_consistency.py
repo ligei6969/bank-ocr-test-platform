@@ -238,3 +238,125 @@ def test_corpus_documents_have_unique_ids() -> None:
 def test_reason_code_document_mentions_its_own_code(code: str) -> None:
     """释义正文必须出现原因码字面量，否则词法检索会漏召回。"""
     assert code in _corpus_text(code)
+
+
+# ── 阈值机器可读副本 vs 平台实现 ──────────────────────────────────────────────
+#
+# ``ai_service/thresholds.py`` 是阈值的机器可读副本，Agent 的 recompute_quality
+# 工具依赖它反推原因码。阈值一旦被抄两遍就一定会漂移，所以这里把平台源码里的
+# 真值读出来逐项比对 —— 靠自觉不如靠测试。
+#
+# 注意方向：本测试在**平台侧**运行，因此可以 import app.quality_check；
+# ai_service 本身刻意不依赖平台的 OpenCV 实现，保持轻依赖。
+
+from ai_service.thresholds import (  # noqa: E402
+    DEFAULT_THRESHOLDS,
+    METRIC_BLUR_VARIANCE,
+    METRIC_BRIGHTNESS_MEAN,
+    METRIC_GLARE_COMPONENT_RATIO,
+    QUALITY_REASON_CODES,
+    derive_quality_reasons,
+)
+
+
+def test_ai_blur_threshold_matches_platform_source() -> None:
+    threshold = _source_number(quality_check.detect_blur, r"variance\s*<\s*([0-9.]+)")
+
+    assert float(threshold) == DEFAULT_THRESHOLDS.blur_variance
+
+
+def test_ai_dark_brightness_threshold_matches_platform_source() -> None:
+    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*<\s*([0-9.]+)")
+
+    assert float(threshold) == DEFAULT_THRESHOLDS.brightness_dark
+
+
+def test_ai_bright_brightness_threshold_matches_platform_source() -> None:
+    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*>\s*([0-9.]+)")
+
+    assert float(threshold) == DEFAULT_THRESHOLDS.brightness_bright
+
+
+def test_ai_glare_thresholds_match_platform_constants() -> None:
+    assert DEFAULT_THRESHOLDS.glare_value == quality_check.GLARE_VALUE_THRESHOLD
+    assert DEFAULT_THRESHOLDS.glare_saturation == quality_check.GLARE_SATURATION_THRESHOLD
+    assert DEFAULT_THRESHOLDS.glare_component_ratio == pytest.approx(
+        quality_check.GLARE_COMPONENT_RATIO_THRESHOLD
+    )
+
+
+def test_ai_quality_reason_codes_cover_every_platform_emitted_code() -> None:
+    """平台每种质检判定都会出的原因码，AI 侧必须都声明。"""
+    samples = [
+        {"is_blur": True},
+        {"brightness": "dark"},
+        {"brightness": "bright"},
+        {"has_glare": True},
+    ]
+    emitted: set[str] = set()
+    for sample in samples:
+        emitted.update(quality_check.get_quality_reasons(sample))
+
+    assert emitted == set(QUALITY_REASON_CODES)
+
+
+@pytest.mark.parametrize(
+    ("metrics", "platform_flags"),
+    [
+        (
+            {METRIC_BLUR_VARIANCE: 10.0, METRIC_BRIGHTNESS_MEAN: 128.0},
+            {"is_blur": True, "brightness": "normal", "has_glare": False},
+        ),
+        (
+            {METRIC_BLUR_VARIANCE: 500.0, METRIC_BRIGHTNESS_MEAN: 30.0},
+            {"is_blur": False, "brightness": "dark", "has_glare": False},
+        ),
+        (
+            {METRIC_BLUR_VARIANCE: 500.0, METRIC_BRIGHTNESS_MEAN: 250.0},
+            {"is_blur": False, "brightness": "bright", "has_glare": False},
+        ),
+        (
+            {
+                METRIC_BLUR_VARIANCE: 500.0,
+                METRIC_BRIGHTNESS_MEAN: 128.0,
+                METRIC_GLARE_COMPONENT_RATIO: 0.05,
+            },
+            {"is_blur": False, "brightness": "normal", "has_glare": True},
+        ),
+        (
+            {
+                METRIC_BLUR_VARIANCE: 500.0,
+                METRIC_BRIGHTNESS_MEAN: 128.0,
+                METRIC_GLARE_COMPONENT_RATIO: 0.0,
+            },
+            {"is_blur": False, "brightness": "normal", "has_glare": False},
+        ),
+    ],
+)
+def test_ai_recompute_agrees_with_platform_judgement(
+    metrics: dict,
+    platform_flags: dict,
+) -> None:
+    """同一组原始指标，AI 侧重推的原因码必须与平台判定逐项一致。
+
+    这是 recompute_quality 之所以可信的全部依据：两边跑的是同一套阈值语义。
+    """
+    expected = quality_check.get_quality_reasons(platform_flags)
+
+    assert derive_quality_reasons(metrics) == expected
+
+
+def test_ai_blur_boundary_is_exclusive_like_the_platform() -> None:
+    """平台用的是 ``variance < 80.0``，等于阈值不算模糊 —— 副本必须是同一语义。"""
+    at_threshold = derive_quality_reasons(
+        {METRIC_BLUR_VARIANCE: DEFAULT_THRESHOLDS.blur_variance, METRIC_BRIGHTNESS_MEAN: 128.0}
+    )
+    just_below = derive_quality_reasons(
+        {
+            METRIC_BLUR_VARIANCE: DEFAULT_THRESHOLDS.blur_variance - 0.1,
+            METRIC_BRIGHTNESS_MEAN: 128.0,
+        }
+    )
+
+    assert at_threshold == []
+    assert just_below == ["image_blur"]
