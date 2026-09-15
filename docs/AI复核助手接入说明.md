@@ -172,21 +172,27 @@ curl -s localhost:8000/ai/status?probe=true -b cookies.txt | python -m json.tool
 ## 八、下一步（P0 之外）
 
 > P0 之后的分期已按「适配 AI 应用 / Agent 测试岗位」重排，详见
-> `docs/AI智能审核融合方案.md` 第九节。核心变化：先从固定流水线的 RAG
-> 升级为**会调工具、多步决策的审核 Agent**，再补齐**轨迹断言、确定性回放、
-> judge 校准、CI 回归门禁**这套 Agent 测试体系。
+> `docs/AI智能审核融合方案.md` 第九、十节。核心变化：先把固定流水线的 RAG
+> 升级为**会调工具、多步决策的审核 Agent**并补齐测试体系（**P1 已完成**），
+> 再新增一条**银行业务知识客服 Agent**主线（一内核多产品面），最后补双判闭环与观测。
 
-| 阶段 | 内容 |
-| --- | --- |
-| P1.1 | 真实模型路径可管控：Prompt 版本化、结构化输出、`--live` 冒烟 |
-| P1.2 | Agent 化：工具注册表 + tool-calling 循环 + 步数/超时/token 预算 + trace |
-| P1.3 | Agent 测试框架：cassette 回放、轨迹断言、工具故障注入、对抗输入 |
-| P1.4 | 评测与门禁：golden 集、四层指标、LLM-as-Judge 校准、baseline 回归 |
-| P2 | 规则 + LLM 双判，`llm_override` 落库（**必须落库**，否则无法评估 AI 是帮忙还是添乱） |
-| P3 | 监控接入：AI 改判率、回滚率、`/metrics` |
-| P4 | 审核会话记忆，支持多轮追问；平台能力暴露为 MCP 工具 |
+**P1 已完成（见 `docs/P1_Agent开发报告.md`）**：Agent 化、cassette 回放、
+轨迹断言、故障注入、四层指标与 CI 回归门禁均已落地；测试 447 → 647 全绿；
+`app/main.py` 主链路一行未动。新增接口 `POST /agent/explain`（与 `/explain` 并存）。
 
-具体任务拆解与自测要求见 `docs/WorkBuddy_P1_Agent开发提示词.md`。
+| 阶段 | 内容 | 状态 |
+| --- | --- | --- |
+| P1.1 | 真实模型路径可管控：Prompt 版本化、结构化输出、`--live` 冒烟 | ✅ 完成 |
+| P1.2 | Agent 化：工具注册表 + tool-calling 循环 + 三重预算 + trace | ✅ 完成 |
+| P1.3 | Agent 测试框架：cassette 回放、轨迹断言、故障注入、对抗输入 | ✅ 完成 |
+| P1.4 | 评测与门禁：golden 集、四层指标、LLM-as-Judge 校准、baseline 回归 | ✅ 完成 |
+| P1.5 | 收口：真实模型端到端验证 + usage 成本；（可选）结论标注 | 下一步 |
+| P2.1 | **对内银行业务知识客服 Agent**（复用内核 + 新 corpus/工具/安全边界） | 下一步 |
+| P2.3 | 规则 + LLM 双判，`llm_override` 落库（**必须落库**） | 待结论标注 |
+| P3 | 监控接入：AI 改判率、回滚率、`/metrics`；Agent trace 接入管理端 UI | 待定 |
+| P4 | 会话记忆 + MCP server | 待定 |
+
+具体任务拆解与自测要求见 `docs/下一步开发计划.md`（含 Knowledge Agent 子方案）。
 
 ---
 
