@@ -41,7 +41,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
-from ai_service.llm import LLMClient, LLMUnavailableError
+from ai_service.llm import (
+    USAGE_PROVIDER,
+    LLMClient,
+    LLMUnavailableError,
+    LLMUsage,
+    take_usage,
+)
 from ai_service.tool_manager import Tool
 
 logger = logging.getLogger(__name__)
@@ -171,10 +177,15 @@ class CassetteLLMClient:
 
     不改变 ``available`` / ``name`` 语义：上层照常判断模型可不可用，
     只是调用被中转了一层。
+
+    **用量一并录制。** 否则回放时 token 记账会从「真实用量」掉回「字符估算」，
+    同一份录制在 CI 里报出的成本与录制时不一致 —— 这种不一致很容易被误读成
+    「模型换了」或者「成本涨了」。
     """
 
     inner: LLMClient
     cassette: Cassette
+    _pending_usage: Optional[LLMUsage] = field(default=None, init=False, repr=False)
 
     @property
     def available(self) -> bool:
@@ -211,12 +222,71 @@ class CassetteLLMClient:
         }
         key = fingerprint("llm", describe)
 
-        async def call() -> str:
-            return await self.inner.complete(
-                prompt, system=system, max_tokens=max_tokens, temperature=temperature
-            )
+        if self.cassette.mode == REPLAY:
+            entry = self.cassette.get(key)
+            if entry is None:
+                raise _miss("llm", key, describe)
+            # 累加而不是覆盖：一次请求可能调好几次模型，只留最后一次会低估成本
+            self._pending_usage = _accumulate(self._pending_usage, _usage_from_entry(entry))
+            return entry.get("response")
 
-        return await _atransact(self.cassette, key, "llm", describe, call)
+        response = await self.inner.complete(
+            prompt, system=system, max_tokens=max_tokens, temperature=temperature
+        )
+        usage = take_usage(self.inner)
+        record: Dict[str, Any] = {
+            "kind": "llm",
+            "request": dict(describe),
+            "response": response,
+        }
+        if usage is not None:
+            record["usage"] = usage.as_dict()
+        self.cassette.put(key, record)
+        self._pending_usage = _accumulate(self._pending_usage, usage)
+        return response
+
+    def take_usage(self) -> Optional[LLMUsage]:
+        """回放时返回录制里的用量，录制时返回内层客户端的真实用量。"""
+        usage, self._pending_usage = self._pending_usage, None
+        return usage
+
+
+def _accumulate(current: Optional[LLMUsage], extra: Optional[LLMUsage]) -> Optional[LLMUsage]:
+    """把新到的用量并进累计值；两边都为 ``None`` 时保持 ``None``。
+
+    保持 ``None`` 很重要：它表示「拿不到真实用量」，上层据此退回字符估算。
+    若在这里用 0 顶替，估算路径就永远不会被走到，成本会静默变成 0。
+    """
+    if extra is None:
+        return current
+    return extra if current is None else current + extra
+
+
+def _usage_from_entry(entry: Mapping[str, Any]) -> Optional[LLMUsage]:
+    """从录制条目里还原用量。
+
+    旧版 cassette 没有 ``usage`` 字段，这里返回 ``None``，
+    上层自然退回字符估算 —— 兼容旧录制，不必强制重录。
+    """
+    raw = entry.get("usage")
+    if not isinstance(raw, Mapping):
+        return None
+
+    def _as_int(value: Any) -> Optional[int]:
+        if isinstance(value, bool) or not isinstance(value, int):
+            return None
+        return value if value >= 0 else None
+
+    prompt_tokens = _as_int(raw.get("prompt_tokens"))
+    completion_tokens = _as_int(raw.get("completion_tokens"))
+    if prompt_tokens is None or completion_tokens is None:
+        return None
+    source = str(raw.get("source") or USAGE_PROVIDER)
+    return LLMUsage(
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        source=source,
+    )
 
 
 async def _atransact(

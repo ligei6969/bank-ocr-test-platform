@@ -6,8 +6,16 @@
 工具层    工具选择的序列对不对、参数对不对、平均走了几步
 任务层    该找的原因码找全没有、有没有给出依据、处置建议能不能用
 解释层    LLM-as-Judge 四维打分（相关性 / 准确性 / 完整性 / 有用性）
+成本层    token 用量与「这个数字是不是 provider 回传的真实值」
 回归层    各指标 vs ``baseline.json``，退化超过阈值即告警
 ========  ==========================================================
+
+关于成本层的语义
+----------------
+离线跑（``LLM_PROVIDER=none``）不调用模型，成本**恒为 0**，这是真实值不是缺失。
+所以 ``cost.*`` 只在 ``--live`` 模式下有信息量；CI 用的是离线基线，
+成本指标不会在 CI 里触发告警。把它留在指标里是为了让「真实模型跑一次花了多少」
+这件事有地方落，而不是让它进 CI 门禁假装有效。
 
 这里全是**纯函数**：输入是样本与运行结果，输出是数字。
 不碰文件、不碰网络、不碰 Agent —— 所以「退化 5% 要告警」这条规则可以被直接单测，
@@ -50,6 +58,9 @@ METRIC_DIRECTIONS: Dict[str, str] = {
     "explain.accuracy": HIGHER_IS_BETTER,
     "explain.completeness": HIGHER_IS_BETTER,
     "explain.usefulness": HIGHER_IS_BETTER,
+    "cost.avg_tokens": LOWER_IS_BETTER,
+    "cost.avg_provider_tokens": LOWER_IS_BETTER,
+    "cost.provider_usage_rate": HIGHER_IS_BETTER,
 }
 
 
@@ -109,6 +120,28 @@ def _tool_calls(outcome: Mapping[str, Any]) -> List[Mapping[str, Any]]:
     ]
 
 
+def _token_usage(outcome: Mapping[str, Any]) -> Dict[str, Any]:
+    """取 token 用量明细。
+
+    P1.5 之前的结果里没有 ``token_usage`` 字段，按「没调模型、成本为 0」处理 ——
+    那是事实，不是缺数据。
+    """
+    raw = outcome.get("token_usage")
+    if not isinstance(raw, Mapping):
+        return {"total": 0, "provider_total": 0, "source": "none"}
+    return {
+        "total": _as_int(raw.get("total")),
+        "provider_total": _as_int(raw.get("provider_total")),
+        "source": str(raw.get("source") or "none"),
+    }
+
+
+def _as_int(value: Any) -> int:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return 0
+    return max(0, int(value))
+
+
 # ── 单样本 ────────────────────────────────────────────────────────────────────
 
 def score_sample(row: SampleOutcome) -> Dict[str, Any]:
@@ -116,6 +149,7 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
     sample = row.sample
     outcome = row.outcome
     tools = _executed_tools(outcome)
+    tokens = _token_usage(outcome)
 
     actual_reasons = set(outcome.get("unknown_reason_codes") or [])
     found_reasons = _reasons_covered(outcome)
@@ -142,6 +176,10 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
         "explain.accuracy": row.judge_scores.get("accuracy", 0.0),
         "explain.completeness": row.judge_scores.get("completeness", 0.0),
         "explain.usefulness": row.judge_scores.get("usefulness", 0.0),
+        "cost.tokens": tokens["total"],
+        "cost.provider_tokens": tokens["provider_total"],
+        "cost.usage_reported": tokens["source"] == "provider",
+        "cost.ran_llm": tokens["source"] != "none",
     }
 
 
@@ -217,6 +255,7 @@ def aggregate(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
             "tools": {},
             "task": {},
             "explain": {},
+            "cost": {},
         }
 
     steps = [float(row["tools.steps"]) for row in rows]
@@ -246,6 +285,15 @@ def aggregate(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
             "completeness": _mean(row["explain.completeness"] for row in rows),
             "usefulness": _mean(row["explain.usefulness"] for row in rows),
         },
+        "cost": {
+            # 用 .get 而不是 []：调用方（含测试）可能手工拼行，缺键当作 0
+            "avg_tokens": _mean(row.get("cost.tokens", 0) for row in rows),
+            "avg_provider_tokens": _mean(row.get("cost.provider_tokens", 0) for row in rows),
+            # 只在「真的调过模型」的样本上算：离线跑全是 0/0，那没有意义
+            "provider_usage_rate": _conditional_rate(
+                rows, key="cost.usage_reported", when="cost.ran_llm"
+            ),
+        },
     }
 
 
@@ -257,7 +305,7 @@ def _mean(values: Iterable[float]) -> float:
 def flatten(aggregate_report: Mapping[str, Any]) -> Dict[str, float]:
     """拍平成 ``{"tools.sequence_accuracy": 0.9, ...}``，用于和 baseline 比对。"""
     flat: Dict[str, float] = {}
-    for layer in ("tools", "task", "explain"):
+    for layer in ("tools", "task", "explain", "cost"):
         for name, value in (aggregate_report.get(layer) or {}).items():
             key = f"{layer}.{name}"
             if isinstance(value, (int, float)) and not isinstance(value, bool):

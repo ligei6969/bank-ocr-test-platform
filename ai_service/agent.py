@@ -34,9 +34,17 @@ P0 的 ``explain`` 是**固定流水线**：改写 → 召回 → 重排 → 生
 
 关于 token 计量
 ---------------
-本服务的 ``LLMClient`` 协议只返回文本，拿不到 provider 的 usage 字段，
-所以这里用字符估算（CJK 1 字 ≈ 1 token，其余 4 字符 ≈ 1 token）。
-它的用途是**预算兜底**（防止模型无限自问自答烧钱），不是计费依据。
+两条来源，**优先真实、缺了才估**：
+
+1. provider 在响应体里回了 ``usage`` → 用真实值（``source="provider"``）；
+2. 没回 / 客户端不支持 → 字符估算兜底（``source="estimate"``）。
+
+估算规则：CJK 1 字 ≈ 1 token，其余 4 字符 ≈ 1 token。它只保证「随输出长度
+单调增长」，好让预算能真的封顶，**不是计费依据**。
+
+两者的区别在报告里是显式的（``token_usage.source`` 会是
+``provider`` / ``estimate`` / ``mixed`` / ``none``）——
+把一个估算值当成「成本可控」的证据，比没有这个指标更糟。
 """
 
 from __future__ import annotations
@@ -59,7 +67,15 @@ from ai_service.explain import (
     render_template_explanation,
     to_citation,
 )
-from ai_service.llm import LLMClient, LLMUnavailableError, NullLLMClient
+from ai_service.llm import (
+    USAGE_ESTIMATE,
+    USAGE_PROVIDER,
+    LLMClient,
+    LLMUnavailableError,
+    LLMUsage,
+    NullLLMClient,
+    take_usage,
+)
 from ai_service.prompts import AGENT_DECIDE, PROMPT_REGISTRY_VERSION, collect_labels
 from ai_service.structured import StructuredOutputError, parse_structured
 from ai_service.tool_manager import ToolManager
@@ -150,6 +166,8 @@ class AgentOutcome:
     stop_reason: str = "finished"
     budget: Dict[str, Any] = field(default_factory=dict)
     budget_used: Dict[str, Any] = field(default_factory=dict)
+    #: token 用量明细。``source`` 说明这些数字是 provider 回传还是本地估算
+    token_usage: Dict[str, Any] = field(default_factory=dict)
     prompt_versions: Dict[str, Any] = field(default_factory=dict)
     latency_ms: float = 0.0
     trace: List[Dict[str, Any]] = field(default_factory=list)
@@ -184,6 +202,7 @@ class AgentOutcome:
             },
             "budget": self.budget,
             "budget_used": self.budget_used,
+            "token_usage": self.token_usage,
             "prompt_versions": self.prompt_versions,
             "latency_ms": self.latency_ms,
             "trace": self.trace,
@@ -203,6 +222,37 @@ def estimate_tokens(text: str) -> int:
     cjk = sum(1 for char in text if "\u4e00" <= char <= "\u9fff")
     other = len(text) - cjk
     return cjk + max(0, other) // 4
+
+
+def _usage_source(state: "_LoopState") -> str:
+    """这次记账的可信度标签。
+
+    * ``none``     没调用模型（确定性路径），成本确实是 0
+    * ``provider`` 全部调用都有 provider 回传，可作计费依据
+    * ``estimate`` 全部调用都拿不到 usage，纯估算
+    * ``mixed``    一部分有一部没有 —— 合计值不能当账单，只能说个量级
+    """
+    if state.llm_calls == 0:
+        return "none"
+    if state.unreported_calls == 0:
+        return USAGE_PROVIDER
+    if state.unreported_calls >= state.llm_calls:
+        return USAGE_ESTIMATE
+    return "mixed"
+
+
+def _usage_report(state: "_LoopState") -> Dict[str, Any]:
+    """token 用量明细。真实值与估算值**分开报**，并显式标注来源。"""
+    real = state.provider_usage
+    return {
+        "prompt_tokens": real.prompt_tokens,
+        "completion_tokens": real.completion_tokens,
+        "provider_total": real.total,
+        "estimated_tokens": state.estimated_tokens,
+        "total": real.total + state.estimated_tokens,
+        "llm_calls": state.llm_calls,
+        "source": _usage_source(state),
+    }
 
 
 def _clip(text: Any, limit: int) -> str:
@@ -364,7 +414,7 @@ class ReviewAgent:
             )
             return None
 
-        state.tokens += estimate_tokens(prompt) + estimate_tokens(raw)
+        self._account_tokens(state, prompt, raw)
         state.prompt_label = AGENT_DECIDE.label
 
         try:
@@ -380,6 +430,26 @@ class ReviewAgent:
                 }
             )
             return None
+
+    def _account_tokens(self, state: "_LoopState", prompt: str, raw: str) -> None:
+        """给本次模型调用记账。
+
+        预算用的是「真实 or 估算」的合计值 —— 预算的目的是**封顶**，
+        混用两种口径不会让它失效，反而比「拿不到 usage 就不计费」更安全
+        （后者会让不返回 usage 的 provider 变成预算黑洞）。
+
+        报告则把两者**分开呈现**，避免估算值冒充账单。
+        """
+        state.llm_calls += 1
+        usage = take_usage(self._llm)
+        if usage is None:
+            state.unreported_calls += 1
+            spent = estimate_tokens(prompt) + estimate_tokens(raw)
+            state.estimated_tokens += spent
+        else:
+            state.provider_usage = state.provider_usage + usage
+            spent = usage.total
+        state.tokens += spent
 
     # ── 单步执行（两条路径共用）──────────────────────────────────────────────
 
@@ -660,6 +730,7 @@ class ReviewAgent:
                 "tokens": state.tokens,
                 "rejections": state.rejections,
             },
+            token_usage=_usage_report(state),
             prompt_versions={
                 "registry": PROMPT_REGISTRY_VERSION,
                 "used": collect_labels(state.trace),
@@ -741,6 +812,14 @@ class _LoopState:
     tool_calls: int = 0
     tokens: int = 0
     rejections: int = 0
+    #: 模型调用次数（含失败与解析失败的调用 —— 它们同样产生费用）
+    llm_calls: int = 0
+    #: provider 没回 usage 的调用次数。用来判断这次记账到底是真实值还是估算值
+    unreported_calls: int = 0
+    #: 字符估算出来的 token 数（只用于预算与兜底，不进成本结论）
+    estimated_tokens: int = 0
+    #: provider 回传的真实用量累计
+    provider_usage: LLMUsage = field(default_factory=lambda: LLMUsage(source=USAGE_PROVIDER))
     decision_engine: str = "llm"
     decision_failed: bool = False
     truncated: bool = False

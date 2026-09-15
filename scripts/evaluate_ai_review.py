@@ -1,4 +1,4 @@
-"""审核 AI 的四层指标评测入口。
+"""审核 AI 的分层指标评测入口（工具层 / 任务层 / 解释层 / 成本层 + 回归门禁）。
 
 用法::
 
@@ -60,6 +60,7 @@ LAYER_TITLES = {
     "tools": "工具层",
     "task": "任务层",
     "explain": "解释层",
+    "cost": "成本层",
 }
 
 METRIC_LABELS = {
@@ -77,7 +78,16 @@ METRIC_LABELS = {
     "accuracy": "准确性",
     "completeness": "完整性",
     "usefulness": "有用性",
+    "avg_tokens": "平均 token 用量（越低越好）",
+    "avg_provider_tokens": "其中 provider 回传的真实用量",
+    "provider_usage_rate": "用量的真实来源占比",
 }
+
+#: 成本层在离线跑时恒为 0（不调模型），需要一句解释，否则读者会以为指标坏了
+COST_LAYER_NOTE = (
+    "成本层离线恒为 0：CI 与默认路径不调用模型。"
+    "接入真实模型后用 --live 重跑，这一层才会有数字。"
+)
 
 
 def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
@@ -122,7 +132,7 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
 def print_report(report: EvaluationReport) -> None:
     golden = report.golden
     print("=" * 72)
-    print("审核 AI 四层指标评测")
+    print("审核 AI 分层指标评测（工具 / 任务 / 解释 / 成本）")
     print("=" * 72)
     print(f"golden 集：{golden['size']} 条（来源 {golden['labels_path']}）")
     print(f"judge 引擎：{report.judge_engine}")
@@ -137,6 +147,8 @@ def print_report(report: EvaluationReport) -> None:
         for name, value in block.items():
             label = METRIC_LABELS.get(name, name)
             print(f"   {label:<24} {value:.4f}")
+        if layer == "cost":
+            print(f"   · {COST_LAYER_NOTE}")
         print()
 
     print("── 说明 ──")

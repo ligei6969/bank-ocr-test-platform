@@ -536,5 +536,117 @@ def test_all_metric_directions_are_declared_for_the_four_layers() -> None:
         "tools.sequence_accuracy",
         "task.reason_code_match_rate",
         "explain.usefulness",
+        "cost.avg_tokens",
     ):
         assert key in METRIC_DIRECTIONS
+
+
+# ── 成本层 ────────────────────────────────────────────────────────────────────
+
+def _golden(sample_id: str = "golden-cost") -> Any:
+    from ai_service.eval.golden import GoldenSample
+
+    return GoldenSample(
+        sample_id=sample_id,
+        image_path="p",
+        doc_type="bank_card",
+        quality_type="blur",
+        expected_reason_codes=("image_blur",),
+        expected_quality_result="review",
+        expected_tools=("search_knowledge",),
+        expects_escalation=False,
+    )
+
+
+def test_score_sample_reads_the_token_usage_block() -> None:
+    outcome = {
+        "trace": [],
+        "token_usage": {
+            "total": 300,
+            "provider_total": 300,
+            "source": "provider",
+        },
+    }
+
+    row = score_sample(SampleOutcome(sample=_golden(), outcome=outcome))
+
+    assert row["cost.tokens"] == 300
+    assert row["cost.provider_tokens"] == 300
+    assert row["cost.usage_reported"] is True
+    assert row["cost.ran_llm"] is True
+
+
+def test_score_sample_treats_a_missing_token_block_as_no_model_cost() -> None:
+    """P1.5 之前的结果没有这个字段 —— 那是「没调模型」，不是「数据缺失」。"""
+    row = score_sample(SampleOutcome(sample=_golden(), outcome={"trace": []}))
+
+    assert row["cost.tokens"] == 0
+    assert row["cost.ran_llm"] is False
+
+
+def test_provider_usage_rate_only_counts_runs_that_called_a_model() -> None:
+    """离线样本不算进分母：它们本来就没有用量，算进去是惩罚正确行为。"""
+    rows = [
+        {"cost.usage_reported": True, "cost.ran_llm": True},
+        {"cost.usage_reported": False, "cost.ran_llm": True},
+        {"cost.usage_reported": False, "cost.ran_llm": False},
+    ]
+
+    rate = aggregate(_with_required_metrics(rows))["cost"]["provider_usage_rate"]
+
+    assert rate == 0.5
+
+
+def test_cost_average_tokens_is_summed_over_every_sample() -> None:
+    rows = [
+        {"cost.tokens": 100, "cost.provider_tokens": 100},
+        {"cost.tokens": 300, "cost.provider_tokens": 0},
+    ]
+
+    metrics = aggregate(_with_required_metrics(rows))
+
+    assert metrics["cost"]["avg_tokens"] == 200.0
+    assert metrics["cost"]["avg_provider_tokens"] == 50.0
+
+
+def _with_required_metrics(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """补上 aggregate 会读的其余字段，让用例只聚焦成本层。"""
+    template: Dict[str, Any] = {
+        "tools.steps": 2,
+        "tools.sequence_match": True,
+        "tools.max_sequence_match": True,
+        "tools.parameter_ok": True,
+        "task.reason_codes_matched": True,
+        "task.has_evidence": True,
+        "task.evidence_expected": True,
+        "task.has_action": True,
+        "task.escalation_correct": True,
+        "task.degraded": False,
+        "task.truncated": False,
+        "explain.relevance": 5.0,
+        "explain.accuracy": 5.0,
+        "explain.completeness": 5.0,
+        "explain.usefulness": 5.0,
+    }
+    return [{**template, **row} for row in rows]
+
+
+def test_cost_regression_fires_when_token_use_grows() -> None:
+    """成本是越低越好：涨了才算退化，降了不该报警。"""
+    baseline = {"cost.avg_tokens": 1000.0}
+
+    worse = compare_to_baseline({"cost.avg_tokens": 1200.0}, baseline)
+    better = compare_to_baseline({"cost.avg_tokens": 800.0}, baseline)
+
+    assert [alert.metric for alert in worse] == ["cost.avg_tokens"]
+    assert worse[0].direction == LOWER_IS_BETTER
+    assert better == []
+
+
+def test_cost_metrics_reach_the_baseline_gate() -> None:
+    """成本指标必须能在 baseline 里保存并被门禁读到，否则等于没接。"""
+    report = run(evaluate(load_golden_set(target_size=4), baseline_path=None))
+
+    assert "cost.avg_tokens" in report.flat
+    assert "cost.provider_usage_rate" in report.flat
+    assert report.unregistered == []

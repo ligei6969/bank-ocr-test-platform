@@ -4,7 +4,8 @@
 
     python -m ai_service                      # 启动 HTTP 服务
     python -m ai_service --demo               # 用内置样例跑一次完整链路
-    python -m ai_service --agent              # 用 Agent 路径跑一次（多步工具决策）
+    python -m ai_service --agent              # 用 Agent 路径跑一次（离线，确定性工具序列）
+    python -m ai_service --agent --live       # 同上，但真调模型（需配 key）
     python -m ai_service --live               # 真实调用一次模型（需配 LLM_API_KEY）
     python -m ai_service --search "反光了怎么办"
     python -m ai_service --explain <payload.json>
@@ -12,12 +13,23 @@
 ``--demo`` 不依赖网络：默认 LLM 未配置，会走确定性降级分支，
 所以它同时也是一个「降级路径是否可用」的自检命令。
 
-``--agent`` 走 P1 的多步决策路径，会打印每一步的工具调用与预算消耗，
-不加 ``--live`` 时同样是离线的（确定性工具序列）。
+``--agent`` 走 P1 的多步决策路径，会打印每一步的工具调用、预算消耗与 token 用量。
 
-``--live`` 是 ``--demo`` 的真实模型版本，用来手动冒烟：确认 key 配对了、
-模型回了、结构化解析过了。**默认路径永远是离线的**，只有显式加 ``--live``
+**``--agent`` 默认离线**，哪怕 shell 里配了 key 也不会调模型 —— 真实调用必须显式
+加 ``--live``。这条约束的目的是：让「跑一次冒烟」永远不会意外花钱。
+
+``--live`` 是真实模型版本，用来手动冒烟：确认 key 配对了、模型回了、
+结构化解析过了、用量取到了。**默认路径永远是离线的**，只有显式加 ``--live``
 才会出网。
+
+没有真实 key 时想验证这条链路，可以用本地协议靶子：
+
+    python -m ai_service.devtools.mock_llm --port 8137
+    # 另一个终端：
+    LLM_PROVIDER=openai LLM_API_KEY=dev LLM_BASE_URL=http://127.0.0.1:8137/v1 \
+      python -m ai_service --agent --live
+
+靶子能证明「协议通、链路通、用量能解析」，**不能**证明「模型答得好」。
 """
 
 from __future__ import annotations
@@ -31,7 +43,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from ai_service.explain import ReviewContext, build_explainer
-from ai_service.llm import build_llm_client
+from ai_service.llm import NullLLMClient, build_llm_client, take_usage
 
 DEMO_CONTEXT: dict[str, Any] = {
     "request_id": "demo-3f9a1c8e",
@@ -117,25 +129,61 @@ def _run_live(args: argparse.Namespace) -> int:
         f"[--live] prompt 版本：{result['prompt_versions']['used'] or '（未调用模型）'}",
         file=sys.stderr,
     )
+    print(f"[--live] token 用量：{_usage_line(take_usage(llm))}", file=sys.stderr)
     return 0
 
 
-def _run_agent(args: argparse.Namespace) -> int:
-    """用 Agent 路径跑一次内置样例，并打印决策轨迹。"""
+def _usage_line(usage: Any) -> str:
+    """把用量渲染成一行。
+
+    刻意区分「真实」与「估算」：报告里把估算值写成成本，是拿靶子的成绩
+    当自己的成绩。provider 没回 usage 时这里必须如实说是估算。
+    """
+    if usage is None:
+        return "provider 未回传 usage（若走的是模型路径，说明响应体里没有 usage 字段）"
+    if usage.estimated:
+        return f"估算 {usage.total}（prompt {usage.prompt_tokens} / completion {usage.completion_tokens}）"
+    return (
+        f"真实 {usage.total} "
+        f"（prompt {usage.prompt_tokens} / completion {usage.completion_tokens}）"
+    )
+
+
+def _run_agent(args: argparse.Namespace, *, live: bool = False) -> int:
+    """用 Agent 路径跑一次内置样例，并打印决策轨迹。
+
+    ``live=False`` 时强制离线：**shell 里配了 key 也不会调模型**。
+    「跑一次冒烟」不该有意外花钱的可能，真实调用必须显式加 ``--live``。
+    """
     from ai_service.agent import AgentBudget, run_agent_for_context
 
-    llm = build_llm_client()
+    if live:
+        llm = build_llm_client()
+        if not llm.available:
+            print("[--agent --live] 没有可用的模型，无法执行真实调用。", file=sys.stderr)
+            print(f"[--agent --live] 原因：{getattr(llm, 'reason', '未配置')}", file=sys.stderr)
+            print(LIVE_ENV_HINT, file=sys.stderr)
+            return 2
+        print(f"[--agent --live] 使用模型：{llm.name}", file=sys.stderr)
+    else:
+        llm = NullLLMClient(reason="--agent 默认离线，加 --live 才调用模型")
+
     budget = AgentBudget(
         max_steps=args.max_steps,
         max_tokens=args.max_tokens,
     )
-    result = asyncio.run(
-        run_agent_for_context(
-            ReviewContext.from_payload(DEMO_CONTEXT),
-            llm=llm,
-            budget=budget,
+    try:
+        result = asyncio.run(
+            run_agent_for_context(
+                ReviewContext.from_payload(DEMO_CONTEXT),
+                llm=llm,
+                budget=budget,
+            )
         )
-    )
+    except Exception as exc:  # noqa: BLE001 - 冒烟入口要给可读结论而不是栈
+        print(f"[--agent] 运行失败：{type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+
     print(json.dumps(result, ensure_ascii=False, indent=args.indent or None))
 
     steps = [entry for entry in result["trace"] if entry.get("executed")]
@@ -148,6 +196,18 @@ def _run_agent(args: argparse.Namespace) -> int:
     print(f"[--agent] 工具序列={[entry['tool'] for entry in steps]}", file=sys.stderr)
     print(
         f"[--agent] 预算消耗={result['budget_used']}（上限 {result['budget']}）",
+        file=sys.stderr,
+    )
+    usage = result.get("token_usage") or {}
+    print(
+        f"[--agent] token 用量={usage.get('total', 0)} "
+        f"（{usage.get('source', 'none')}；"
+        f"provider {usage.get('provider_total', 0)} + 估算 {usage.get('estimated_tokens', 0)}，"
+        f"模型调用 {usage.get('llm_calls', 0)} 次）",
+        file=sys.stderr,
+    )
+    print(
+        f"[--agent] prompt 版本={result['prompt_versions']['used'] or '（未调用模型）'}",
         file=sys.stderr,
     )
     return 0
@@ -164,12 +224,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--live",
         action="store_true",
-        help="真实调用模型跑一次（需配 LLM_API_KEY；会出网并产生费用）",
+        help=(
+            "真实调用模型（需配 LLM_API_KEY；会出网并产生费用）。"
+            "单独使用 = 跑解释链路；与 --agent 同用 = 跑 Agent 链路"
+        ),
     )
     parser.add_argument(
         "--agent",
         action="store_true",
-        help="用 Agent 路径跑一次内置样例（多步工具决策，打印轨迹与预算）",
+        help="用 Agent 路径跑一次内置样例（默认离线；加 --live 才真调模型）",
     )
     parser.add_argument(
         "--max-steps",
@@ -212,11 +275,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(result, ensure_ascii=False, indent=args.indent or None))
         return 0
 
+    # --agent 放在 --live 之前：两个一起给时要跑 Agent 链路，而不是退化成解释链路
+    if args.agent:
+        return _run_agent(args, live=args.live)
+
     if args.live:
         return _run_live(args)
-
-    if args.agent:
-        return _run_agent(args)
 
     if args.demo:
         result = asyncio.run(_explain(DEMO_CONTEXT, args.top_k))

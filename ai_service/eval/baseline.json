@@ -1,5 +1,8 @@
 {
   "directions": {
+    "cost.avg_provider_tokens": "lower",
+    "cost.avg_tokens": "lower",
+    "cost.provider_usage_rate": "higher",
     "explain.accuracy": "higher",
     "explain.completeness": "higher",
     "explain.relevance": "higher",
@@ -40,6 +43,9 @@
   },
   "judge_engine": "deterministic-rubric",
   "metrics": {
+    "cost.avg_provider_tokens": 0.0,
+    "cost.avg_tokens": 0.0,
+    "cost.provider_usage_rate": 0.0,
     "explain.accuracy": 5.0,
     "explain.completeness": 5.0,
     "explain.relevance": 5.0,

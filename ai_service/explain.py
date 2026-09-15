@@ -32,7 +32,7 @@ from ai_service.corpus import (
     load_documents,
     reason_code_lookup,
 )
-from ai_service.llm import LLMClient, LLMUnavailableError, NullLLMClient
+from ai_service.llm import LLMClient, LLMUnavailableError, NullLLMClient, take_usage
 from ai_service.prompts import EXPLAIN_GENERATE, PROMPT_REGISTRY_VERSION, collect_labels
 from ai_service.retrieval import KnowledgeRetriever
 from ai_service.tool_manager import Tool, ToolManager, ToolResult
@@ -505,6 +505,7 @@ class ReviewExplainer:
                 "registry": PROMPT_REGISTRY_VERSION,
                 "used": collect_labels(trace),
             },
+            "token_usage": _usage_dict(self._llm),
             "latency_ms": round(latency_ms, 1),
             "trace": trace,
             "disclaimer": DISCLAIMER,
@@ -644,6 +645,30 @@ class ReviewExplainer:
     @staticmethod
     def _to_citation(hit: Dict[str, Any]) -> Dict[str, Any]:
         return to_citation(hit)
+
+
+def _usage_dict(llm: Any) -> Dict[str, Any]:
+    """取走并汇总这次请求的 token 用量。
+
+    ``source`` 说明这些数字的成色，三种取值各有明确含义：
+
+    * ``provider`` —— provider 回传的真实值，可作计费依据；
+    * ``estimate`` —— 拿不到 usage，是本地字符估算，只能说个量级；
+    * ``none``     —— 这次请求压根没调模型（离线路径），成本确实是 0。
+
+    把 ``estimate`` 和 ``provider`` 混在一起报，等于给「成本可控」注水，
+    所以这里保留字段而不是只给一个总数。
+    """
+    usage = take_usage(llm)
+    if usage is None:
+        return {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "source": "none",
+            "estimated": False,
+        }
+    return usage.as_dict()
 
 
 def _first_sentence(text: str) -> str:

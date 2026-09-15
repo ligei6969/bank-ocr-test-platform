@@ -21,6 +21,17 @@ LLM 的环节（查询改写、结果重排、解释生成）都必须能在没�
 
 HTTP 客户端用的是标准库 ``urllib``，不引入任何第三方依赖；
 在异步调用链里通过 ``asyncio.to_thread`` 执行，避免阻塞事件循环。
+
+token 用量
+----------
+``complete()`` 只返回文本，但成本与预算需要 token 数。这里不把它塞进返回值
+（那会改动所有调用点与全部测试替身），而是走一个**可选**的旁路：
+客户端把「上一次调用」的用量暂存起来，调用方事后用 :func:`take_usage` 取走。
+
+* provider 回了 ``usage`` → 用真实值（``source="provider"``）；
+* 没回 / 客户端不支持 → ``take_usage`` 返回 ``None``，调用方退回字符估算。
+
+两条路都走 ``LLMUsage`` 同一个结构，报告里能分清哪个是账单依据、哪个只是兜底。
 """
 
 from __future__ import annotations
@@ -32,7 +43,7 @@ import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Optional, Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +59,63 @@ class LLMUnavailableError(RuntimeError):
     """LLM 未配置或调用失败，调用方应切换到确定性降级分支。"""
 
 
+#: 用量来自 provider 回传的真实 usage，可作计费依据。
+USAGE_PROVIDER = "provider"
+#: 用量是本地字符估算，只用于预算兜底，**不可作计费依据**。
+USAGE_ESTIMATE = "estimate"
+
+
+@dataclass(frozen=True)
+class LLMUsage:
+    """一次（或若干次）LLM 调用的 token 用量。
+
+    刻意带 ``source`` 字段：真实用量与估算值必须能分辨。把估算值混进成本报告，
+    等于给「成本可控」这个结论注水 —— 而面试里被追问「这是真实数还是估的」时，
+    答不上来比没有这个指标更糟。
+    """
+
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    source: str = USAGE_PROVIDER
+
+    @property
+    def total(self) -> int:
+        return max(0, self.prompt_tokens) + max(0, self.completion_tokens)
+
+    @property
+    def estimated(self) -> bool:
+        return self.source != USAGE_PROVIDER
+
+    def __add__(self, other: "LLMUsage") -> "LLMUsage":
+        # source 取「更弱」的那一个：只要有一次是估算，合计就不该被当作真实值
+        source = (
+            USAGE_PROVIDER
+            if self.source == USAGE_PROVIDER and other.source == USAGE_PROVIDER
+            else USAGE_ESTIMATE
+        )
+        return LLMUsage(
+            prompt_tokens=self.prompt_tokens + other.prompt_tokens,
+            completion_tokens=self.completion_tokens + other.completion_tokens,
+            source=source,
+        )
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "prompt_tokens": self.prompt_tokens,
+            "completion_tokens": self.completion_tokens,
+            "total_tokens": self.total,
+            "source": self.source,
+            "estimated": self.estimated,
+        }
+
+
 class LLMClient(Protocol):
-    """LLM 客户端协议。"""
+    """LLM 客户端协议。
+
+    ``take_usage()`` **刻意不是**协议成员 —— 它是可选的旁路。要求所有实现都提供它，
+    意味着每个测试替身都得跟着改；而拿不到用量本来就有兜底（字符估算），
+    没必要为此把接口做硬。
+    """
 
     @property
     def available(self) -> bool:
@@ -68,6 +134,30 @@ class LLMClient(Protocol):
         temperature: float = 0.0,
     ) -> str:
         """返回模型输出的纯文本。失败时抛 ``LLMUnavailableError``。"""
+
+
+def take_usage(llm: Any) -> Optional[LLMUsage]:
+    """取走客户端自上次取走以来**累计**的用量；拿不到就返回 ``None``。
+
+    累计而非「仅上一次」：一次业务请求往往要调好几次模型（改写、重排、生成），
+    只留最后一次会让成本被低估好几倍 —— 而低估比缺失更危险：
+    缺失看得见，低估看不见。
+
+    用 ``getattr`` 探测而不是要求协议成员：测试里的假 LLM 只实现 ``complete``，
+    强行要求会让「加一个成本指标」变成「改几十个测试替身」。拿不到时调用方
+    退回字符估算，行为不变。
+
+    **取走语义（drain）**：读过一次就清空，避免同一次调用的用量被重复计入。
+    """
+    getter = getattr(llm, "take_usage", None)
+    if getter is None or not callable(getter):
+        return None
+    try:
+        usage = getter()
+    except Exception:  # noqa: BLE001 - 用量是旁路信息，不能因为它让主链路失败
+        logger.debug("take_usage 调用失败，退回字符估算", exc_info=True)
+        return None
+    return usage if isinstance(usage, LLMUsage) else None
 
 
 @dataclass
@@ -94,6 +184,10 @@ class NullLLMClient:
     ) -> str:
         raise LLMUnavailableError(self.reason)
 
+    def take_usage(self) -> LLMUsage:
+        """没有模型就没有消耗，真实值就是 0 —— 不是「拿不到」，是「确定为零」。"""
+        return LLMUsage(source=USAGE_PROVIDER)
+
 
 def _clean_text(value: Any) -> str:
     """移除 Unicode 代理字符，避免请求体编码失败。
@@ -118,6 +212,7 @@ class HttpLLMClient:
     timeout_s: float = DEFAULT_TIMEOUT_S
     max_retries: int = 0
     _last_error: str | None = field(default=None, init=False, repr=False)
+    _pending_usage: LLMUsage | None = field(default=None, init=False, repr=False)
 
     @property
     def available(self) -> bool:
@@ -130,6 +225,11 @@ class HttpLLMClient:
     @property
     def last_error(self) -> str | None:
         return self._last_error
+
+    def take_usage(self) -> Optional[LLMUsage]:
+        """取走上一次取走以来累计的用量；provider 全程没回 usage 时返回 ``None``。"""
+        usage, self._pending_usage = self._pending_usage, None
+        return usage
 
     # ── 请求构造 ──────────────────────────────────────────────────────────────
 
@@ -180,6 +280,42 @@ class HttpLLMClient:
         message = choices[0].get("message") or {}
         return str(message.get("content", ""))
 
+    @staticmethod
+    def _extract_usage(provider: str, body: dict[str, Any]) -> LLMUsage | None:
+        """从响应体里取真实用量。取不到返回 ``None``（由调用方退回估算）。
+
+        两种协议的字段名不一样，这里显式分开写而不是「猜一个」：
+        猜错的话会静默产出 0，而 0 看起来像「这次调用不花钱」，比报错更误导。
+        """
+        usage = body.get("usage")
+        if not isinstance(usage, dict):
+            return None
+        if provider == "anthropic":
+            prompt = usage.get("input_tokens")
+            completion = usage.get("output_tokens")
+        else:
+            prompt = usage.get("prompt_tokens")
+            completion = usage.get("completion_tokens")
+
+        def _as_int(value: Any) -> int | None:
+            if isinstance(value, bool) or value is None:
+                return None
+            try:
+                parsed = int(value)
+            except (TypeError, ValueError):
+                return None
+            return parsed if parsed >= 0 else None
+
+        prompt_tokens = _as_int(prompt)
+        completion_tokens = _as_int(completion)
+        if prompt_tokens is None and completion_tokens is None:
+            return None
+        return LLMUsage(
+            prompt_tokens=prompt_tokens or 0,
+            completion_tokens=completion_tokens or 0,
+            source=USAGE_PROVIDER,
+        )
+
     # ── 同步实现（在线程池里跑）─────────────────────────────────────────────
 
     def _complete_sync(
@@ -219,6 +355,12 @@ class HttpLLMClient:
             self._last_error = "empty completion"
             raise LLMUnavailableError(self._last_error)
         self._last_error = None
+        # 只有拿到文本才算这次调用有效，此刻才把用量挂上去。
+        # 累加而不是覆盖：一个请求链路（改写 + 重排 + 生成）可能调好几次，
+        # 只留最后一次会让成本被严重低估。
+        usage = self._extract_usage(self.provider, body)
+        if usage is not None:
+            self._pending_usage = usage if self._pending_usage is None else self._pending_usage + usage
         return text
 
     async def complete(

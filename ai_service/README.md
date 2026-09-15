@@ -41,6 +41,18 @@ python -m ai_service --search "反光了怎么办"
 
 # 4. 用真实记录跑（平台侧导出的 JSON）
 python -m ai_service --explain payload.json
+
+# 5. Agent 路径（多步工具决策，打印轨迹 / 预算 / token 用量）；默认离线
+python -m ai_service --agent
+
+# 6. 真实调用模型（两种写法）—— 显式加 --live 才会出网
+python -m ai_service --agent --live
+python -m ai_service --live
+
+# 7. 没有 key 也想验证真实 HTTP 链路：起本地协议靶子
+python -m ai_service.devtools.mock_llm --port 8137
+LLM_PROVIDER=openai LLM_API_KEY=dev LLM_BASE_URL=http://127.0.0.1:8137/v1 \
+  python -m ai_service --agent --live
 ```
 
 平台侧不需要任何额外操作，默认就连 `http://127.0.0.1:8100`。
@@ -53,7 +65,8 @@ python -m ai_service --explain payload.json
 | --- | --- | --- |
 | GET | `/health` | 探活，报告 LLM 是否可用、索引规模 |
 | GET | `/tools/stats` | 工具的成功率、平均延迟、熔断状态 |
-| POST | `/explain` | 主接口：传入脱敏后的审核上下文，返回解释 |
+| POST | `/explain` | 固定流水线：传入脱敏后的审核上下文，返回解释 |
+| POST | `/agent/explain` | **P1 Agent 路径**：多步决策，返回 trace / 预算 / token 用量 |
 | POST | `/search` | 只做检索，调试召回质量用 |
 
 `POST /explain` 请求体：
@@ -213,9 +226,10 @@ ai_service/
   structured.py   结构化输出解析与校验（pydantic，失败抛可捕获异常）
   cassette.py     LLM / 工具的录制回放（replay 未命中直接失败，绝不回退联网）
   agentkit.py     测试工具箱：轨迹断言、故障注入、cassette 装配
-  eval/           评测层：golden 集、四层指标、judge 校准、回归门禁
+  eval/           评测层：golden 集、分层指标、judge 校准、回归门禁
+  devtools/       协议靶子：本地假 provider，验证 HTTP / 鉴权 / usage 解析
   __main__.py     CLI：起服务、--demo、--agent、--live、--search、--explain
-  tests/          260 个单测，全部离线可跑
+  tests/          293 个单测，全部离线可跑
 ```
 
 ---
@@ -303,6 +317,106 @@ Prompt 从内联字符串抽成 `prompts.py` 里的 `PromptTemplate`，每条有
 Markdown 围栏、JSON 前后夹着寒暄、以及**结构合法但语义非法**（缺字段、类型不对）。
 解析失败一律抛 `StructuredOutputError`，绝不返回 `None` 让调用方自己猜 ——
 静默返回 `None` 会把降级路径吞掉，这个坑 P0 已经踩过一次。
+
+---
+
+## P1.5：真实模型链路与成本
+
+P1 的诚实清单里有两条最要命的：「真实模型端到端未验证」和「成本是字符估算」。
+这一节说的是怎么把它们收掉。
+
+### 1. token 用量：可选旁路 + 累计取走
+
+`LLMClient.complete()` 只返回文本。要报成本就得让用量出来，但**不能塞进返回值** ——
+那会改动所有调用点与全部测试替身。所以走的是一条可选旁路：
+
+```python
+usage = take_usage(client)      # None 表示这家 provider 没回 usage
+```
+
+三条设计决定，每条都是踩过坑才定的：
+
+| 决定 | 原因 |
+| --- | --- |
+| `take_usage` **不是**协议成员 | 测试里的假 LLM 只实现 `complete`。要求它必然实现，等于「加一个成本指标」要改几十个替身。用 `getattr` 探测，拿不到就退回估算 |
+| **累计**取走，不是「仅上一次」 | 一次业务请求要调好几次模型（改写 + 重排 + 生成，或 Agent 的多步决策）。只留最后一次，成本会被低估好几倍 —— 而**低估比缺失更危险**：缺失看得见，低估看不见 |
+| `LLMUsage.source` 必须区分来源 | `provider` 是能当账单的真实值，`estimate` 只是量级。两者混在一起报，等于给「成本可控」注水 |
+
+`source` 的四种取值都会出现：`provider`（全部真实）、`estimate`（全靠估算）、
+`mixed`（一部分有一部没有，合计值不许自称真实）、`none`（压根没调模型，成本确实是 0）。
+
+用量还会**跟着 cassette 一起录制**。否则回放时记账会从真实值掉回估算，
+同一份录制在 CI 里报出的成本和录制时不一致 —— 这种不一致很容易被误读成
+「模型换了」或者「成本涨了」。
+
+### 2. `--agent` 默认离线（硬约束）
+
+```
+python -m ai_service --agent            # 哪怕 shell 里配了 key 也不调模型
+python -m ai_service --agent --live     # 显式要求真实调用
+```
+
+「跑一次冒烟」不该有意外花钱的可能。这条有测试：把 key 放进环境里跑 `--agent`，
+断言 `server.request_count == 0` —— 一次请求都不许发出去。
+
+### 3. 协议靶子：没有 key 也能验证这条链
+
+进程内假 LLM 测得到 Agent 的逻辑，但有一整段代码永远测不到：`HttpLLMClient`
+的请求构造、鉴权头、响应解析、错误映射、usage 抽取。这段只在连真实 provider 时才跑，
+而本机当时没有 key —— 于是它成了「最容易被面试官追问、又恰恰没验证」的一环。
+
+`ai_service/devtools/mock_llm.py` 用一个本地 HTTP 服务把这段补上：按真实协议返回，
+带 `usage` 字段，校验鉴权头，可注入故障。
+
+```bash
+python -m ai_service.devtools.mock_llm --port 8137
+# 另一个终端：
+LLM_PROVIDER=openai LLM_API_KEY=dev LLM_BASE_URL=http://127.0.0.1:8137/v1 \
+  python -m ai_service --agent --live
+```
+
+**边界必须说清楚**：靶子证明的是「协议通、链路通、用量能取到」，
+**不证明「模型答得好」**。后者只能用真实模型。混为一谈就是拿靶子的成绩当自己的成绩。
+
+`ai_service/tests/test_live_http.py` 覆盖 15 条：两种协议各跑一遍、鉴权头确实发出去了、
+靶子自己会拒绝匿名请求（否则「带了 key」是假证据）、HTTP 500 转成可捕获异常、
+缺 usage 时返回 `None` 而不是 0、Agent 端到端走 HTTP、
+以及最要紧的一条 —— **录制在真实 HTTP 上，回放在完全离线**（回放时内层换成
+「调用即炸」的客户端，真联网就会立刻失败）。
+
+### 4. 实测记录
+
+环境：无外部 API key，模型侧用本地协议靶子（这是**协议级**验证，不是模型能力验证）。
+
+| 检查项 | 实测值 |
+| --- | --- |
+| `--agent --live` 决策引擎 | `llm`（非 `rule`） |
+| `degraded` | `false` |
+| 停止原因 | `finished`（第 2 步收敛） |
+| 工具序列 | `search_knowledge` |
+| token 用量 | `source=provider`，`prompt 562 / completion 62`，2 次模型调用 |
+| prompt 版本回传 | `agent_decide@v1` |
+| live 评测（40 条 golden） | `cost.avg_tokens = 499.325`，`provider_usage_rate = 1.0` |
+| 离线评测（CI 默认） | `cost.avg_tokens = 0`（不调模型，这是真实值不是缺失） |
+
+顺带一个副产品：live 评测里 `tools.sequence_accuracy = 0` 而离线是 `1.0`。
+这不是 bug —— 靶子只会调 `search_knowledge`，而 golden 期望
+`get_review_record → search_knowledge → recompute_quality`。
+**指标真的在测东西**，这比一个恒为 1.0 的指标有说服力得多。
+
+### 5. 还没做的：真实 provider 验证
+
+协议靶子替代不了真实模型。要收掉最后这一格，只需要一个 key：
+
+```bash
+export LLM_API_KEY=...            # 或 OPENAI_API_KEY / ANTHROPIC_API_KEY
+export LLM_BASE_URL=...           # 走中转站时必填
+python -m ai_service --agent --live
+python -m scripts.evaluate_ai_review --live
+```
+
+跑完把上表里的「本地协议靶子」换成实际模型名与数字即可。**没有真跑过的数字不填** ——
+一份写着「已验证」的报告如果数字是编的，比诚实地标着「未验证」糟糕得多。
 
 ---
 
@@ -436,5 +550,10 @@ Judge 本身也会飘（系统性偏高、长度偏好），所以不能盲信�
   接进去要新增一个 trace / 预算面板，留给后续。
 - **置信度是启发式** —— 由知识覆盖率、检索最高分、生成引擎三因子拼出来的，
   没有做概率校准。展示时应当配合解释正文，不要单独当作准确性背书。
-- **token 计量是字符估算** —— `LLMClient` 协议只返回文本，拿不到 provider 的 usage。
-  它用于预算兜底，不是计费依据。
+- **真实 provider 未实测** —— 传输、鉴权、解析、usage 抽取已由协议靶子覆盖
+  （P1.5），但「真模型接得上、答得好」这一格仍待一个 key。见上文第 5 小节。
+- **成本未覆盖 P0 解释链路的全量计入** —— `--live` 会报出该次请求的合计用量，
+  但评测的 `cost.*` 指标只统计 Agent 路径。
+
+> 已收口的两条（P1.5）：token 计量不再是纯估算（provider 回传优先，估算兜底）；
+> 真实模型链路的**协议层**已可离线复现。
