@@ -25,6 +25,8 @@ from ai_service import __version__
 from ai_service.agent import run_agent_for_context
 from ai_service.explain import ReviewContext, ReviewExplainer, build_explainer
 from ai_service.llm import build_llm_client
+from ai_service.knowledge.agent import KnowledgeAgent
+from ai_service.knowledge.api import create_knowledge_router
 from ai_service.tools import TOOL_WHITELIST
 
 logger = logging.getLogger(__name__)
@@ -57,15 +59,21 @@ class SearchRequest(BaseModel):
     doc_type: Optional[str] = None
 
 
-def create_app(explainer: Optional[ReviewExplainer] = None) -> FastAPI:
-    """构造 FastAPI 应用。允许注入解释器，便于测试替换检索/LLM。"""
+def create_app(
+    explainer: Optional[ReviewExplainer] = None,
+    knowledge_agent: Optional[KnowledgeAgent] = None,
+) -> FastAPI:
+    """构造 FastAPI 应用。允许注入解释器与客服 Agent，便于测试替换检索/LLM。"""
     app = FastAPI(
         title="Bank OCR AI Review Assistant",
         version=__version__,
-        description="审核原因码解释与处置建议服务（P0）",
+        description="审核原因码解释与处置建议服务（P0/P1），以及银行业务知识客服 Agent（P2.1）",
     )
 
     active_explainer = explainer or build_explainer(llm=build_llm_client())
+    # 客服 Agent 是这个服务里的第二个 surface：同一个进程、同一个端口、
+    # 共用 LLM 与工具框架，但语料、工具、prompt、安全边界各成一套。
+    app.include_router(create_knowledge_router(knowledge_agent))
 
     @app.get("/health")
     def health() -> Dict[str, Any]:

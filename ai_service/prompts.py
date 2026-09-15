@@ -184,6 +184,32 @@ def get_prompt(prompt_id: str) -> PromptTemplate:
         raise KeyError(f"未注册的 prompt id: {prompt_id}（已注册: {sorted(_REGISTRY)}）") from exc
 
 
+def register(prompt: PromptTemplate) -> PromptTemplate:
+    """把一条 prompt 注册进中心表，返回它本身。
+
+    为什么允许「第二个 surface 自己声明 prompt」
+    ------------------------------------------
+    prompt 是安全边界，所以注册表必须只有**一个**，便于集中评审 ——
+    这就是 ``prompts.py`` 存在的理由。但要求所有 prompt 都写在同一个文件里，
+    会让「加一个产品面」变成往一个公共文件里塞东西，边界反而更容易被踩坏。
+
+    折中：定义在各 surface 自己的模块里，通过本函数**显式**注册进中心表。
+    于是既满足「一处可审」（``registry()`` 能看到全部），
+    也不需要把客服的 persona 塞进审核的模块。
+
+    ``id`` 重复直接抛错而不是静默覆盖 —— 覆盖意味着有一条 prompt
+    悄悄换了实现而没人知道，这类静默替换在安全边界上是不能接受的。
+    """
+    existing = _REGISTRY.get(prompt.id)
+    if existing is not None and existing is not prompt:
+        raise ValueError(
+            f"prompt id 重复注册: {prompt.id}（已存在 {existing.label}，"
+            f"新的是 {prompt.label}）"
+        )
+    _REGISTRY[prompt.id] = prompt
+    return prompt
+
+
 def registry() -> Mapping[str, PromptTemplate]:
     """只读视图，供自检接口与测试遍历。"""
     return dict(_REGISTRY)

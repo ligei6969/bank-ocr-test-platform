@@ -213,6 +213,53 @@ def _run_agent(args: argparse.Namespace, *, live: bool = False) -> int:
     return 0
 
 
+def _run_ask(args: argparse.Namespace) -> int:
+    """客服 Agent 问答（第二个 surface）。默认离线，加 --live 才调模型。"""
+    from ai_service.knowledge.agent import run_knowledge_ask
+
+    if args.live:
+        llm = build_llm_client()
+        if not llm.available:
+            print("[--ask --live] 没有可用的模型，无法执行真实调用。", file=sys.stderr)
+            print(f"[--ask --live] 原因：{getattr(llm, 'reason', '未配置')}", file=sys.stderr)
+            print(LIVE_ENV_HINT, file=sys.stderr)
+            return 2
+        print(f"[--ask --live] 使用模型：{llm.name}", file=sys.stderr)
+    else:
+        llm = NullLLMClient(reason="--ask 默认离线，加 --live 才调用模型")
+
+    result = asyncio.run(run_knowledge_ask(args.ask, llm=llm))
+    print(json.dumps(result, ensure_ascii=False, indent=args.indent or None))
+
+    print(
+        f"[--ask] 意图={result['intent']} 拒答={result['refused']} "
+        f"停止原因={result['stop_reason']} 决策引擎={result['engine']['decision']}",
+        file=sys.stderr,
+    )
+    print(
+        f"[--ask] 引用={len(result['citations'])} 条 "
+        f"接地={result['grounding']['grounded']} "
+        f"（覆盖率 {result['grounding']['coverage']}）"
+        + (f" 被闸门拦下={result['blocked_by']}" if result["blocked_by"] else ""),
+        file=sys.stderr,
+    )
+    print(
+        f"[--ask] 脱敏命中={result['sanitized'] or '无'} "
+        f"丢弃无关召回={result['off_topic_dropped']} 条",
+        file=sys.stderr,
+    )
+    print(
+        f"[--ask] 工具序列={[e['tool'] for e in result['trace'] if e.get('executed')]}",
+        file=sys.stderr,
+    )
+    usage = result.get("token_usage") or {}
+    print(
+        f"[--ask] token 用量={usage.get('total', 0)}（{usage.get('source', 'none')}）",
+        file=sys.stderr,
+    )
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m ai_service",
@@ -246,6 +293,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=3000,
         help="Agent token 预算（默认 3000，字符级估算）",
     )
+    parser.add_argument(
+        "--ask",
+        metavar="QUESTION",
+        help="客服 Agent 问答（银行业务知识，第二个 surface；默认离线，加 --live 才调模型）",
+    )
     parser.add_argument("--search", metavar="QUERY", help="只做检索，打印命中的知识片段")
     parser.add_argument("--explain", metavar="JSON_FILE", help="读取 JSON 上下文文件并生成解释")
     parser.add_argument("--top-k", type=int, default=5, help="检索返回条数，默认 5")
@@ -274,6 +326,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = asyncio.run(_explain(payload, args.top_k))
         print(json.dumps(result, ensure_ascii=False, indent=args.indent or None))
         return 0
+
+    if args.ask:
+        return _run_ask(args)
 
     # --agent 放在 --live 之前：两个一起给时要跑 Agent 链路，而不是退化成解释链路
     if args.agent:
