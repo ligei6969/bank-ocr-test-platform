@@ -1,0 +1,38 @@
+{
+  "_README": [
+    "这是 review_verdicts.json 的【已填写样例】，只用来给你看格式，不要直接拿去评测。",
+    "真正要填的是 data/annotations/review_verdicts.json —— 它的 expected_verdict 现在是空的。",
+    "",
+    "你只需要填两处：",
+    "  1) 顶部 annotated_by（谁标的）、annotated_at（日期），两个都必填；",
+    "  2) 每条记录的 expected_verdict，取值只能是 pass / review / reject。",
+    "",
+    "key_reason_codes 与 note 可选：前者写你认为最关键的原因码，后者写一句判断依据。",
+    "判断口径看左边同名的 worksheet CSV（退化类型、原因码、图片路径都在同一行）。",
+    "",
+    "下面的 3 条记录只是示例，sample_id 与真实文件一致，但结论是编的，不要照抄。"
+  ],
+  "version": 1,
+  "annotated_by": "张三（示例，请改成你的名字和岗位）",
+  "annotated_at": "2026-09-15",
+  "records": [
+    {
+      "sample_id": "golden-bank_card-normal-00",
+      "expected_verdict": "pass",
+      "key_reason_codes": [],
+      "note": "正常样本，无明显退化，字段完整，无需人工介入"
+    },
+    {
+      "sample_id": "golden-bank_card-blur-00",
+      "expected_verdict": "review",
+      "key_reason_codes": ["image_blur"],
+      "note": "模糊但字段仍可读，按重拍处理，转人工复核"
+    },
+    {
+      "sample_id": "golden-id_card-glare-00",
+      "expected_verdict": "review",
+      "key_reason_codes": ["glare_detected"],
+      "note": "有反光，需确认高光是否遮挡关键字段；不确定时转人工"
+    }
+  ]
+}

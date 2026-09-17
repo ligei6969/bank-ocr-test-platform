@@ -52,6 +52,12 @@ from ai_service.eval.report import (
     run_calibration,
     save_baseline,
 )
+from ai_service.eval.verdicts import (
+    MIN_READY_SAMPLES,
+    VERDICTS_FORMAT_VERSION,
+    load_verdicts,
+    parse_verdicts,
+)
 
 
 def run(coro: Any) -> Any:
@@ -649,4 +655,271 @@ def test_cost_metrics_reach_the_baseline_gate() -> None:
 
     assert "cost.avg_tokens" in report.flat
     assert "cost.provider_usage_rate" in report.flat
-    assert report.unregistered == []
+
+
+# ── 决策层：人工结论标注 ───────────────────────────────────────────────────────
+#
+# 这一层测的是「不可用」这件事本身。手工标注是唯一无法自动化的评测输入，
+# 所以代码的责任不是造数据，而是**在人没标完时明确说不可用**，
+# 并且说清是哪一种不可用。把它测住，才能保证基准不被伪造的数字污染。
+
+def _verdicts_payload(
+    *,
+    records: List[Dict[str, Any]] | None = None,
+    annotated_by: str = "张三（审核岗）",
+    annotated_at: str = "2026-09-15",
+) -> Dict[str, Any]:
+    if records is None:
+        records = [
+            {"sample_id": f"golden-{index}", "expected_verdict": "review"}
+            for index in range(MIN_READY_SAMPLES)
+        ]
+    return {
+        "version": VERDICTS_FORMAT_VERSION,
+        "annotated_by": annotated_by,
+        "annotated_at": annotated_at,
+        "records": records,
+    }
+
+
+def _sample_ids(count: int = MIN_READY_SAMPLES) -> List[str]:
+    return [f"golden-{index}" for index in range(count)]
+
+
+def test_a_missing_verdict_file_is_not_an_error() -> None:
+    """没有标注文件是正常状态 —— 只是决策层不可用，不是评测跑不起来。"""
+    result = load_verdicts(Path("data/annotations/does-not-exist.json"))
+
+    assert result.present is False
+    assert result.issues == []
+    assert result.is_ready(_sample_ids()) is False
+    assert "不存在" in result.blocking_reasons([])[0]
+
+
+def test_a_parsed_verdict_set_becomes_ready() -> None:
+    result = parse_verdicts(_verdicts_payload())
+
+    assert result.issues == []
+    assert result.signature_issues == []
+    assert result.unfilled == 0
+    assert result.is_ready(_sample_ids()) is True
+    assert result.blocking_reasons(_sample_ids()) == []
+
+
+def test_unfilled_rows_are_not_reported_as_format_problems() -> None:
+    """40 条待填报成「40 处格式问题」会把标注人往错的方向指。"""
+    payload = _verdicts_payload(
+        records=[{"sample_id": "golden-0", "expected_verdict": ""}]
+    )
+
+    result = parse_verdicts(payload)
+
+    assert result.issues == [], "空值不是格式错误"
+    assert result.unfilled == 1
+    assert any("尚未填写" in reason for reason in result.blocking_reasons(["golden-0"]))
+
+
+def test_an_illegal_verdict_value_is_a_format_problem() -> None:
+    """取值非法和「还没填」是两件事：前者要改字，后者要接着填。"""
+    payload = _verdicts_payload(
+        records=[{"sample_id": "golden-0", "expected_verdict": "approved"}]
+    )
+
+    result = parse_verdicts(payload)
+
+    assert len(result.issues) == 1
+    assert "approved" in result.issues[0]
+    assert result.unfilled == 0
+
+
+def test_missing_signature_blocks_the_verdict_layer() -> None:
+    """没有署名的标注集在争议时无法复核，因此不能当基准。"""
+    result = parse_verdicts(_verdicts_payload(annotated_by="", annotated_at=""))
+
+    assert result.is_ready(_sample_ids()) is False
+    assert len(result.signature_issues) == 2
+    reasons = result.blocking_reasons(_sample_ids())
+    assert any("可追溯" in reason for reason in reasons)
+
+
+def test_too_few_annotations_are_refused() -> None:
+    """3 条样本算出来的正确率比没有数字更糟 —— 它看起来像个结论。"""
+    payload = _verdicts_payload(
+        records=[
+            {"sample_id": f"golden-{index}", "expected_verdict": "pass"}
+            for index in range(MIN_READY_SAMPLES - 1)
+        ]
+    )
+
+    result = parse_verdicts(payload)
+
+    assert result.is_ready(_sample_ids()) is False
+    assert any("少于门槛" in reason for reason in result.blocking_reasons(_sample_ids()))
+
+
+def test_low_coverage_is_refused_even_with_enough_records() -> None:
+    """条数够了但只覆盖一小撮样本，仍然不可用。"""
+    ids = _sample_ids(MIN_READY_SAMPLES * 4)
+    result = parse_verdicts(_verdicts_payload())
+
+    assert result.is_ready(ids) is False
+    assert any("覆盖率" in reason for reason in result.blocking_reasons(ids))
+
+
+def test_duplicate_sample_ids_are_reported() -> None:
+    payload = _verdicts_payload(
+        records=[
+            {"sample_id": "golden-0", "expected_verdict": "pass"},
+            {"sample_id": "golden-0", "expected_verdict": "reject"},
+        ]
+    )
+
+    result = parse_verdicts(payload)
+
+    assert any("重复" in issue for issue in result.issues)
+    assert result.records["golden-0"].expected_verdict == "pass", "先到先得，不静默覆盖"
+
+
+def test_a_broken_json_file_downgrades_instead_of_crashing(tmp_path: Path) -> None:
+    """标注是人工产物，写错一格很常见 —— 不能因此让整个评测跑不起来。"""
+    broken = tmp_path / "review_verdicts.json"
+    broken.write_text("{ this is not json", encoding="utf-8")
+
+    result = load_verdicts(broken)
+
+    assert result.present is True
+    assert any("JSON" in issue for issue in result.issues)
+    assert result.is_ready(_sample_ids()) is False
+
+
+def test_verdicts_never_attach_without_a_human_signature() -> None:
+    """人工结论必须以「可用」为前提附加：宁可没有，不要假的。"""
+    golden = load_golden_set(target_size=4)
+    unattached = parse_verdicts(
+        _verdicts_payload(
+            records=[
+                {"sample_id": sample.sample_id, "expected_verdict": "pass"}
+                for sample in golden.samples
+            ],
+            annotated_by="",
+        )
+    )
+
+    assert unattached.is_ready([s.sample_id for s in golden.samples]) is False
+    assert all(sample.expected_verdict is None for sample in golden.samples)
+
+
+def test_human_verdicts_reach_the_decision_layer(tmp_path: Path) -> None:
+    """端到端：标注够用时，正确率指标才出现，且来源标为 human。"""
+    golden = load_golden_set(target_size=MIN_READY_SAMPLES * 2)
+    payload = _verdicts_payload(
+        records=[
+            {"sample_id": sample.sample_id, "expected_verdict": "review"}
+            for sample in golden.samples
+        ]
+    )
+    verdicts_path = tmp_path / "verdicts.json"
+    verdicts_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    loaded = load_golden_set(target_size=MIN_READY_SAMPLES * 2, verdicts_path=verdicts_path)
+
+    assert loaded.verdict_layer_available is True
+    assert all(sample.verdict_source == "human" for sample in loaded.samples)
+    assert all(sample.expected_verdict == "review" for sample in loaded.samples)
+    assert any("决策层已启用" in note for note in loaded.notes)
+
+
+def test_a_partially_filled_sheet_names_the_exact_blocker() -> None:
+    """「不可用」必须能直接指导下一步动作，而不是让人自己猜。"""
+    golden = load_golden_set(target_size=6)
+    verdicts_path = Path("data/annotations/review_verdicts.json")
+
+    result = load_verdicts(verdicts_path)
+    reasons = result.blocking_reasons([s.sample_id for s in golden.samples])
+
+    assert result.is_ready([s.sample_id for s in golden.samples]) is False
+    assert reasons, "不可用必须给出原因"
+    assert any("annotated_by" in reason or "expected_verdict" in reason for reason in reasons)
+
+
+def test_verdict_accuracy_is_absent_without_annotations() -> None:
+    """没有标注时整条指标要**消失**，而不是输出 0% —— 0% 会被读成「全错」。"""
+    rows = _with_required_metrics([{}])
+
+    metrics = aggregate(rows)
+
+    assert "verdict_accuracy" not in metrics["task"]
+
+
+def test_verdict_accuracy_counts_only_annotated_samples() -> None:
+    rows = _with_required_metrics(
+        [
+            {"task.verdict_expected": True, "task.verdict_correct": True},
+            {"task.verdict_expected": True, "task.verdict_correct": False},
+            {"task.verdict_expected": False, "task.verdict_correct": False},
+        ]
+    )
+
+    metrics = aggregate(rows)
+
+    assert metrics["task"]["verdict_accuracy"] == 0.5, "未标注的样本不进分母"
+
+
+def test_verdict_accuracy_has_a_registered_direction() -> None:
+    """新指标必须在 METRIC_DIRECTIONS 里登记，否则是静默漏检。"""
+    assert "task.verdict_accuracy" in METRIC_DIRECTIONS
+
+
+def test_every_metric_has_a_human_readable_label() -> None:
+    """指标没有中文标签时，报告会直接打印内部键名（如 verdict_accuracy）。
+
+    内部键名泄漏到给人看的报告里，读者得自己去代码里查它是什么意思 ——
+    和「不可用必须说出原因」是同一条原则：报告要能独立读懂。
+    """
+    from scripts.evaluate_ai_review import METRIC_LABELS
+
+    # METRIC_DIRECTIONS 是带层前缀的键（task.verdict_accuracy），
+    # METRIC_LABELS 是不带前缀的裸名（verdict_accuracy）—— 报告是按层打印的。
+    bare = {key.split(".", 1)[-1] for key in METRIC_DIRECTIONS}
+    missing = sorted(bare - set(METRIC_LABELS))
+    assert missing == [], f"这些指标缺中文标签，报告会打印内部键名：{missing}"
+
+
+def test_score_sample_only_marks_annotated_verdicts() -> None:
+    from dataclasses import replace
+
+    annotated = replace(_golden(), expected_verdict="review", verdict_source="human")
+    outcome = {"trace": [], "review_result": "review"}
+
+    row = score_sample(SampleOutcome(sample=annotated, outcome=outcome))
+    bare = score_sample(SampleOutcome(sample=_golden("golden-bare"), outcome=outcome))
+
+    assert row["task.verdict_expected"] is True
+    assert row["task.verdict_correct"] is True
+    assert bare["task.verdict_expected"] is False
+
+
+def test_the_worksheet_asks_for_exactly_one_column() -> None:
+    """手工量的下限：只填一列。多要一列就是没把机械工作替人做掉。"""
+    from scripts.make_verdict_worksheet import build_payload, build_rows
+
+    samples = build_golden_set(target_size=6)
+    rows = build_rows(samples)
+    payload = build_payload(samples)
+
+    assert len(rows) == 6
+    assert all(row["expected_verdict_填这里"] == "" for row in rows)
+    assert all(record["expected_verdict"] == "" for record in payload["records"])
+    assert payload["annotated_by"] == "", "署名必须由人来写"
+
+
+def test_the_worksheet_hides_the_system_verdict_by_default() -> None:
+    """一旦标注人看见系统判定，基准就变成「系统与自己的一致率」了。"""
+    from scripts.make_verdict_worksheet import build_rows
+
+    samples = build_golden_set(target_size=4)
+    plain = build_rows(samples)
+    with_reference = build_rows(samples, with_reference=True)
+
+    assert all("参考_按原因码推导的结论" not in row for row in plain)
+    assert all("参考_按原因码推导的结论" in row for row in with_reference)

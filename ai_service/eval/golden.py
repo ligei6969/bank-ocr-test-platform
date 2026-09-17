@@ -83,6 +83,10 @@ class GoldenSample:
 
     ``verdict_source`` 天生是 ``derived`` —— 提醒读报告的人：
     任务层指标算的是「原因码对不对」，不是「审核结论对不对」。
+
+    当 ``data/annotations/review_verdicts.json`` 存在且覆盖足够时，
+    :func:`load_golden_set` 会把人工结论填进 ``expected_verdict``，
+    并把 ``verdict_source`` 改成 ``human`` —— 那时决策层指标才真正可用。
     """
 
     sample_id: str
@@ -93,6 +97,8 @@ class GoldenSample:
     expected_quality_result: str
     expected_tools: Tuple[str, ...]
     expects_escalation: bool
+    #: 人工标注的期望结论（pass / review / reject）。没有标注时为 None。
+    expected_verdict: Optional[str] = None
     verdict_source: str = "derived"
 
     def to_dict(self) -> Dict[str, Any]:
@@ -105,6 +111,7 @@ class GoldenSample:
             "expected_quality_result": self.expected_quality_result,
             "expected_tools": list(self.expected_tools),
             "expects_escalation": self.expects_escalation,
+            "expected_verdict": self.expected_verdict,
             "verdict_source": self.verdict_source,
         }
 
@@ -235,21 +242,101 @@ def load_golden_set(
     labels_path: Path = DEFAULT_LABELS_PATH,
     *,
     target_size: int = DEFAULT_TARGET_SIZE,
+    verdicts_path: Optional[Path] = None,
 ) -> GoldenSet:
-    """加载 golden 集，并附上「哪一层指标不可用」的说明。"""
+    """加载 golden 集，并附上「哪一层指标不可用」的说明。
+
+    决策层取决于 ``data/annotations/review_verdicts.json`` 是否存在且够用：
+
+    * 没有该文件 → 报告里写明决策层不可用，并给出**具体原因**（不是一句「缺标注」）；
+    * 有且够用 → 把人工结论填进样本，``verdict_layer_available`` 置 true。
+    """
+    from ai_service.eval.verdicts import DEFAULT_VERDICTS_PATH, load_verdicts
+
     samples = build_golden_set(labels_path, target_size=target_size)
+    verdicts = load_verdicts(
+        Path(verdicts_path) if verdicts_path is not None else DEFAULT_VERDICTS_PATH
+    )
+
+    sample_ids = [sample.sample_id for sample in samples]
+    samples, attached = apply_human_verdicts(samples, verdicts)
+    ready = verdicts.is_ready(sample_ids)
+
+    notes = [
+        "labels.json 只标字段真值与注入的退化类型，不含审核结论。",
+        "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。",
+        "doc_type 已归一：id_card_front / id_card_back → id_card；"
+        "application_form 不在审核链路上，已排除。",
+        f"未映射的退化类型（{', '.join(UNMAPPED_QUALITY_TYPES)}）未纳入 golden 集。",
+    ]
+    if ready:
+        notes.append(
+            f"决策层已启用：{attached} 条样本带人工结论标注"
+            f"（{verdicts.annotated_by or '未署名'}，{verdicts.annotated_at or '未注明日期'}）。"
+        )
+    else:
+        for reason in verdicts.blocking_reasons([s.sample_id for s in samples]):
+            notes.append(f"决策层不可用：{reason}。")
+
     return GoldenSet(
         samples=samples,
         labels_path=str(labels_path),
-        verdict_layer_available=False,
-        notes=[
-            "labels.json 只标字段真值与注入的退化类型，不含审核结论。",
-            "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。",
-            "doc_type 已归一：id_card_front / id_card_back → id_card；"
-            "application_form 不在审核链路上，已排除。",
-            f"未映射的退化类型（{', '.join(UNMAPPED_QUALITY_TYPES)}）未纳入 golden 集。",
-        ],
+        verdict_layer_available=ready,
+        notes=notes,
     )
+
+
+def attach_verdicts(
+    samples: Sequence[GoldenSample], verdicts: Any
+) -> Tuple[List[GoldenSample], int]:
+    """把人工结论附加到样本上，返回（新样本列表，成功附加的条数）。
+
+    ``GoldenSample`` 是 **frozen** dataclass —— 直接改字段会抛
+    ``FrozenInstanceError``。用 ``dataclasses.replace`` 生成新对象：
+    不可变带来的好处（样本不会被下游悄悄改掉）值得多这一次拷贝。
+
+    只附加「文件可用」的标注。不可用时原样返回，
+    免得半份标注在半路上被当成完整基准用。
+    """
+    from dataclasses import replace
+
+    if not verdicts.records:
+        return list(samples), 0
+
+    attached = 0
+    updated: List[GoldenSample] = []
+    for sample in samples:
+        record = verdicts.records.get(sample.sample_id)
+        if record is None:
+            updated.append(sample)
+            continue
+        updated.append(
+            replace(
+                sample,
+                expected_verdict=record.expected_verdict,
+                verdict_source="human",
+            )
+        )
+        attached += 1
+    return updated, attached
+
+
+def apply_human_verdicts(
+    samples: Sequence[GoldenSample],
+    verdicts: Any,
+) -> Tuple[List[GoldenSample], int]:
+    """只有标注集**可用**时才附加；否则原样返回。
+
+    这是 ``load_golden_set`` 用的入口。为什么加一道可用性闸门：
+    一份填了 5 条、没署名、格式还有错的标注，如果照单附加，
+    决策层会基于 5 条算出个「正确率」并混进报告 —— 那正是
+    ``MIN_READY_SAMPLES`` 想拦住的事。闸门放在这一处，
+    比在每个消费方各判一次可靠。
+    """
+    sample_ids = [sample.sample_id for sample in samples]
+    if not verdicts.is_ready(sample_ids):
+        return list(samples), 0
+    return attach_verdicts(samples, verdicts)
 
 
 __all__ = (
@@ -260,6 +347,8 @@ __all__ = (
     "UNMAPPED_QUALITY_TYPES",
     "GoldenSample",
     "GoldenSet",
+    "apply_human_verdicts",
+    "attach_verdicts",
     "build_golden_set",
     "expected_tools_for",
     "load_golden_set",

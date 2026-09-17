@@ -6,6 +6,10 @@
 ``LLM_API_KEY``，测试就会真的去打模型 —— 既慢、又烧钱、还不确定。
 这里在测试层统一清掉，与平台侧的 ``isolate_ai_assist`` 是同一套路：
 「要不要联网」由显式用例决定（``--live`` 冒烟），不由开发机的环境决定。
+
+需要「剔除抖动字段再逐字比对」的用例，用同目录的
+:mod:`ai_service.tests.volatile_fields`，不要从 conftest 里 import ——
+项目有两个同名 conftest，谁先加载谁赢，import 会指向哪个取决于跑法。
 """
 
 from __future__ import annotations

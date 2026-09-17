@@ -36,6 +36,8 @@ from ai_service.cassette import (
 from ai_service.llm import HttpLLMClient, NullLLMClient
 from ai_service.tool_manager import Tool
 
+from volatile_fields import drop_volatile
+
 
 def planner_script() -> List[Dict[str, Any]]:
     return [search_step(query="image_blur 释义"), finish_step("根因在影像质量层。")]
@@ -145,12 +147,11 @@ def test_replay_is_byte_identical_across_runs(tmp_path: Path) -> None:
     def once() -> str:
         agent, _ = cassette_agent(path, mode=REPLAY, planner=ScriptedPlanner(planner_script()))
         outcome = run(agent.run(blurred_context())).to_dict()
-        # latency_ms 天然会变，比对时排除掉；其余必须完全一致
-        outcome.pop("latency_ms", None)
-        for entry in outcome["trace"]:
-            entry.pop("latency_ms", None)
-            for event in entry.get("tool_events") or []:
-                event.pop("latency_ms", None)
+        # latency_ms 天然会变，比对时排除掉；其余必须完全一致。
+        # 递归剔除而不是逐个位置 pop：耗时字段散落在 trace、trace[*].tool_events、
+        # tools[*].avg_latency_ms 好几层。漏一层，那一层就会用毫秒级抖动
+        # 随缘把测试翻红 —— 偶发失败比稳定失败更耗人，因为它看着像环境问题。
+        drop_volatile(outcome)
         return json.dumps(outcome, ensure_ascii=False, sort_keys=True)
 
     assert once() == once()

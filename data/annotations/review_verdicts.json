@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "_instructions": "按监管口径判断每条记录**应当**得到什么结论：pass（无需人工）/ review（需人工复核）/ reject（拒绝）。只看左边给出的判断依据，不要参考系统当前的判定。填完在文件头部补上 annotated_by 与 annotated_at。",
+  "_allowed_verdicts": [
+    "pass",
+    "review",
+    "reject"
+  ],
+  "annotated_by": "",
+  "annotated_at": "",
+  "records": [
+    {
+      "sample_id": "golden-bank_card-blur-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-bright-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-dark-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-glare-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-normal-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-blur-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-bright-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-dark-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-glare-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-normal-00",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-blur-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-bright-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-dark-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-glare-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-normal-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-blur-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-bright-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-dark-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-glare-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-normal-01",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-blur-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-bright-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-dark-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-glare-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-normal-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-blur-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-bright-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-dark-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-glare-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-normal-02",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-blur-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-bright-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-dark-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-glare-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-bank_card-normal-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-blur-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-bright-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-dark-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-glare-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    },
+    {
+      "sample_id": "golden-id_card-normal-03",
+      "expected_verdict": "",
+      "key_reason_codes": [],
+      "note": ""
+    }
+  ]
+}

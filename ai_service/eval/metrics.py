@@ -52,6 +52,7 @@ METRIC_DIRECTIONS: Dict[str, str] = {
     "task.evidence_rate": HIGHER_IS_BETTER,
     "task.action_rate": HIGHER_IS_BETTER,
     "task.escalation_accuracy": HIGHER_IS_BETTER,
+    "task.verdict_accuracy": HIGHER_IS_BETTER,
     "task.degraded_rate": LOWER_IS_BETTER,
     "task.truncated_rate": LOWER_IS_BETTER,
     "explain.relevance": HIGHER_IS_BETTER,
@@ -154,6 +155,7 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
     actual_reasons = set(outcome.get("unknown_reason_codes") or [])
     found_reasons = _reasons_covered(outcome)
     expected_reasons = set(sample.expected_reason_codes)
+    expected_verdict = getattr(sample, "expected_verdict", None)
 
     return {
         "sample_id": sample.sample_id,
@@ -180,6 +182,11 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
         "cost.provider_tokens": tokens["provider_total"],
         "cost.usage_reported": tokens["source"] == "provider",
         "cost.ran_llm": tokens["source"] != "none",
+        # 决策层：只有带人工结论标注的样本才算。没标注时这两个键全 False，
+        # 聚合阶段会把整条指标省掉，而不是给出一个 0
+        "task.verdict_expected": bool(expected_verdict),
+        "task.verdict_correct": bool(expected_verdict)
+        and str(outcome.get("review_result") or "") == str(expected_verdict),
     }
 
 
@@ -267,18 +274,7 @@ def aggregate(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
             "parameter_accuracy": _rate(row["tools.parameter_ok"] for row in rows),
             "avg_steps": sum(steps) / len(steps),
         },
-        "task": {
-            "reason_code_match_rate": _rate(row["task.reason_codes_matched"] for row in rows),
-            # 只在「本来就该有引用」的样本上算：没有原因码的记录本来就不该检索，
-            # 把它算成「缺引用」等于惩罚正确行为
-            "evidence_rate": _conditional_rate(
-                rows, key="task.has_evidence", when="task.evidence_expected"
-            ),
-            "action_rate": _rate(row["task.has_action"] for row in rows),
-            "escalation_accuracy": _rate(row["task.escalation_correct"] for row in rows),
-            "degraded_rate": _rate(row["task.degraded"] for row in rows),
-            "truncated_rate": _rate(row["task.truncated"] for row in rows),
-        },
+        "task": _task_layer(rows),
         "explain": {
             "relevance": _mean(row["explain.relevance"] for row in rows),
             "accuracy": _mean(row["explain.accuracy"] for row in rows),
@@ -300,6 +296,34 @@ def aggregate(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
 def _mean(values: Iterable[float]) -> float:
     items = [float(item) for item in values]
     return sum(items) / len(items) if items else 0.0
+
+
+def _task_layer(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
+    """任务层指标。
+
+    ``verdict_accuracy`` **只在有人工结论标注时才出现**。没有标注时若照常
+    输出一个 0，报告里那一行看起来就像「结论正确率 0%」—— 一个比「不可用」
+    更糟的误读。指标的出现与否本身就是信息。
+    """
+    block: Dict[str, Any] = {
+        "reason_code_match_rate": _rate(row["task.reason_codes_matched"] for row in rows),
+        # 只在「本来就该有引用」的样本上算：没有原因码的记录本来就不该检索，
+        # 把它算成「缺引用」等于惩罚正确行为
+        "evidence_rate": _conditional_rate(
+            rows, key="task.has_evidence", when="task.evidence_expected"
+        ),
+        "action_rate": _rate(row["task.has_action"] for row in rows),
+        "escalation_accuracy": _rate(row["task.escalation_correct"] for row in rows),
+        "degraded_rate": _rate(row["task.degraded"] for row in rows),
+        "truncated_rate": _rate(row["task.truncated"] for row in rows),
+    }
+
+    verdict_rows = [row for row in rows if row.get("task.verdict_expected")]
+    if verdict_rows:
+        block["verdict_accuracy"] = _rate(
+            row.get("task.verdict_correct") for row in verdict_rows
+        )
+    return block
 
 
 def flatten(aggregate_report: Mapping[str, Any]) -> Dict[str, float]:

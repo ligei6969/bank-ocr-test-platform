@@ -43,6 +43,8 @@ from ai_service.devtools.mock_llm import (
 from ai_service.llm import USAGE_PROVIDER, LLMUnavailableError, build_llm_client, take_usage
 from ai_service.tools import ContextRecordSource
 
+from volatile_fields import drop_volatile
+
 
 @pytest.fixture(autouse=True)
 def bypass_proxy_for_loopback(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -98,18 +100,15 @@ def _strip_variable_fields(outcome: Dict[str, Any]) -> str:
     """去掉天然会变的字段，其余逐字比对。
 
     去掉两类：
-    * ``latency_ms`` —— 跑两次必然不同；
+    * 所有耗时类字段 —— 跑两次必然不同。递归扫而不是列位置，
+      理由见 :func:`conftest.drop_volatile`；
     * ``engine.llm`` —— 它如实报告「当前用的是哪个客户端」，
       live 是 ``cassette:live:llm:openai:...``，replay 是
       ``cassette:replay:llm:exploding``，本来就该不同。
     """
     clone = json.loads(json.dumps(outcome, ensure_ascii=False, default=str))
-    clone.pop("latency_ms", None)
+    drop_volatile(clone)
     (clone.get("engine") or {}).pop("llm", None)
-    for entry in clone.get("trace") or []:
-        entry.pop("latency_ms", None)
-    for stats in (clone.get("tools") or {}).values():
-        stats.pop("avg_latency_ms", None)
     return json.dumps(clone, ensure_ascii=False, sort_keys=True)
 
 

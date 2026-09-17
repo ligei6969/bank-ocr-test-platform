@@ -72,6 +72,7 @@ METRIC_LABELS = {
     "evidence_rate": "有引用依据的比例",
     "action_rate": "有处置建议的比例",
     "escalation_accuracy": "转人工判定准确率",
+    "verdict_accuracy": "结论正确率（人工标注）",
     "degraded_rate": "降级运行比例（越低越好）",
     "truncated_rate": "被预算截断比例（越低越好）",
     "relevance": "相关性",
@@ -155,7 +156,13 @@ def print_report(report: EvaluationReport) -> None:
     for note in golden.get("notes") or []:
         print(f"   · {note}")
     if golden.get("verdict_layer_available") is False:
-        print("   · 决策层（真实审核结论正确率）本轮不可用：缺人工结论标注。")
+        # 上面已经逐条列了「为什么不可用」。这里只补一句**下一步做什么** ——
+        # 重复一遍「缺标注」不如告诉人去跑哪个脚本。
+        print(
+            "   · 决策层（真实审核结论正确率）本轮不计入："
+            "填好标注后重跑本命令即可启用。生成待填清单："
+            "python -m scripts.make_verdict_worksheet"
+        )
     print()
 
 
