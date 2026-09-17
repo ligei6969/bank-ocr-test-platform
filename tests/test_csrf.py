@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import io
 import json
-import sqlite3
 from pathlib import Path
 
 import pytest
@@ -14,6 +13,7 @@ from PIL import Image
 
 from app.main import app
 from app.review_records import save_review_record
+from app.sqlite_connection import connect_database
 from app.users import create_user
 
 
@@ -137,7 +137,7 @@ def configure_successful_review(monkeypatch, endpoint: str) -> None:
 def review_record_count(database_path: Path) -> int:
     if not database_path.exists():
         return 0
-    with sqlite3.connect(database_path) as connection:
+    with connect_database(database_path) as connection:
         table = connection.execute(
             """
             SELECT 1
@@ -495,15 +495,19 @@ def test_csrf_token_is_not_stored_in_database_schema(
         username="csrf-database-user",
     )
 
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         user_columns = {
             row[1]
             for row in connection.execute("PRAGMA table_info(users)").fetchall()
         }
-        stored_user = connection.execute(
-            "SELECT username, role FROM users WHERE username = ?",
-            ("csrf-database-user",),
-        ).fetchone()
+        # connect_database 把 row_factory 设为 sqlite3.Row；这里只要值本身，
+        # 转成元组后既能和元组比较，也能直接 json.dumps
+        stored_user = tuple(
+            connection.execute(
+                "SELECT username, role FROM users WHERE username = ?",
+                ("csrf-database-user",),
+            ).fetchone()
+        )
 
     assert "csrf_token" not in user_columns
     assert stored_user == ("csrf-database-user", "user")

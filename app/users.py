@@ -9,23 +9,16 @@ from typing import Any
 import bcrypt
 
 from app.review_records import get_review_db_path
+from app.sqlite_connection import connect_database
 
 
 class UserAlreadyExistsError(ValueError):
     """Raised when an account already uses the requested username."""
 
 
-def _connect() -> sqlite3.Connection:
-    database_path = get_review_db_path()
-    database_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(database_path, timeout=5.0)
-    connection.row_factory = sqlite3.Row
-    return connection
-
-
 def initialize_user_database() -> None:
     """Create the users table without changing existing database objects."""
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
@@ -76,7 +69,7 @@ def get_user_by_username(username: str) -> dict[str, Any] | None:
         return None
 
     initialize_user_database()
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         row = connection.execute(
             "SELECT * FROM users WHERE username = ?",
             (normalized_username,),
@@ -90,7 +83,7 @@ def get_user_by_id(user_id: int) -> dict[str, Any] | None:
         return None
 
     initialize_user_database()
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         row = connection.execute(
             "SELECT * FROM users WHERE id = ?",
             (user_id,),
@@ -118,7 +111,7 @@ def create_user(
     initialize_user_database()
 
     try:
-        with _connect() as connection:
+        with connect_database(get_review_db_path()) as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO users (

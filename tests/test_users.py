@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import sqlite3
 from pathlib import Path
 
 import pytest
 
 from app.review_records import save_review_record
+from app.sqlite_connection import connect_database
 from app.users import (
     UserAlreadyExistsError,
     create_user,
@@ -30,7 +30,7 @@ def user_db(monkeypatch, tmp_path: Path) -> Path:
 def test_initialize_user_database_creates_required_schema(user_db: Path) -> None:
     initialize_user_database()
 
-    with sqlite3.connect(user_db) as connection:
+    with connect_database(user_db) as connection:
         columns = connection.execute("PRAGMA table_info(users)").fetchall()
 
     assert [column[1] for column in columns] == [
@@ -66,7 +66,7 @@ def test_create_user_persists_hash_role_and_status(user_db: Path) -> None:
         is_active=False,
     )
 
-    with sqlite3.connect(user_db) as connection:
+    with connect_database(user_db) as connection:
         stored = connection.execute(
             """
             SELECT username, password_hash, role, is_active, created_at
@@ -118,7 +118,7 @@ def test_users_and_review_records_coexist_in_same_database(user_db: Path) -> Non
 
     create_user(username="auditor", password="Audit-password-123!")
 
-    with sqlite3.connect(user_db) as connection:
+    with connect_database(user_db) as connection:
         tables = {
             row[0]
             for row in connection.execute(

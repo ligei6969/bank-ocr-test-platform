@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from app.sqlite_connection import connect_database
+
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = ROOT_DIR / "reports" / "review_records.db"
@@ -19,16 +21,8 @@ def get_review_db_path() -> Path:
     return Path(configured_path) if configured_path else DEFAULT_DB_PATH
 
 
-def _connect() -> sqlite3.Connection:
-    database_path = get_review_db_path()
-    database_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(database_path, timeout=5.0)
-    connection.row_factory = sqlite3.Row
-    return connection
-
-
 def initialize_review_database() -> None:
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS review_records (
@@ -77,7 +71,7 @@ def save_review_record(
     error_message: str | None = None,
 ) -> None:
     initialize_review_database()
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         connection.execute(
             """
             INSERT INTO review_records (
@@ -112,7 +106,7 @@ def _deserialize_record(row: sqlite3.Row) -> dict[str, Any]:
 
 def get_review_record(request_id: str) -> dict[str, Any] | None:
     initialize_review_database()
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         row = connection.execute(
             "SELECT * FROM review_records WHERE request_id = ?",
             (request_id,),
@@ -140,6 +134,6 @@ def list_review_records(
         query += " WHERE " + " AND ".join(clauses)
     query += " ORDER BY id DESC"
 
-    with _connect() as connection:
+    with connect_database(get_review_db_path()) as connection:
         rows = connection.execute(query, parameters).fetchall()
     return [_deserialize_record(row) for row in rows]

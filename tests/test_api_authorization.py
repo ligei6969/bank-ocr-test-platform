@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import io
 import json
-import sqlite3
 from pathlib import Path
 
 import pytest
@@ -13,6 +12,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.review_records import save_review_record
+from app.sqlite_connection import connect_database
 from app.users import create_user
 
 
@@ -110,7 +110,7 @@ def fail_if_ocr_runs(image_path: str, mode: str = "mock") -> list[str]:
 def review_record_count(database_path: Path) -> int:
     if not database_path.exists():
         return 0
-    with sqlite3.connect(database_path) as connection:
+    with connect_database(database_path) as connection:
         table_exists = connection.execute(
             """
             SELECT 1
@@ -229,7 +229,7 @@ def test_stale_user_session_is_rejected_before_review_processing(
         username=f"stale-{mutation}-{endpoint.split('/')[1]}",
         role="user",
     )
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         if mutation == "disable":
             connection.execute(
                 "UPDATE users SET is_active = 0 WHERE id = ?",
@@ -326,14 +326,14 @@ def test_role_changes_apply_to_admin_api_in_existing_session(
     )
     denied = isolated_auth_client.get("/review-records")
     assert denied.status_code == 403
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET role = 'admin' WHERE id = ?",
             (user["id"],),
         )
     promoted = isolated_auth_client.get("/review-records")
     assert promoted.status_code == 200
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET role = 'user' WHERE id = ?",
             (user["id"],),
@@ -409,7 +409,7 @@ def test_stale_admin_session_returns_401_for_admin_apis(
         username=f"stale-admin-{mutation}-{path.count('/')}",
         role="admin",
     )
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         if mutation == "disable":
             connection.execute(
                 "UPDATE users SET is_active = 0 WHERE id = ?",

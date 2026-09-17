@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import base64
 import json
-import sqlite3
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.sqlite_connection import connect_database
 from app.users import create_user
 
 
@@ -202,7 +202,7 @@ def test_session_for_deleted_user_is_cleared(
 ) -> None:
     user = create_login_user()
     login(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute("DELETE FROM users WHERE id = ?", (user["id"],))
 
     response = isolated_auth_client.get("/user", follow_redirects=False)
@@ -218,7 +218,7 @@ def test_session_for_newly_inactive_user_is_cleared(
 ) -> None:
     user = create_login_user()
     login(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET is_active = 0 WHERE id = ?",
             (user["id"],),

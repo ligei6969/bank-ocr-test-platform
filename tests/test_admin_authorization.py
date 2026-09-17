@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import base64
 import json
-import sqlite3
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.sqlite_connection import connect_database
 from app.users import create_user
 
 
@@ -245,7 +245,7 @@ def test_disabled_admin_session_is_cleared_immediately(
     auth_db_path: Path,
 ) -> None:
     admin = create_and_login_admin(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET is_active = 0 WHERE id = ?",
             (admin["id"],),
@@ -263,7 +263,7 @@ def test_deleted_admin_session_is_cleared_immediately(
     auth_db_path: Path,
 ) -> None:
     admin = create_and_login_admin(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute("DELETE FROM users WHERE id = ?", (admin["id"],))
 
     response = isolated_auth_client.get("/admin/reviews", follow_redirects=False)
@@ -278,7 +278,7 @@ def test_session_with_missing_user_id_is_cleared(
     auth_db_path: Path,
 ) -> None:
     admin = create_and_login_admin(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET id = ? WHERE id = ?",
             (admin["id"] + 1000, admin["id"]),
@@ -296,7 +296,7 @@ def test_admin_role_downgrade_takes_effect_in_existing_session(
     auth_db_path: Path,
 ) -> None:
     admin = create_and_login_admin(isolated_auth_client)
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET role = 'user' WHERE id = ?",
             (admin["id"],),
@@ -316,7 +316,7 @@ def test_user_role_promotion_takes_effect_in_existing_session(
     user = create_and_login_user(isolated_auth_client)
     denied = isolated_auth_client.get("/admin/reviews", follow_redirects=False)
     assert denied.status_code == 403
-    with sqlite3.connect(auth_db_path) as connection:
+    with connect_database(auth_db_path) as connection:
         connection.execute(
             "UPDATE users SET role = 'admin' WHERE id = ?",
             (user["id"],),

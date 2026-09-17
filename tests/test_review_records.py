@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import sqlite3
 from pathlib import Path
 
 import pytest
@@ -12,6 +11,7 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
 from app.logging_utils import mask_sensitive_data
+from app.sqlite_connection import connect_database
 
 
 client: TestClient
@@ -117,12 +117,13 @@ def test_bank_card_review_returns_request_id_and_writes_record(review_db, monkey
     assert response.headers["X-Request-ID"] == request_id
     assert review_db.exists()
 
-    with sqlite3.connect(review_db) as connection:
+    with connect_database(review_db) as connection:
         row = connection.execute(
             "SELECT doc_type, filename, ocr_mode, review_result FROM review_records WHERE request_id = ?",
             (request_id,),
         ).fetchone()
-    assert row == ("bank_card", "bank_card.png", "mock", "pass")
+    # connect_database 把 row_factory 设为 sqlite3.Row，所以要和元组比较得先转
+    assert tuple(row) == ("bank_card", "bank_card.png", "mock", "pass")
 
 
 def test_id_card_review_returns_request_id_and_can_be_queried(review_db, monkeypatch, tmp_path) -> None:
@@ -174,7 +175,7 @@ def test_bank_card_and_id_card_records_share_table_but_keep_distinct_payloads(
     bank_request_id = bank_response.json()["request_id"]
     id_request_id = id_response.json()["request_id"]
 
-    with sqlite3.connect(review_db) as connection:
+    with connect_database(review_db) as connection:
         table_names = {
             row[0]
             for row in connection.execute(
@@ -276,7 +277,7 @@ def test_review_logs_do_not_include_full_bank_card_number(review_db, monkeypatch
 def test_review_record_schema_contains_required_columns(review_db, monkeypatch, tmp_path) -> None:
     post_bank_card(monkeypatch, tmp_path)
 
-    with sqlite3.connect(review_db) as connection:
+    with connect_database(review_db) as connection:
         columns = {
             row[1]
             for row in connection.execute("PRAGMA table_info(review_records)").fetchall()
@@ -298,7 +299,7 @@ def test_review_record_schema_contains_required_columns(review_db, monkeypatch, 
 
 
 def test_existing_review_database_is_migrated(review_db) -> None:
-    with sqlite3.connect(review_db) as connection:
+    with connect_database(review_db) as connection:
         connection.execute(
             """
             CREATE TABLE review_records (
@@ -321,7 +322,7 @@ def test_existing_review_database_is_migrated(review_db) -> None:
 
     initialize_review_database()
 
-    with sqlite3.connect(review_db) as connection:
+    with connect_database(review_db) as connection:
         columns = {
             row[1]
             for row in connection.execute("PRAGMA table_info(review_records)").fetchall()
