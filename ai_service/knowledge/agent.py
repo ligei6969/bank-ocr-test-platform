@@ -35,6 +35,7 @@ from ai_service.explain import to_citation
 from ai_service.knowledge import corpus, policy
 from ai_service.knowledge.corpus import CORPUS_DISCLAIMER, CATEGORY_TITLES
 from ai_service.knowledge.prompts import KNOWLEDGE_DECIDE, KNOWLEDGE_AGENT_PROMPT_ID
+from ai_service.knowledge.session import DEFAULT_MAX_TURNS, SessionHistory, Turn
 from ai_service.knowledge.tools import (
     HANDOFF_TO_HUMAN,
     KNOWLEDGE_TOOL_WHITELIST,
@@ -155,6 +156,12 @@ class KnowledgeOutcome:
     retrieval_backend: str = ""
     llm: str = "none"
     llm_available: bool = False
+    #: 更新后的多轮会话历史（含本轮）。调用方拿回去，下一轮随请求带进来。
+    #:
+    #: **服务端不留存**：这个字段是「回执」，不是「状态」。
+    #: 它已经被裁剪到 :data:`~ai_service.knowledge.session.DEFAULT_MAX_TURNS` 轮 ——
+    #: 传回去也没人会用的部分不该跟着响应一起长大。
+    history: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -173,6 +180,7 @@ class KnowledgeOutcome:
             "degraded": self.degraded,
             "truncated": self.truncated,
             "stop_reason": self.stop_reason,
+            "history": self.history,
             "engine": {
                 "llm": self.llm,
                 "llm_available": self.llm_available,
@@ -195,6 +203,12 @@ class _AskState:
     """一轮问答的累计状态。"""
 
     question: str
+    #: 本轮携带的会话历史（已脱敏、已裁剪）。**仅用于 prompt 里的指代理解** ——
+    #: 它不进 ``evidence``，因此既不会变成引用，也不会让接地闸门放行无来源内容。
+    session: SessionHistory = field(default_factory=SessionHistory)
+    #: 历史块的渲染结果。在 ``ask()`` 里算一次就不再变 ——
+    #: 本轮内部它必须恒定，否则「同一问题同一步」会因渲染时机不同而不同。
+    session_block: str = ""
     intent: str = policy.INTENT_KNOWLEDGE
     step_index: int = 0
     tool_calls: int = 0
@@ -284,11 +298,34 @@ class KnowledgeAgent:
 
     # ── 主入口 ────────────────────────────────────────────────────────────────
 
-    async def ask(self, question: str) -> KnowledgeOutcome:
-        """回答一个问题。**任何情况下都不抛异常。**"""
+    async def ask(
+        self,
+        question: str,
+        history: Optional[SessionHistory] = None,
+    ) -> KnowledgeOutcome:
+        """回答一个问题。**任何情况下都不抛异常。**
+
+        ``history`` 是调用方持有的多轮会话历史。``None``（默认）表示单轮 ——
+        这条路径的行为与没有多轮功能时完全一致，是向后兼容的基线。
+
+        安全立场（三条，都有对应测试）：
+
+        1. **闸门只按当轮问题判定**：越界与否看的是 ``question`` 本身，
+           历史里的任何内容都不能改变这个结论；
+        2. **历史不产生事实**：历史不进证据集，因此不会变成引用、
+           也不会让接地闸门把无来源的答复放行；
+        3. **历史先洗再用**：进 prompt 前强制脱敏与裁剪，且
+           ``refused`` / ``intent`` 从文本重算，不采信调用方传来的标志位。
+        """
         started = time.monotonic()
         clean, sanitized = policy.sanitize_question(question)
-        state = _AskState(question=clean or str(question or "").strip())
+        # 先洗、再裁、后渲染。顺序在这里就定死，不指望调用方先做对。
+        session = (history or SessionHistory()).sanitize().trim(DEFAULT_MAX_TURNS)
+        state = _AskState(
+            question=clean or str(question or "").strip(),
+            session=session,
+            session_block=session.to_prompt_block(),
+        )
         state.sanitized = sanitized
         state.intent = policy.detect_intent(state.question)
 
@@ -437,6 +474,10 @@ class KnowledgeAgent:
         """一次 planner 调用。失败返回 ``None``，由调用方决定怎么降级。"""
         prompt = KNOWLEDGE_DECIDE.render(
             question=state.question,
+            # 会话历史与「已完成的步骤」是两个不同的东西，模板里也是两个占位符：
+            # 前者是跨轮次的对话，后者是本轮已经查过什么。混在一起会让模型
+            # 分不清「上一轮用户说的」和「这一轮工具返回的」。
+            session=state.session_block,
             history=self._history_block(state),
             tool_catalog=tool_catalog_text(),
         )
@@ -772,7 +813,7 @@ class KnowledgeAgent:
         citations = state.citations
         answer = state.answer or policy.INSUFFICIENT_ANSWER
 
-        return KnowledgeOutcome(
+        outcome = KnowledgeOutcome(
             question=state.question,
             intent=state.intent,
             answer=answer,
@@ -809,6 +850,12 @@ class KnowledgeAgent:
             llm=self._llm.name,
             llm_available=self._llm.available,
         )
+        # 把本轮记进历史，并回传给调用方。记的是**已经收敛的结论**
+        # （意图、引用、是否拒答、被哪道闸门拦下），不是模型被拦下的草稿 ——
+        # 那份草稿只该留在本次响应里供审计，不该跟着历史往外走。
+        updated = state.session.append(Turn.from_outcome(state.question, outcome.to_dict()))
+        outcome.history = updated.to_payload()
+        return outcome
 
 
 def corpus_split(content: str) -> tuple[str, Dict[str, str]]:
@@ -856,10 +903,11 @@ async def run_knowledge_ask(
     llm: Optional[LLMClient] = None,
     budget: Optional[AgentBudget] = None,
     agent: Optional[KnowledgeAgent] = None,
+    history: Optional[SessionHistory] = None,
 ) -> Dict[str, Any]:
     """一次性问答，返回字典。供 ``api.py`` / CLI 调用。"""
     active = agent or build_knowledge_agent(llm=llm, budget=budget)
-    outcome = await active.ask(question)
+    outcome = await active.ask(question, history=history)
     return outcome.to_dict()
 
 
@@ -870,6 +918,7 @@ __all__ = (
     "KnowledgeAgent",
     "KnowledgeBudget",
     "KnowledgeOutcome",
+    "SessionHistory",
     "build_knowledge_agent",
     "corpus_split",
     "run_knowledge_ask",

@@ -29,12 +29,22 @@ from ai_service.knowledge.agent import (
     build_knowledge_agent,
     run_knowledge_ask,
 )
+from ai_service.knowledge.session import (
+    DEFAULT_MAX_TURNS,
+    SessionHistory,
+    Turn,
+    turn_from_outcome,
+)
 
 __all__ = (
+    "DEFAULT_MAX_TURNS",
     "KNOWLEDGE_AGENT_PROMPT_ID",
     "KnowledgeAgent",
     "KnowledgeBudget",
     "KnowledgeOutcome",
+    "SessionHistory",
+    "Turn",
     "build_knowledge_agent",
     "run_knowledge_ask",
+    "turn_from_outcome",
 )

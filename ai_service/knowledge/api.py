@@ -21,6 +21,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ai_service.knowledge.agent import KnowledgeAgent, build_knowledge_agent
+from ai_service.knowledge.session import SessionHistory
 from ai_service.llm import LLMClient
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,14 @@ MAX_QUESTION_CHARS = 1000
 
 
 class AskRequest(BaseModel):
-    """客服提问。``context`` 预留给多轮会话，当前不参与决策。"""
+    """客服提问。
+
+    ``context`` 承载多轮会话：请求里放 ``{"history": [...]}``，
+    响应的顶层 ``history`` 是**更新后**的历史，调用方存下来、下一轮再带回来。
+
+    AI 服务本身不持有会话 —— 它只做「给定历史 + 本轮问题 → 回答」，
+    所以刷新、换实例、并发多轮都不会串号。
+    """
 
     question: str = Field(
         ...,
@@ -39,7 +47,7 @@ class AskRequest(BaseModel):
     )
     context: Dict[str, Any] = Field(
         default_factory=dict,
-        description="预留：多轮会话上下文（当前版本不使用）",
+        description='多轮会话上下文，形如 {"history": [{"question": "...", "answer": "..."}]}',
     )
 
 
@@ -80,11 +88,16 @@ def create_knowledge_router(
         「答不出」不是错误状态，把它做成 4xx/5xx 会诱导调用方重试，
         而重试同一个问题也不会变得答得出来。真正的错误只有一类：
         服务内部异常（500）。
+
+        多轮：请求的 ``context.history`` 进来，响应的 ``history`` 出去。
+        历史由调用方保存 —— 服务端不留任何会话状态，
+        所以同一个问题配同一份历史，在哪台实例上跑都得到同一个结果。
         """
         try:
             # 必须转成 dict：路由声明的返回类型是 JSON 对象，
             # 直接把 dataclass 返回去会被 FastAPI 的响应校验拦下（500）
-            return (await active.ask(payload.question)).to_dict()
+            history = SessionHistory.from_payload(payload.context.get("history"))
+            return (await active.ask(payload.question, history=history)).to_dict()
         except Exception as exc:  # noqa: BLE001 - 服务边界统一兜底
             logger.exception("客服问答失败 question_len=%s", len(payload.question))
             raise HTTPException(status_code=500, detail=f"客服问答失败: {exc}") from exc

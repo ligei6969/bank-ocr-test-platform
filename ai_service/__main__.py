@@ -1,6 +1,6 @@
 """命令行入口。
 
-五种用法：
+用法：
 
     python -m ai_service                      # 启动 HTTP 服务
     python -m ai_service --demo               # 用内置样例跑一次完整链路
@@ -9,6 +9,8 @@
     python -m ai_service --live               # 真实调用一次模型（需配 LLM_API_KEY）
     python -m ai_service --search "反光了怎么办"
     python -m ai_service --explain <payload.json>
+    python -m ai_service --ask "办理二类账户需要哪些材料"
+    python -m ai_service --ask "那需要什么材料" --history session.json   # 多轮
 
 ``--demo`` 不依赖网络：默认 LLM 未配置，会走确定性降级分支，
 所以它同时也是一个「降级路径是否可用」的自检命令。
@@ -21,6 +23,10 @@
 ``--live`` 是真实模型版本，用来手动冒烟：确认 key 配对了、模型回了、
 结构化解析过了、用量取到了。**默认路径永远是离线的**，只有显式加 ``--live``
 才会出网。
+
+``--history`` 给 ``--ask`` 用：从文件读入会话历史，跑完把**更新后**的历史写回同一
+文件 —— 连着跑几次就能看到它记住了上文。文件不存在不算错（就是「第一轮」）。
+服务端不留会话状态，历史始终在调用方手里，这个文件扮演的就是那个「调用方」。
 
 没有真实 key 时想验证这条链路，可以用本地协议靶子：
 
@@ -213,9 +219,27 @@ def _run_agent(args: argparse.Namespace, *, live: bool = False) -> int:
     return 0
 
 
+def _read_history(path: str | None) -> tuple[Any, Path | None]:
+    """读会话历史。**文件不存在不算错** —— 那就是第一轮。
+
+    只容忍「文件不存在」，不容忍「内容损坏」：后者说明文件被写坏了或者传错了，
+    静默当成空历史会让人以为多轮没生效，反而更难查。
+    """
+    if not path:
+        return None, None
+    history_path = Path(path)
+    if not history_path.is_file():
+        return None, history_path
+    payload = json.loads(history_path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict):
+        payload = payload.get("history")
+    return payload, history_path
+
+
 def _run_ask(args: argparse.Namespace) -> int:
     """客服 Agent 问答（第二个 surface）。默认离线，加 --live 才调模型。"""
     from ai_service.knowledge.agent import run_knowledge_ask
+    from ai_service.knowledge.session import SessionHistory
 
     if args.live:
         llm = build_llm_client()
@@ -228,8 +252,24 @@ def _run_ask(args: argparse.Namespace) -> int:
     else:
         llm = NullLLMClient(reason="--ask 默认离线，加 --live 才调用模型")
 
-    result = asyncio.run(run_knowledge_ask(args.ask, llm=llm))
+    raw_history, history_path = _read_history(args.history)
+    history = SessionHistory.from_payload(raw_history)
+    if history_path is not None:
+        state = f"已载入 {len(history)} 轮" if history else "（空，按第一轮处理）"
+        print(f"[--ask] 历史文件 {history_path}：{state}", file=sys.stderr)
+
+    result = asyncio.run(run_knowledge_ask(args.ask, llm=llm, history=history))
     print(json.dumps(result, ensure_ascii=False, indent=args.indent or None))
+
+    if history_path is not None:
+        # 就地写回更新后的历史：这个文件扮演的就是「调用方」，
+        # 连续跑几次即可演示多轮。服务端不留任何会话状态。
+        history_path.parent.mkdir(parents=True, exist_ok=True)
+        history_path.write_text(
+            json.dumps({"history": result["history"]}, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"[--ask] 已回写历史（{len(result['history'])} 轮）→ {history_path}", file=sys.stderr)
 
     print(
         f"[--ask] 意图={result['intent']} 拒答={result['refused']} "
@@ -246,6 +286,11 @@ def _run_ask(args: argparse.Namespace) -> int:
     print(
         f"[--ask] 脱敏命中={result['sanitized'] or '无'} "
         f"丢弃无关召回={result['off_topic_dropped']} 条",
+        file=sys.stderr,
+    )
+    print(
+        f"[--ask] 会话历史={len(result['history'])} 轮 "
+        f"（prompt 版本 {result['prompt_versions']['used'].get('knowledge_decide', '未调用模型')}）",
         file=sys.stderr,
     )
     print(
@@ -297,6 +342,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--ask",
         metavar="QUESTION",
         help="客服 Agent 问答（银行业务知识，第二个 surface；默认离线，加 --live 才调模型）",
+    )
+    parser.add_argument(
+        "--history",
+        metavar="JSON_FILE",
+        help=(
+            "配合 --ask 使用：从该文件读入多轮会话历史，跑完把更新后的历史写回同一文件。"
+            "文件不存在按第一轮处理"
+        ),
     )
     parser.add_argument("--search", metavar="QUERY", help="只做检索，打印命中的知识片段")
     parser.add_argument("--explain", metavar="JSON_FILE", help="读取 JSON 上下文文件并生成解释")
