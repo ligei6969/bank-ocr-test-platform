@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
@@ -23,6 +24,7 @@ from pydantic import BaseModel, Field
 from ai_service.knowledge.agent import KnowledgeAgent, build_knowledge_agent
 from ai_service.knowledge.session import SessionHistory
 from ai_service.llm import LLMClient
+from ai_service.metrics import AgentMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +57,7 @@ def create_knowledge_router(
     agent: Optional[KnowledgeAgent] = None,
     *,
     llm: Optional[LLMClient] = None,
+    metrics: Optional[AgentMetrics] = None,
 ) -> APIRouter:
     """构造客服路由。
 
@@ -63,6 +66,7 @@ def create_knowledge_router(
     """
     router = APIRouter(prefix="/knowledge", tags=["knowledge"])
     active = agent or build_knowledge_agent(llm=llm)
+    active_metrics = metrics or AgentMetrics()
 
     @router.get("/health")
     def health() -> Dict[str, Any]:
@@ -96,9 +100,13 @@ def create_knowledge_router(
         try:
             # 必须转成 dict：路由声明的返回类型是 JSON 对象，
             # 直接把 dataclass 返回去会被 FastAPI 的响应校验拦下（500）
+            started = time.monotonic()
             history = SessionHistory.from_payload(payload.context.get("history"))
-            return (await active.ask(payload.question, history=history)).to_dict()
+            result = (await active.ask(payload.question, history=history)).to_dict()
+            active_metrics.observe("knowledge", result)
+            return result
         except Exception as exc:  # noqa: BLE001 - 服务边界统一兜底
+            active_metrics.observe("knowledge", {"error": True, "latency_ms": (time.monotonic() - started) * 1000})
             logger.exception("客服问答失败 question_len=%s", len(payload.question))
             raise HTTPException(status_code=500, detail=f"客服问答失败: {exc}") from exc
 

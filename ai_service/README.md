@@ -68,6 +68,7 @@ python -m ai_service --ask "那需要什么材料" --history session.json
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | GET | `/health` | 探活，报告 LLM 是否可用、索引规模 |
+| GET | `/metrics` | Prometheus 文本指标（进程内聚合，重启清零） |
 | GET | `/tools/stats` | 工具的成功率、平均延迟、熔断状态 |
 | POST | `/explain` | 固定流水线：传入脱敏后的审核上下文，返回解释 |
 | POST | `/agent/explain` | **P1 Agent 路径**：多步决策，返回 trace / 预算 / token 用量 |
@@ -90,6 +91,8 @@ python -m ai_service --ask "那需要什么材料" --history session.json
 ```
 
 `fields` 由平台侧脱敏后传入，本服务不接触原始证件号。
+
+`GET /metrics` 暴露 AI 请求计数、降级/截断数、LLM 调用与 token 来源、Agent 延迟 histogram、工具调用和熔断状态。指标仅在当前进程内聚合，进程重启后归零；标签使用固定 surface/result/reason/token-source/tool 枚举，不包含 request ID、用户问题、工具参数或个人信息。默认只允许 loopback 监听地址访问；当 `AI_SERVICE_HOST` 绑定非 loopback 地址，必须配置 `AI_METRICS_TOKEN`，并以 `Authorization: Bearer <token>` 抓取。需要 P95 时在 Prometheus 侧用 `histogram_quantile()` 从 `bank_ocr_agent_duration_seconds_bucket` 计算。此端点不应直接暴露到公网。
 
 ---
 

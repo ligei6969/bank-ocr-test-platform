@@ -16,15 +16,18 @@ from __future__ import annotations
 
 import logging
 import os
+import secrets
+import time
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from ai_service import __version__
 from ai_service.agent import run_agent_for_context
 from ai_service.explain import ReviewContext, ReviewExplainer, build_explainer
 from ai_service.llm import build_llm_client
+from ai_service.metrics import AgentMetrics
 from ai_service.knowledge.agent import KnowledgeAgent
 from ai_service.knowledge.api import create_knowledge_router
 from ai_service.tools import TOOL_WHITELIST
@@ -71,9 +74,17 @@ def create_app(
     )
 
     active_explainer = explainer or build_explainer(llm=build_llm_client())
+    metrics = AgentMetrics()
+    active_knowledge_agent = knowledge_agent
+    if active_knowledge_agent is None:
+        from ai_service.knowledge.agent import build_knowledge_agent
+
+        active_knowledge_agent = build_knowledge_agent(llm=active_explainer.llm)
+    app.state.agent_metrics = metrics
+    app.state.knowledge_agent = active_knowledge_agent
     # 客服 Agent 是这个服务里的第二个 surface：同一个进程、同一个端口、
     # 共用 LLM 与工具框架，但语料、工具、prompt、安全边界各成一套。
-    app.include_router(create_knowledge_router(knowledge_agent))
+    app.include_router(create_knowledge_router(active_knowledge_agent, metrics=metrics))
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
@@ -91,18 +102,37 @@ def create_app(
             },
         }
 
+    @app.get("/metrics", response_class=Response)
+    def metrics_endpoint(request: Request) -> Response:
+        configured_token = os.getenv("AI_METRICS_TOKEN", "").strip()
+        exposed_host = get_host()
+        loopback_hosts = {"127.0.0.1", "localhost", "::1"}
+        if exposed_host not in loopback_hosts or configured_token:
+            supplied = request.headers.get("Authorization", "")
+            expected = f"Bearer {configured_token}" if configured_token else ""
+            if not configured_token or not secrets.compare_digest(supplied, expected):
+                raise HTTPException(status_code=403, detail="Metrics access denied.")
+        return Response(
+            content=metrics.render(),
+            media_type="text/plain; version=0.0.4; charset=utf-8",
+        )
+
     @app.get("/tools/stats")
     def tool_stats() -> Dict[str, Any]:
         return active_explainer._tools.get_stats()  # noqa: SLF001
 
     @app.post("/explain")
     async def explain(payload: ExplainRequest) -> Dict[str, Any]:
+        started = time.monotonic()
         if payload.doc_type not in {"bank_card", "id_card"}:
             raise HTTPException(status_code=422, detail="doc_type 必须是 bank_card 或 id_card")
         context = ReviewContext.from_payload(payload.model_dump())
         try:
-            return await active_explainer.explain(context, top_k=payload.top_k)
+            result = await active_explainer.explain(context, top_k=payload.top_k)
+            metrics.observe("explain", result)
+            return result
         except Exception as exc:  # noqa: BLE001 - 服务边界统一兜底
+            metrics.observe_error("explain", (time.monotonic() - started) * 1000)
             logger.exception("解释生成失败 request_id=%s", payload.request_id)
             raise HTTPException(status_code=500, detail=f"解释生成失败: {exc}") from exc
 
@@ -113,16 +143,20 @@ def create_app(
         与 ``/explain`` 并存而不是替换：P0 的固定流水线更快、更省，
         简单记录用它就够了；需要「自己决定查什么」时才走 Agent。
         """
+        started = time.monotonic()
         if payload.doc_type not in {"bank_card", "id_card"}:
             raise HTTPException(status_code=422, detail="doc_type 必须是 bank_card 或 id_card")
         context = ReviewContext.from_payload(payload.model_dump())
         try:
-            return await run_agent_for_context(
+            result = await run_agent_for_context(
                 context,
                 llm=active_explainer.llm,
                 retriever=active_explainer.retriever,
             )
+            metrics.observe("review_agent", result)
+            return result
         except Exception as exc:  # noqa: BLE001 - Agent 内部已兜底，这里是最后一道
+            metrics.observe_error("review_agent", (time.monotonic() - started) * 1000)
             logger.exception("Agent 运行失败 request_id=%s", payload.request_id)
             raise HTTPException(status_code=500, detail=f"Agent 运行失败: {exc}") from exc
 
