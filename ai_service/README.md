@@ -413,19 +413,28 @@ LLM_PROVIDER=openai LLM_API_KEY=dev LLM_BASE_URL=http://127.0.0.1:8137/v1 \
 `get_review_record → search_knowledge → recompute_quality`。
 **指标真的在测东西**，这比一个恒为 1.0 的指标有说服力得多。
 
-### 5. 还没做的：真实 provider 验证
+### 5. DeepSeek 真实 provider 实测（2026-09-23）
 
-协议靶子替代不了真实模型。要收掉最后这一格，只需要一个 key：
+通过现有 OpenAI-compatible 适配器验证 `deepseek-chat`；密钥仅通过临时环境变量注入，未保存、未写入日志或 cassette。
 
-```bash
-export LLM_API_KEY=...            # 或 OPENAI_API_KEY / ANTHROPIC_API_KEY
-export LLM_BASE_URL=...           # 走中转站时必填
-python -m ai_service --agent --live
-python -m scripts.evaluate_ai_review --live
-```
+| 路径 | 结果 |
+| --- | --- |
+| `python -m ai_service --live` | `llm:openai:deepseek-chat`；generation/rewrite/rerank 均为 `llm`；`degraded=false` |
+| P0 用量 | provider 回传 `prompt=2220 / completion=255 / total=2475`；prompt 版本 `query_rewrite@v1`、`rerank@v1`、`explain_generate@v1` |
+| `python -m ai_service --agent --live` | `decision=llm`；`finished`；工具序列 `get_review_record → search_knowledge → recompute_quality → search_knowledge`；0 次拒绝 |
+| Agent 用量 | provider 回传 `prompt=3395 / completion=427 / total=3822`；5 次模型调用；未截断 |
+| `python -m ai_service --ask "我的额度能提多少？" --live` | 确定性策略拒答并转人工；`llm_calls=0`，未把越界问题发给 provider |
+| 客服普通咨询 | 有引用且 grounding 通过，但在 `max_tokens` 停止；provider 用量 3596，超过 3000 预算上限 |
 
-跑完把上表里的「本地协议靶子」换成实际模型名与数字即可。**没有真跑过的数字不填** ——
-一份写着「已验证」的报告如果数字是编的，比诚实地标着「未验证」糟糕得多。
+本次确认 DeepSeek 的 HTTP、鉴权、响应解析、结构化 Agent 决策和 usage 兼容现有适配器。客服普通咨询预算超限是需要后续单独评估的行为观察，不将其记作模型质量通过。该实测不替代离线 CI；默认仍不联网。
+
+### 6. 还没做的：真实模型 golden 评测
+
+一次 smoke test 不能代表 40 条 golden 集的统计表现。需要显式执行 `python -m scripts.evaluate_ai_review --live`，再记录模型、prompt 版本、成本与基线差异；这会产生额外 API 费用。
+
+---
+
+## P1.5 实测边界
 
 ---
 
@@ -693,8 +702,7 @@ Judge 本身也会飘（系统性偏高、长度偏好），所以不能盲信�
   接进去要新增一个 trace / 预算面板，留给后续。
 - **置信度是启发式** —— 由知识覆盖率、检索最高分、生成引擎三因子拼出来的，
   没有做概率校准。展示时应当配合解释正文，不要单独当作准确性背书。
-- **真实 provider 未实测** —— 传输、鉴权、解析、usage 抽取已由协议靶子覆盖
-  （P1.5），但「真模型接得上、答得好」这一格仍待一个 key。见上文第 5 小节。
+- **真实 provider 已完成一次 smoke test，但未完成 golden 评测** —— DeepSeek `deepseek-chat` 的 HTTP、鉴权、结构化 Agent 决策和 usage 已实测；客服普通咨询曾触发 `max_tokens` 预算停止。一次 smoke test 不代表模型质量统计，见上文实测记录。
 - **成本未覆盖 P0 解释链路的全量计入** —— `--live` 会报出该次请求的合计用量，
   但评测的 `cost.*` 指标只统计 Agent 路径。
 
