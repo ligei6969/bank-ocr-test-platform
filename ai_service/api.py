@@ -24,6 +24,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from ai_service import __version__
+from ai_service.adjudication import adjudicate
 from ai_service.agent import run_agent_for_context
 from ai_service.explain import ReviewContext, ReviewExplainer, build_explainer
 from ai_service.llm import build_llm_client
@@ -53,6 +54,24 @@ class ExplainRequest(BaseModel):
     ocr_mode: Optional[str] = None
     question: str = Field(default="", description="审核员的自由提问，留空则用默认问题")
     top_k: int = Field(default=5, ge=1, le=MAX_TOP_K)
+
+
+class AdjudicateRequest(BaseModel):
+    """边界样本的双判复核请求。
+
+    ``boundary_criteria`` 与 ``field_findings`` 是平台侧算好的**分类结论** ——
+    平台有原始数值，而 AI 侧拿到的字段已脱敏（卡号只留前 6 后 4 位），
+    所以形态判断必须由平台做完再传结论，不能让模型去看残缺的号码猜。
+    """
+
+    request_id: str = Field(..., description="审核请求 ID")
+    doc_type: str = Field(default="bank_card", description="bank_card 或 id_card")
+    review_result: str = Field(default="review", description="规则结论，应为 review")
+    review_reasons: List[str] = Field(default_factory=list)
+    boundary_criteria: List[str] = Field(default_factory=list)
+    quality_metrics: Dict[str, Any] = Field(default_factory=dict)
+    field_findings: List[str] = Field(default_factory=list)
+    max_knowledge: int = Field(default=3, ge=0, le=10)
 
 
 class SearchRequest(BaseModel):
@@ -135,6 +154,68 @@ def create_app(
             metrics.observe_error("explain", (time.monotonic() - started) * 1000)
             logger.exception("解释生成失败 request_id=%s", payload.request_id)
             raise HTTPException(status_code=500, detail=f"解释生成失败: {exc}") from exc
+
+    @app.post("/adjudicate")
+    async def adjudicate_endpoint(payload: AdjudicateRequest) -> Dict[str, Any]:
+        """双判复核：规则判 review 的边界样本，交给 LLM 看是否属于误报。
+
+        与 ``/explain`` 的区别是任务性质不同 —— 解释是「讲清楚为什么」，
+        复核是「参与决策」。所以独立 schema，且返回体直接带 ``overrode``
+        字段供平台落库。
+
+        **任何失败都返回 200 + ``degraded=true``**，``decision`` 回落为规则原判。
+        调用方据此落库即可，不需要区分 4xx/5xx —— 复核失败不该让审核链路出错。
+        """
+        started = time.monotonic()
+        if payload.doc_type not in {"bank_card", "id_card"}:
+            raise HTTPException(status_code=422, detail="doc_type 必须是 bank_card 或 id_card")
+
+        hits: List[Dict[str, Any]] = []
+        if payload.max_knowledge and payload.review_reasons:
+            try:
+                hits = list(
+                    active_explainer._retriever.search(  # noqa: SLF001 - 与 /search 同源
+                        " ".join(payload.review_reasons),
+                        top_k=payload.max_knowledge,
+                        reason_codes=list(payload.review_reasons),
+                        doc_type=payload.doc_type,
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001 - 检索失败不该阻断复核
+                logger.warning("复核检索失败 request_id=%s error=%s", payload.request_id, exc)
+
+        try:
+            result = await adjudicate(
+                llm=active_explainer.llm,
+                request_id=payload.request_id,
+                doc_type=payload.doc_type,
+                review_result=payload.review_result,
+                review_reasons=payload.review_reasons,
+                boundary_criteria=payload.boundary_criteria,
+                quality_metrics=payload.quality_metrics,
+                field_findings=payload.field_findings,
+                knowledge_hits=hits,
+            )
+            metrics.observe("adjudicate", result)
+            return result
+        except Exception as exc:  # noqa: BLE001 - 服务边界统一兜底
+            metrics.observe_error("adjudicate", (time.monotonic() - started) * 1000)
+            logger.exception("复核失败 request_id=%s", payload.request_id)
+            # 连内部异常也不改变结论：回落规则原判
+            return {
+                "request_id": payload.request_id,
+                "doc_type": payload.doc_type,
+                "decision": payload.review_result,
+                "rule_decision": payload.review_result,
+                "overrode": False,
+                "available": False,
+                "degraded": True,
+                "reason": "internal_error",
+                "confidence": 0.0,
+                "rationale": "",
+                "risk_notes": [],
+                "latency_ms": round((time.monotonic() - started) * 1000, 3),
+            }
 
     @app.post("/agent/explain")
     async def agent_explain(payload: ExplainRequest) -> Dict[str, Any]:

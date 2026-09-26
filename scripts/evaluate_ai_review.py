@@ -95,6 +95,12 @@ METRIC_LABELS = {
     "verdict_accuracy": "结论正确率（人工标注）",
     "degraded_rate": "降级运行比例（越低越好）",
     "truncated_rate": "被预算截断比例（越低越好）",
+    # 双判（P2.3）。改判率刻意不带「越高/越低越好」—— 它是描述性指标，
+    # 不是优化目标，所以也不进回归门禁
+    "llm_override_rate": "AI 改判率（描述性，非优化目标）",
+    "llm_failure_rate": "复核失败率（越低越好）",
+    "harmful_override_rate": "错误放行率（越低越好）",
+    "llm_adjudication_accuracy": "复核正确率（对人工标注）",
     "relevance": "相关性",
     "accuracy": "准确性",
     "completeness": "完整性",
@@ -329,6 +335,16 @@ def _platform_verdict_fn():
     return platform_verdict
 
 
+def _platform_dual_judge_fn():
+    """真实双判编排；拿不到平台依赖时返回 None（不测双判）。"""
+    try:
+        from ai_service.eval.platform_rules import platform_dual_judge
+    except ImportError as exc:  # pragma: no cover - 取决于运行环境
+        print(f"[评测] 双判编排不可用（{exc}），本轮不测双判。", file=sys.stderr)
+        return None
+    return platform_dual_judge
+
+
 def main(argv: List[str] | None = None) -> int:
     args = parse_args(argv)
 
@@ -350,6 +366,7 @@ def main(argv: List[str] | None = None) -> int:
             baseline_path=None if args.no_baseline else args.baseline,
             tolerance=args.tolerance,
             verdict_fn=_platform_verdict_fn(),
+            dual_judge_fn=_platform_dual_judge_fn(),
         )
     )
 

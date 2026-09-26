@@ -55,6 +55,15 @@ METRIC_DIRECTIONS: Dict[str, str] = {
     "task.verdict_accuracy": HIGHER_IS_BETTER,
     "task.degraded_rate": LOWER_IS_BETTER,
     "task.truncated_rate": LOWER_IS_BETTER,
+    # 双判：只有「质量」类指标才注册方向。
+    #
+    # ``llm_override_rate`` **刻意不注册** —— 它不是优化目标。「改得多」既不代表
+    # 好也不代表坏，一个见谁都放行的模型能刷出 100%。把它当门禁会让指标被
+    # 退化模型利用；「突然飙升」属于异常检测，那是 P3 监控层的事（Z-score），
+    # 不是回归门禁的事。不注册的副作用是它不参与门禁 —— 这正是想要的。
+    "task.llm_failure_rate": LOWER_IS_BETTER,
+    "task.harmful_override_rate": LOWER_IS_BETTER,
+    "task.llm_adjudication_accuracy": HIGHER_IS_BETTER,
     "explain.relevance": HIGHER_IS_BETTER,
     "explain.accuracy": HIGHER_IS_BETTER,
     "explain.completeness": HIGHER_IS_BETTER,
@@ -187,6 +196,26 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
         "task.verdict_expected": bool(expected_verdict),
         "task.verdict_correct": bool(expected_verdict)
         and str(outcome.get("review_result") or "") == str(expected_verdict),
+        # 双判（P2.3）。``dual_judge_expected`` 以「确实调用过」为判据，
+        # 而不是以 llm_override 为真 —— 后者会把「AI 同意」与「AI 没被调到」
+        # 混为一谈，让故障样本进入分母
+        "task.dual_judge_expected": bool(outcome.get("llm_invoked")),
+        "task.llm_override": bool(outcome.get("llm_override")),
+        "task.llm_failed": bool(outcome.get("llm_invoked"))
+        and str(outcome.get("llm_fallback_reason") or "") != "",
+        # 错误放行：改了判、但人工标注说该复核/拒绝
+        "task.llm_override_harmful": bool(outcome.get("llm_override"))
+        and bool(expected_verdict)
+        and str(outcome.get("llm_decision") or "") != str(expected_verdict),
+        # 复核建议与人工标注是否一致。
+        #
+        # 必须排除降级：复核失败时 llm_decision 会回落成规则结论（review），
+        # 若把它算进分母，一个「模型完全不可用」的系统会显示成
+        # 「复核正确率＝规则正确率」—— 数字好看但不是模型的成绩。
+        "task.llm_decision_matches_human": bool(expected_verdict)
+        and bool(outcome.get("llm_invoked"))
+        and not outcome.get("llm_fallback_reason")
+        and str(outcome.get("llm_decision") or "") == str(expected_verdict),
     }
 
 
@@ -323,6 +352,40 @@ def _task_layer(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
         block["verdict_accuracy"] = _rate(
             row.get("task.verdict_correct") for row in verdict_rows
         )
+
+    # ── 双判（P2.3）──────────────────────────────────────────────────────────
+    #
+    # 分母只算**真的跑过双判**的样本（``dual_judge_expected``）。用 llm_override
+    # 的真假当分母会同时收进「AI 同意」与「AI 没被调到」两类，故障样本会稀释
+    # 改判率 —— 而且方向是反的：故障越多久改判率越低，看起来像规则阈值的问题。
+    dual_rows = [row for row in rows if row.get("task.dual_judge_expected")]
+    if dual_rows:
+        block["llm_override_rate"] = _rate(
+            row.get("task.llm_override") for row in dual_rows
+        )
+        # 失败率：调用过但没拿到可用结论（不可用/超时/输出非法）
+        block["llm_failure_rate"] = _rate(
+            row.get("task.llm_failed") for row in dual_rows
+        )
+        # 错误放行率：改了判、但人工标注认为不该放行。分母是**改判次数**，
+        # 不是调用次数 —— 回答的是「AI 改的那些里有多少是错的」
+        override_rows = [row for row in dual_rows if row.get("task.llm_override")]
+        if override_rows:
+            block["harmful_override_rate"] = _rate(
+                row.get("task.llm_override_harmful") for row in override_rows
+            )
+        # 复核正确率：AI 的建议与人工标注是否一致。
+        # 分母只算**真拿到模型结论**的样本 —— 降级的那些没有「建议」可言，
+        # 把它们算进来等于拿规则的成绩冒充模型的成绩
+        answered = [
+            row
+            for row in dual_rows
+            if row.get("task.verdict_expected") and not row.get("task.llm_failed")
+        ]
+        if answered:
+            block["llm_adjudication_accuracy"] = _rate(
+                row.get("task.llm_decision_matches_human") for row in answered
+            )
     return block
 
 
@@ -405,17 +468,33 @@ def missing_metrics(
     return sorted(set(baseline) - set(current))
 
 
+#: 刻意不登记方向的指标：它们是**描述性**的，没有「变好/变坏」之分。
+#:
+#: 目前只有改判率 —— 「改得多」既不代表好也不代表坏，一个见谁都放行的模型
+#: 能刷出 100%。把它当门禁会让指标被退化模型利用；「突然飙升」属于异常检测，
+#: 那是监控层（Z-score）的事，不是回归门禁的事。
+#:
+#: 单独列出来是为了让 ``unregistered_metrics`` 保持有效：那个检查的意图是
+#: 「发现忘了登记的指标」，如果把它想成「没登记就是错」就会对本该无方向的
+#: 指标持续误报，久了就没人看这条告警了。
+DIRECTIONLESS_METRICS = frozenset({"task.llm_override_rate"})
+
+
 def unregistered_metrics(
     current: Mapping[str, float],
     directions: Mapping[str, str] = METRIC_DIRECTIONS,
 ) -> List[str]:
-    """算出来了但没登记方向的指标 —— 它们不会参与门禁，属于静默漏检。"""
-    return sorted(set(current) - set(directions))
+    """算出来了但没登记方向的指标 —— 它们不会参与门禁，属于静默漏检。
+
+    ``DIRECTIONLESS_METRICS`` 里的不算漏检：那是**刻意**没有方向的。
+    """
+    return sorted(set(current) - set(directions) - DIRECTIONLESS_METRICS)
 
 
 __all__ = (
     "COMPARISON_EPSILON",
     "DEFAULT_TOLERANCE",
+    "DIRECTIONLESS_METRICS",
     "HIGHER_IS_BETTER",
     "LOWER_IS_BETTER",
     "METRIC_DIRECTIONS",

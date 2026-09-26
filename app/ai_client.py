@@ -184,6 +184,58 @@ class AIAssistClient:
 
         return self._normalize(response, request_id)
 
+    def adjudicate(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """请求对一条边界样本做双判复核。**永不抛异常。**
+
+        与 :meth:`explain` 共用超时、熔断与脱敏 —— 复核比解释更难容忍拖慢
+        审核链路，所以绝不让它成为新的失败面。
+
+        失败时返回 ``decision`` = 传入的 ``review_result``（规则原判），
+        调用方无需自己处理「AI 挂了怎么办」—— 那就是「不改判」。
+        """
+        request_id = str(payload.get("request_id", ""))
+        rule_result = str(payload.get("review_result") or "review")
+        if not self.enabled:
+            return self._degraded_adjudication(request_id, rule_result, "disabled")
+
+        body = self._sanitize_payload(payload)
+        response, reason = self._request("POST", "/adjudicate", body)
+        if response is None:
+            return self._degraded_adjudication(request_id, rule_result, reason)
+
+        decision = str(response.get("decision") or rule_result)
+        # 兜底：无论 AI 返回什么，都不允许它把非 review 的结论改掉
+        if rule_result != "review":
+            decision = rule_result
+        return {
+            "request_id": request_id,
+            "decision": decision,
+            "rule_decision": rule_result,
+            "overrode": bool(decision == "pass" and rule_result == "review"),
+            "available": bool(response.get("available", True)),
+            "degraded": bool(response.get("degraded", False)),
+            "reason": str(response.get("reason") or reason or ""),
+            "confidence": response.get("confidence", 0.0),
+            "rationale": str(response.get("rationale") or ""),
+            "risk_notes": list(response.get("risk_notes") or []),
+        }
+
+    @staticmethod
+    def _degraded_adjudication(request_id: str, rule_result: str, reason: str) -> dict[str, Any]:
+        """复核不可用时的标准形状：维持规则原判。"""
+        return {
+            "request_id": request_id,
+            "decision": rule_result,
+            "rule_decision": rule_result,
+            "overrode": False,
+            "available": False,
+            "degraded": True,
+            "reason": reason,
+            "confidence": 0.0,
+            "rationale": "",
+            "risk_notes": [],
+        }
+
     # ── 脱敏 ──────────────────────────────────────────────────────────────────
 
     @staticmethod

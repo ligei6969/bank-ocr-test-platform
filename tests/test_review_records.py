@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
 from app.logging_utils import mask_sensitive_data
+from app.review_records import get_review_record as _get_review_record
 from app.sqlite_connection import connect_database
 
 
@@ -328,9 +329,176 @@ def test_existing_review_database_is_migrated(review_db) -> None:
             for row in connection.execute("PRAGMA table_info(review_records)").fetchall()
         }
     assert "review_reasons" in columns
+    # 双判的 7 列也必须被增量补上 —— 这是升级路径，老库不能因为缺列而报错
+    assert {
+        "llm_invoked",
+        "llm_override",
+        "llm_decision",
+        "llm_fallback_reason",
+        "boundary_criteria",
+        "llm_rationale",
+        "quality_metrics",
+    } <= columns
+
+
+def test_dual_judge_columns_round_trip(review_db) -> None:
+    """双判字段写入后能原样读回，且布尔/JSON 都被正确反序列化。"""
+    from app.review_records import get_review_record, save_review_record
+
+    save_review_record(
+        request_id="dual-1",
+        doc_type="bank_card",
+        filename="a.png",
+        ocr_mode="mock",
+        review_result="pass",
+        quality_result="review",
+        quality_reasons=["glare_detected"],
+        fields={"card_number": "6222020202020001"},
+        review_reasons=["glare_detected"],
+        llm_invoked=True,
+        llm_override=True,
+        llm_decision="pass",
+        boundary_criteria=["false_positive_reason_code"],
+        llm_rationale="反光位于镭射区",
+        quality_metrics={"glare_component_ratio": 0.0066},
+    )
+
+    record = get_review_record("dual-1")
+
+    assert record is not None
+    assert record["llm_invoked"] is True
+    assert record["llm_override"] is True
+    assert record["llm_decision"] == "pass"
+    assert record["boundary_criteria"] == ["false_positive_reason_code"]
+    assert record["llm_rationale"] == "反光位于镭射区"
+    assert record["quality_metrics"]["glare_component_ratio"] == 0.0066
+
+
+def test_records_without_dual_judge_default_to_not_invoked(review_db) -> None:
+    """没跑双判的记录：invoked=False 且 fallback_reason 为空。
+
+    「没尝试复核」与「尝试了但失败」必须能区分 —— 否则改判率的分母
+    会被故障样本稀释，而且方向是反的。
+    """
+    from app.review_records import get_review_record, save_review_record
+
+    save_review_record(
+        request_id="plain-1",
+        doc_type="bank_card",
+        filename="a.png",
+        ocr_mode="mock",
+        review_result="review",
+        quality_result="review",
+        quality_reasons=["image_blur"],
+        fields={},
+    )
+
+    record = get_review_record("plain-1")
+
+    assert record is not None
+    assert record["llm_invoked"] is False
+    assert record["llm_override"] is False
+    assert record["llm_decision"] == ""
+    assert record["llm_fallback_reason"] == ""
+    assert record["boundary_criteria"] == []
+    assert record["quality_metrics"] == {}
 
 
 def test_default_review_database_is_gitignored() -> None:
     ignore_rules = Path(".gitignore").read_text(encoding="utf-8").splitlines()
 
     assert "reports/review_records.db" in ignore_rules
+
+
+def test_dual_judge_runs_inline_and_persists(review_db, monkeypatch, tmp_path) -> None:
+    """端到端：边界样本经真实 HTTP 路由后，改判与判据都落进数据库。
+
+    这是 P2.3 的核心验收点 —— 改判必须可审计，否则无法评估
+    「LLM 到底帮了忙还是添了乱」。
+    """
+    monkeypatch.setattr(
+        "app.main.check_image_quality",
+        lambda image_path: {
+            "is_blur": False,
+            "brightness": "normal",
+            "has_glare": True,
+            "quality_result": "review",
+            "quality_reasons": ["glare_detected"],
+            "quality_metrics": {"glare_component_ratio": 0.0066},
+            "severe_reasons": [],
+        },
+    )
+    monkeypatch.setattr(
+        "app.main.recognize_text",
+        lambda image_path, mode="mock": [
+            "TEST BANK",
+            "6222 0202 0202 0001",
+            "CARD HOLDER",
+            "ZHANG SAN",
+            "VALID THRU 12/30",
+        ],
+    )
+
+    class _PassClient:
+        enabled = True
+
+        def adjudicate(self, payload):
+            return {
+                "decision": "pass",
+                "overrode": True,
+                "degraded": False,
+                "reason": "",
+                "rationale": "反光位于镭射区，关键字段已完整解析",
+            }
+
+    # 客户端在判定为边界样本后才取，所以补丁打在取客户端的地方
+    monkeypatch.setattr("app.ai_client.get_ai_client", lambda: _PassClient())
+
+    image_path = tmp_path / "bank_card.png"
+    create_upload_image(image_path)
+    with image_path.open("rb") as image_file:
+        response = client.post(
+            "/bank-card/review",
+            files={"file": (image_path.name, image_file, "image/png")},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["review_result"] == "pass"          # AI 改判生效
+    assert body["dual_judge"]["llm_override"] is True
+    assert body["dual_judge"]["boundary_criteria"] == ["false_positive_reason_code"]
+
+    record = _get_review_record(body["request_id"])
+    assert record is not None
+    assert record["llm_invoked"] is True
+    assert record["llm_override"] is True
+    assert record["llm_decision"] == "pass"
+    assert record["llm_rationale"].startswith("反光位于镭射区")
+    assert record["quality_metrics"]["glare_component_ratio"] == 0.0066
+
+
+def test_non_boundary_review_does_not_touch_the_ai_service(review_db, monkeypatch, tmp_path) -> None:
+    """非边界样本：不调 AI，双判字段保持「未尝试」。—— 成本控制的核心。
+
+    这里用「多个原因码」构造非边界样本：单一 glare_detected 是 C2 边界案例，
+    会正常触发复核，拿它来测「不该调 AI」是测错了对象。
+    """
+    configure_bank_card_review(monkeypatch, quality_result="review")
+    # 两个原因码 → C2 不成立（有交叉证据），且无 quality_metrics → C1 不成立
+    monkeypatch.setattr(
+        "app.main.review_bank_card_with_reasons",
+        lambda fields, quality: ("review", ["image_blur", "glare_detected"]),
+    )
+
+    def _explode():
+        raise AssertionError("非边界样本不该调用 AI 服务")
+
+    monkeypatch.setattr("app.ai_client.get_ai_client", _explode)
+
+    response = post_bank_card(monkeypatch, tmp_path, quality_result="review")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["review_result"] == "review"
+    assert body["dual_judge"]["llm_invoked"] is False
+    assert body["dual_judge"]["boundary_criteria"] == []

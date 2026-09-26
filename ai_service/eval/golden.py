@@ -130,6 +130,7 @@ class GoldenSample:
         quality_result: Optional[str] = None,
         quality_reasons: Optional[Sequence[str]] = None,
         quality_metrics: Optional[Mapping[str, Any]] = None,
+        dual_judge: Optional[Mapping[str, Any]] = None,
     ) -> Dict[str, Any]:
         """转成 AI 服务接的审核上下文。
 
@@ -157,6 +158,8 @@ class GoldenSample:
         }
         if quality_metrics:
             payload["quality_metrics"] = dict(quality_metrics)
+        if dual_judge:
+            payload["dual_judge"] = dict(dual_judge)
         return payload
 
 

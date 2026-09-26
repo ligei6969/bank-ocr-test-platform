@@ -11,7 +11,7 @@ from ai_service.knowledge.tools import KNOWLEDGE_TOOL_WHITELIST
 from ai_service.tools import TOOL_WHITELIST
 
 LATENCY_BUCKETS_SECONDS = (0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
-SURFACES = ("explain", "review_agent", "knowledge", "other")
+SURFACES = ("explain", "review_agent", "adjudicate", "knowledge", "other")
 TOKEN_SOURCES = ("none", "provider", "estimate", "mixed")
 STOP_REASONS = (
     "finished", "escalated", "refused", "ungrounded", "max_steps", "max_tokens",

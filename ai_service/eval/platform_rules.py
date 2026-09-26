@@ -22,7 +22,7 @@ import —— 纯离线的 CI 路径不受影响。
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from ai_service.eval.golden import GoldenSample
 
@@ -90,6 +90,37 @@ def platform_verdict(
     side = sample.id_card_side or _side_from_fields(resolved)
     verdict, reasons = review_id_card_with_reasons(side, resolved, quality)
     return verdict, reasons, quality
+
+
+def platform_dual_judge(
+    sample: GoldenSample,
+    review_result: str,
+    review_reasons: Sequence[str],
+    quality: Mapping[str, Any],
+    *,
+    client: Any = None,
+) -> Tuple[str, Dict[str, Any]]:
+    """跑平台的双判编排，返回 ``(最终结论, 双判字段)``。
+
+    评测要测的**不是**「LLM 说了什么」，而是「双判这个机制在真实规则结论上
+    行为是否正确」—— 边界判据有没有挑对样本、失败有没有回落、改判有没有落库。
+    所以这里直接复用 ``app.adjudication.maybe_adjudicate``，不另写一套。
+
+    ``client`` 默认在离线环境下是 AIDisabled 的客户端（返回降级），
+    于是 ``llm_failure_rate`` 会如实报出「复核没跑成」——
+    这正是评测应当暴露的事实，而不是伪造一个漂亮的改判率。
+    """
+    from app.adjudication import maybe_adjudicate
+
+    return maybe_adjudicate(
+        client=client,
+        request_id=sample.sample_id,
+        doc_type=sample.doc_type,
+        review_result=review_result,
+        review_reasons=review_reasons,
+        fields=sample.fields,
+        quality=quality,
+    )
 
 
 def _side_from_fields(fields: Mapping[str, Any]) -> str:

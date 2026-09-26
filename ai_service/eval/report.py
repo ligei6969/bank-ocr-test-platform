@@ -41,6 +41,13 @@ DEFAULT_CALIBRATION_PATH = Path("ai_service/eval/judge_calibration.json")
 #: 注入而非直接 import，是为了让纯离线路径不必依赖 FastAPI / OpenCV。
 VerdictFn = Callable[[GoldenSample], Tuple[str, List[str], Dict[str, Any]]]
 
+#: 跑双判编排：``(sample, 规则结论, 规则原因码, quality) -> (最终结论, 双判字段)``。
+#: 同样是注入而非直连，保持离线路径不依赖平台依赖。
+DualJudgeFn = Callable[
+    [GoldenSample, str, Sequence[str], Mapping[str, Any]],
+    Tuple[str, Dict[str, Any]],
+]
+
 
 @dataclass
 class EvaluationReport:
@@ -87,6 +94,7 @@ async def evaluate(
     baseline_path: Optional[Path] = DEFAULT_BASELINE_PATH,
     tolerance: float = 0.05,
     verdict_fn: Optional[VerdictFn] = None,
+    dual_judge_fn: Optional[DualJudgeFn] = None,
 ) -> EvaluationReport:
     """跑完整个 golden 集，产出四层指标报告。
 
@@ -105,16 +113,41 @@ async def evaluate(
         base_payload = sample.to_review_context()
         if verdict_fn is not None:
             verdict, verdict_reasons, quality = verdict_fn(sample)
+            dual_judge: Dict[str, Any] = {}
+            if dual_judge_fn is not None:
+                # 双判：规则结论 → 边界判据 → 受限复核，失败回落规则原判。
+                # 跑真实编排而不是只读一个字段，这样「边界判据挑没挑对样本」
+                # 与「失败有没有回落」都在被测范围内
+                verdict, dual_judge = dual_judge_fn(
+                    sample, verdict, verdict_reasons, quality
+                )
             base_payload = sample.to_review_context(
                 review_result=verdict,
                 quality_result=quality.get("quality_result"),
                 quality_reasons=quality.get("quality_reasons"),
                 quality_metrics=quality.get("quality_metrics"),
+                dual_judge=dual_judge,
             )
             base_payload["review_reasons"] = list(verdict_reasons)
 
         context = ReviewContext.from_payload(base_payload)
         outcome = await run_agent_for_context(context, llm=llm, budget=budget)
+        # 双判字段并入 outcome —— 决策层指标从 outcome 读，而 Agent 内部
+        # 不认识这些键，所以在这里显式合并，而不是指望它透传
+        if base_payload.get("dual_judge"):
+            outcome.update(
+                {
+                    "llm_invoked": base_payload["dual_judge"].get("llm_invoked", False),
+                    "llm_override": base_payload["dual_judge"].get("llm_override", False),
+                    "llm_decision": base_payload["dual_judge"].get("llm_decision", ""),
+                    "llm_fallback_reason": base_payload["dual_judge"].get(
+                        "llm_fallback_reason", ""
+                    ),
+                    "boundary_criteria": base_payload["dual_judge"].get(
+                        "boundary_criteria", []
+                    ),
+                }
+            )
         raw_outcomes.append(outcome)
 
         judged = await score_answer(

@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageOps, UnidentifiedImageError
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.adjudication import maybe_adjudicate
 from app.ai_routes import router as ai_router
 from app.auth_routes import (
     require_admin_api_user,
@@ -110,8 +111,10 @@ def _save_audit_record(
     quality: dict,
     fields: dict,
     error_message: str | None = None,
+    dual_judge: dict | None = None,
 ) -> None:
     request_id = request.state.request_id
+    dual = dual_judge or {}
     save_review_record(
         request_id=request_id,
         doc_type=doc_type,
@@ -123,6 +126,15 @@ def _save_audit_record(
         review_reasons=review_reasons,
         fields=fields,
         error_message=error_message,
+        # 原始指标随记录一起落库：没有它就无法在将来重新标定边界带宽，
+        # 阈值一旦调整，历史记录也失去可比性
+        quality_metrics=quality.get("quality_metrics"),
+        llm_invoked=dual.get("llm_invoked", False),
+        llm_override=dual.get("llm_override", False),
+        llm_decision=dual.get("llm_decision"),
+        llm_fallback_reason=dual.get("llm_fallback_reason"),
+        boundary_criteria=dual.get("boundary_criteria"),
+        llm_rationale=dual.get("llm_rationale"),
     )
     request.state.record_saved = True
     logger.info("record saved request_id=%s doc_type=%s", request_id, doc_type)
@@ -372,6 +384,15 @@ def review_bank_card_image(
                 review_result,
                 review_reasons,
             )
+            # 双判：只有 review + 边界判据才会真的调 AI，失败一律回落规则原判
+            review_result, dual_judge = maybe_adjudicate(
+                request_id=request_id,
+                doc_type="bank_card",
+                review_result=review_result,
+                review_reasons=review_reasons,
+                fields=fields,
+                quality=quality,
+            )
         except HTTPException as exc:
             error_message = str(exc.detail)
             review_reasons = [_error_reason(exc.detail)]
@@ -402,6 +423,7 @@ def review_bank_card_image(
             review_reasons=review_reasons,
             quality=quality,
             fields=fields,
+            dual_judge=dual_judge,
         )
         return {
             "request_id": request_id,
@@ -410,6 +432,7 @@ def review_bank_card_image(
             "quality": quality,
             "ocr_text": ocr_text,
             "fields": fields,
+            "dual_judge": dual_judge,
         }
     finally:
         if image_path:
@@ -493,6 +516,15 @@ def review_id_card_image(
                 review_result,
                 review_reasons,
             )
+            # 双判：身份证侧没有格式校验，C3 无判据可用，仍可用 C1/C2
+            review_result, dual_judge = maybe_adjudicate(
+                request_id=request_id,
+                doc_type="id_card",
+                review_result=review_result,
+                review_reasons=review_reasons,
+                fields=fields,
+                quality=quality,
+            )
         except HTTPException as exc:
             error_message = str(exc.detail)
             review_reasons = [_error_reason(exc.detail)]
@@ -523,6 +555,7 @@ def review_id_card_image(
             review_reasons=review_reasons,
             quality=quality,
             fields=fields,
+            dual_judge=dual_judge,
         )
         return {
             "request_id": request_id,
@@ -532,6 +565,7 @@ def review_id_card_image(
             "quality": quality,
             "ocr_text": ocr_text,
             "fields": fields,
+            "dual_judge": dual_judge,
         }
     finally:
         if image_path:

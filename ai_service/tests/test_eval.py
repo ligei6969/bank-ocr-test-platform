@@ -1016,3 +1016,107 @@ def test_the_worksheet_hides_the_system_verdict_by_default() -> None:
 
     assert all("参考_按原因码推导的结论" not in row for row in plain)
     assert all("参考_按原因码推导的结论" in row for row in with_reference)
+
+
+# ── 双判指标（P2.3）──────────────────────────────────────────────────────────
+
+def test_dual_judge_metrics_are_absent_without_dual_judge() -> None:
+    """没跑过双判时整组指标不出现 —— 而不是报 0% 改判率（会被读成「AI 从不改判」）。"""
+    metrics = aggregate(_with_required_metrics([{}]))
+
+    for key in (
+        "llm_override_rate",
+        "llm_failure_rate",
+        "harmful_override_rate",
+        "llm_adjudication_accuracy",
+    ):
+        assert key not in metrics["task"]
+
+
+def test_override_rate_counts_only_invoked_samples() -> None:
+    """分母只算**真调用过**的样本。
+
+    「AI 没被调到」与「AI 同意规则」必须分开 —— 否则故障样本会稀释改判率，
+    而且方向是反的：故障越多久改判率越低，看起来像规则阈值的问题。
+    """
+    metrics = aggregate(
+        _with_required_metrics(
+            [
+                {"task.dual_judge_expected": True, "task.llm_override": True,
+                 "task.llm_failed": False},
+                {"task.dual_judge_expected": True, "task.llm_override": False,
+                 "task.llm_failed": False},
+                # 没调用过：不该进分母
+                {"task.dual_judge_expected": False, "task.llm_override": False,
+                 "task.llm_failed": False},
+            ]
+        )
+    )
+
+    assert metrics["task"]["llm_override_rate"] == pytest.approx(0.5)
+
+
+def test_harmful_override_rate_uses_overrides_as_denominator() -> None:
+    """错误放行率的分母是**改判次数**，不是调用次数。
+
+    它回答的是「AI 改的那些里有多少改错了」，而不是「所有样本里有多少被改错」。
+    """
+    metrics = aggregate(
+        _with_required_metrics(
+            [
+                {"task.dual_judge_expected": True, "task.llm_override": True,
+                 "task.llm_failed": False, "task.llm_override_harmful": True},
+                {"task.dual_judge_expected": True, "task.llm_override": True,
+                 "task.llm_failed": False, "task.llm_override_harmful": False},
+                {"task.dual_judge_expected": True, "task.llm_override": False,
+                 "task.llm_failed": False, "task.llm_override_harmful": False},
+            ]
+        )
+    )
+
+    assert metrics["task"]["harmful_override_rate"] == pytest.approx(0.5)
+
+
+def test_adjudication_accuracy_excludes_degraded_calls() -> None:
+    """降级的复核没有「建议」可言，不能拿规则的成绩冒充模型的成绩。
+
+    回归：模型不可用时 llm_decision 会回落成规则结论，若不排除降级，
+    一个完全没有模型的系统会显示成一个不错的「复核正确率」。
+    """
+    metrics = aggregate(
+        _with_required_metrics(
+            [
+                # 真拿到模型结论且与人工一致
+                {"task.dual_judge_expected": True, "task.llm_failed": False,
+                 "task.verdict_expected": True, "task.llm_decision_matches_human": True},
+                # 降级：不该进分母
+                {"task.dual_judge_expected": True, "task.llm_failed": True,
+                 "task.verdict_expected": True, "task.llm_decision_matches_human": False},
+            ]
+        )
+    )
+
+    assert metrics["task"]["llm_adjudication_accuracy"] == pytest.approx(1.0)
+
+
+def test_override_rate_has_no_direction_so_it_is_not_gated() -> None:
+    """改判率是描述性指标，刻意不注册方向 —— 否则「改判变少」会触发门禁，
+    而「改判飙升」才是该警惕的（那属于 P3 的异常检测）。"""
+    assert "task.llm_override_rate" not in METRIC_DIRECTIONS
+    assert METRIC_DIRECTIONS["task.harmful_override_rate"] == LOWER_IS_BETTER
+    assert METRIC_DIRECTIONS["task.llm_adjudication_accuracy"] == HIGHER_IS_BETTER
+
+
+def test_directionless_metrics_are_not_reported_as_silent_gaps() -> None:
+    """改判率刻意无方向，不该被报成「忘了登记」。
+
+    那个告警的意图是发现**遗漏**；对本该无方向的指标持续误报，
+    久了就没人看这条告警了 —— 那才是真正的静默漏检。
+    """
+    from ai_service.eval.metrics import DIRECTIONLESS_METRICS, unregistered_metrics
+
+    assert "task.llm_override_rate" in DIRECTIONLESS_METRICS
+
+    current = {"task.llm_override_rate": 0.2, "task.forgot_to_register": 0.5}
+
+    assert unregistered_metrics(current) == ["task.forgot_to_register"]
