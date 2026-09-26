@@ -651,3 +651,21 @@ def test_budget_is_reported_in_the_result(budget_field: str) -> None:
     outcome = run(make_agent(NullLLMClient()).run(blurred_context()))
 
     assert budget_field in outcome.budget
+
+
+def test_default_token_budget_can_cover_the_default_step_budget() -> None:
+    """token 预算必须够跑满步数预算，否则步数上限形同虚设。
+
+    回归：账本计的是**累计**用量（每次调用会把增长中的上下文重发一遍），
+    实测真实模型每次调用约 730 token，6 步约 4400。原先的默认值 3000
+    照离线估算定的，恰好卡在真实分布中间 —— 真实模型 15% 的样本
+    跑不到收敛就被截断，工具序列因此不完整，评测分被预算拖低。
+
+    这里不写死数字，只锁住关系：预算至少要能覆盖「满步数 × 单步实测成本」。
+    """
+    from ai_service.agent import DEFAULT_MAX_STEPS, DEFAULT_MAX_TOKENS
+
+    # 单步实测成本（含上下文重发）的上界，按真实模型留足余量取 800
+    MEASURED_COST_PER_STEP = 800
+
+    assert DEFAULT_MAX_TOKENS >= DEFAULT_MAX_STEPS * MEASURED_COST_PER_STEP

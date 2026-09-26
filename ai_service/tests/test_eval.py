@@ -1120,3 +1120,43 @@ def test_directionless_metrics_are_not_reported_as_silent_gaps() -> None:
     current = {"task.llm_override_rate": 0.2, "task.forgot_to_register": 0.5}
 
     assert unregistered_metrics(current) == ["task.forgot_to_register"]
+
+
+# ── 工具集合覆盖（顺序无关）─────────────────────────────────────────────────
+
+def test_tool_set_accuracy_ignores_ordering() -> None:
+    """工具选对了但顺序不同，不该被判成「不会用工具」。
+
+    实测背景：期望序列来自确定性路径，而真实模型在白名单里自主选择 ——
+    12 条样本里模型选的都是同一组三个工具，只是 search_knowledge 与
+    recompute_quality 的先后不同。顺序严格匹配只有 0.167，
+    集合匹配 0.917。拿前者当唯一尺子会把「会选工具」误报成「不会」。
+    """
+    from ai_service.eval.metrics import score_sample
+    from ai_service.eval.golden import build_golden_set
+
+    sample = next(s for s in build_golden_set() if s.expected_tools)
+    reordered = tuple(reversed(sample.expected_tools))
+    outcome = {
+        "trace": [{"tool": name, "executed": True} for name in reordered],
+        "reason_details": [],
+    }
+
+    row = score_sample(SampleOutcome(sample=sample, outcome=outcome))
+
+    assert row["tools.sequence_match"] is False      # 顺序不同
+    assert row["tools.tool_set_match"] is True       # 但工具集合覆盖了
+
+
+def test_tool_set_accuracy_is_registered_and_labelled() -> None:
+    from scripts.evaluate_ai_review import METRIC_LABELS
+
+    assert METRIC_DIRECTIONS["tools.tool_set_accuracy"] == HIGHER_IS_BETTER
+    assert "tool_set_accuracy" in METRIC_LABELS
+
+
+def test_missing_tool_set_key_does_not_break_aggregate() -> None:
+    """老格式的行（没有 tool_set_match 键）不能让聚合崩掉。"""
+    metrics = aggregate(_with_required_metrics([{}]))
+
+    assert "tool_set_accuracy" in metrics["tools"]

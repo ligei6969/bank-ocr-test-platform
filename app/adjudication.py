@@ -158,15 +158,22 @@ def _field_findings(
         if code.startswith("missing_"):
             findings.append(f"字段未解析出来：{code[len('missing_'):]}")
 
-    # 质量类原因码：告诉模型字段解析结果，它才能判断「遮挡是否致命」
+    # 质量类原因码：字段是否解析出来，是判断「遮挡是否致命」的依据。
+    #
+    # **只陈述事实，不给结论。** 早前这里写成「说明质量问题未必压住了关键信息」，
+    # 模型照单全收：看到「N 个字段已解析」就推断反光没遮住东西、直接放行 ——
+    # 而那 N 个字段的含义，AI 侧根本无从判断（它看不到原始图像，也不知道
+    # 这些字段在评测里其实是标注真值而非 OCR 输出）。给结论等于替模型做判断，
+    # 而它没有做这个判断所需的信息。让模型基于事实自己权衡。
     quality_codes = {"glare_detected", "image_blur", "image_dark", "image_bright"}
     if codes & quality_codes:
-        parsed = [str(key) for key, value in resolved.items() if value]
+        parsed = sorted(str(key) for key, value in resolved.items() if value)
         if parsed:
             findings.append(
-                f"字段解析结果：{len(parsed)} 个字段已成功解析（{', '.join(sorted(parsed))}）"
-                "，说明质量问题未必压住了关键信息"
+                f"已解析出的字段（{len(parsed)} 个）：{', '.join(parsed)}。"
+                "注意：这不代表高光/模糊发生在这些字段之外的区域，"
+                "也不代表这些字段在图上清晰可读 —— 是否遮挡关键内容仍需人工确认"
             )
         else:
-            findings.append("字段解析结果：未解析出任何字段，质量问题可能已影响关键信息")
+            findings.append("未解析出任何字段，质量问题可能已影响关键信息")
     return findings

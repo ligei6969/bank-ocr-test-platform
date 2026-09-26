@@ -216,7 +216,7 @@ def test_glare_cases_receive_field_parse_status() -> None:
     )
 
     joined = " ".join(findings)
-    assert "已成功解析" in joined
+    assert "已解析出的字段" in joined
     # 只给结论，不给原始值
     assert "6222020202020001" not in joined
     assert "ZHANG SAN" not in joined
@@ -236,4 +236,31 @@ def test_non_quality_reasons_do_not_get_field_parse_status() -> None:
 
     findings = _field_findings({"card_number": "123"}, ["invalid_card_number"], {})
 
-    assert not any("已成功解析" in f for f in findings)
+    assert not any("已解析出的字段" in f for f in findings)
+
+
+def test_field_parse_finding_states_facts_without_a_conclusion() -> None:
+    """字段解析结果只能陈述事实，不能替模型下「所以没遮住」的结论。
+
+    回归（真实模型实测）：早前的措辞是「N 个字段已成功解析，说明质量问题
+    未必压住了关键信息」。模型照单全收 —— 看到字段齐全就推断反光没遮住
+    东西、直接放行，而这 5 条 override 全部与人工结论相反。
+
+    根因是**给了结论却没给判断依据**：AI 侧看不到原始图像，也不知道在评测里
+    这些字段是标注真值而不是 OCR 输出。给结论等于替模型做它做不了的判断。
+    """
+    from app.adjudication import _field_findings
+
+    findings = _field_findings(
+        {"card_number": "6222020202020001", "name": "ZHANG SAN", "valid_date": "12/30"},
+        ["glare_detected"],
+        {"quality_metrics": {"glare_component_ratio": 0.0213}},
+    )
+    joined = " ".join(findings)
+
+    assert "已解析出的字段" in joined
+    # 不能替模型下结论
+    assert "说明质量问题未必压住" not in joined
+    assert "未遮挡" not in joined
+    # 必须明确点出「字段齐全 ≠ 可读」这个反直觉之处
+    assert "仍需人工确认" in joined

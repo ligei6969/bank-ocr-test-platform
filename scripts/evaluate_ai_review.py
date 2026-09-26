@@ -86,6 +86,7 @@ LAYER_TITLES = {
 METRIC_LABELS = {
     "sequence_accuracy": "工具序列完全匹配率",
     "sequence_subsequence_accuracy": "工具序列子序匹配率",
+    "tool_set_accuracy": "工具集合覆盖（顺序无关）",
     "parameter_accuracy": "工具参数正确率",
     "avg_steps": "平均步数（越低越好）",
     "reason_code_match_rate": "原因码命中率（代理指标）",

@@ -46,6 +46,7 @@ LOWER_IS_BETTER = "lower"
 METRIC_DIRECTIONS: Dict[str, str] = {
     "tools.sequence_accuracy": HIGHER_IS_BETTER,
     "tools.sequence_subsequence_accuracy": HIGHER_IS_BETTER,
+    "tools.tool_set_accuracy": HIGHER_IS_BETTER,
     "tools.parameter_accuracy": HIGHER_IS_BETTER,
     "tools.avg_steps": LOWER_IS_BETTER,
     "task.reason_code_match_rate": HIGHER_IS_BETTER,
@@ -170,6 +171,17 @@ def score_sample(row: SampleOutcome) -> Dict[str, Any]:
         "sample_id": sample.sample_id,
         "tools.sequence_match": tuple(tools) == tuple(sample.expected_tools),
         "tools.max_sequence_match": _is_subsequence(sample.expected_tools, tools),
+        # 顺序无关的「工具集合是否覆盖」。
+        #
+        # 为什么需要它：期望序列来自**确定性路径**，而真实模型在同样的
+        # 白名单里自主选择。实测 12 条样本里，模型选的都是同一组三个工具，
+        # 只是 search_knowledge 与 recompute_quality 的先后不同 ——
+        # 顺序严格匹配只有 0.167，而集合匹配 0.917。
+        #
+        # 这两个数差得这么远，说明「顺序」不是模型能力的有效信号，
+        # 只拿顺序严格匹配当指标会把「会选工具」误报成「不会用工具」。
+        # 顺序仍然保留（确定性路径就该严格匹配），但集合指标是更公平的那把尺。
+        "tools.tool_set_match": set(tools) == set(sample.expected_tools),
         "tools.parameter_ok": _parameters_ok(sample, outcome),
         "tools.steps": len(tools),
         "task.reason_codes_matched": expected_reasons <= found_reasons,
@@ -300,6 +312,7 @@ def aggregate(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
         "tools": {
             "sequence_accuracy": _rate(row["tools.sequence_match"] for row in rows),
             "sequence_subsequence_accuracy": _rate(row["tools.max_sequence_match"] for row in rows),
+            "tool_set_accuracy": _rate(row.get("tools.tool_set_match") for row in rows),
             "parameter_accuracy": _rate(row["tools.parameter_ok"] for row in rows),
             "avg_steps": sum(steps) / len(steps),
         },
