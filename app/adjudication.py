@@ -93,7 +93,7 @@ def maybe_adjudicate(
         "review_reasons": list(review_reasons),
         "boundary_criteria": criteria,
         "quality_metrics": dict((quality or {}).get("quality_metrics") or {}),
-        "field_findings": _field_findings(fields, review_reasons),
+        "field_findings": _field_findings(fields, review_reasons, quality),
     }
 
     try:
@@ -132,12 +132,17 @@ def maybe_adjudicate(
 def _field_findings(
     fields: Mapping[str, Any] | None,
     review_reasons: Sequence[str],
+    quality: Mapping[str, Any] | None = None,
 ) -> list[str]:
     """把字段层的形态判定转成文字结论交给模型。
 
     **只传结论，不传原始值** —— 出站 payload 会被 ``_sanitize_payload`` 脱敏，
     卡号只留前 6 后 4 位，让模型看残缺的号码去判断「差几位」是没意义的。
     所以形态判断在 :mod:`app.boundary` 做完，这里只做转述。
+
+    除了「字段错在哪」，也会说明**字段是否已完整解析出来** ——
+    对反光这类原因码，模型要判断的正是「反光有没有压住关键字段」，
+    只给一个 glare 比例它无从下手（实测里模型明确说了缺这个信息）。
     """
     codes = {str(code) for code in (review_reasons or [])}
     findings: list[str] = []
@@ -152,4 +157,16 @@ def _field_findings(
     for code in sorted(codes):
         if code.startswith("missing_"):
             findings.append(f"字段未解析出来：{code[len('missing_'):]}")
+
+    # 质量类原因码：告诉模型字段解析结果，它才能判断「遮挡是否致命」
+    quality_codes = {"glare_detected", "image_blur", "image_dark", "image_bright"}
+    if codes & quality_codes:
+        parsed = [str(key) for key, value in resolved.items() if value]
+        if parsed:
+            findings.append(
+                f"字段解析结果：{len(parsed)} 个字段已成功解析（{', '.join(sorted(parsed))}）"
+                "，说明质量问题未必压住了关键信息"
+            )
+        else:
+            findings.append("字段解析结果：未解析出任何字段，质量问题可能已影响关键信息")
     return findings

@@ -198,3 +198,42 @@ def test_id_card_skips_c3_but_still_uses_c2() -> None:
 
     assert final == "pass"
     assert record["boundary_criteria"] == ["false_positive_reason_code"]
+
+
+def test_glare_cases_receive_field_parse_status() -> None:
+    """反光案例必须告诉模型「字段是否已完整解析」。
+
+    回归：只传 glare 比例时，模型无法判断反光有没有压住关键字段 ——
+    实测里它明确说了缺这个信息，然后因为「拿不准」一律判 review，
+    复核因此退化成恒等变换。字段解析结果是判断遮挡是否致命的关键依据。
+    """
+    from app.adjudication import _field_findings
+
+    findings = _field_findings(
+        {"card_number": "6222020202020001", "name": "ZHANG SAN", "valid_date": "12/30"},
+        ["glare_detected"],
+        {"quality_metrics": {"glare_component_ratio": 0.0066}},
+    )
+
+    joined = " ".join(findings)
+    assert "已成功解析" in joined
+    # 只给结论，不给原始值
+    assert "6222020202020001" not in joined
+    assert "ZHANG SAN" not in joined
+
+
+def test_glare_with_no_parsed_fields_says_so() -> None:
+    from app.adjudication import _field_findings
+
+    findings = _field_findings({}, ["glare_detected"], {})
+
+    assert any("未解析出任何字段" in f for f in findings)
+
+
+def test_non_quality_reasons_do_not_get_field_parse_status() -> None:
+    """字段类原因码不需要这条 —— 免得 prompt 里塞无关信息。"""
+    from app.adjudication import _field_findings
+
+    findings = _field_findings({"card_number": "123"}, ["invalid_card_number"], {})
+
+    assert not any("已成功解析" in f for f in findings)

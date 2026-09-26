@@ -194,3 +194,42 @@ def test_endpoint_reports_the_metric_surface() -> None:
     from ai_service.metrics import SURFACES
 
     assert "adjudicate" in SURFACES
+
+
+def test_knowledge_hits_are_accepted_as_real_retrieval_objects() -> None:
+    """检索结果是 RetrievalHit 数据类，不是 dict —— 两种都要能处理。
+
+    回归：只认 dict 时，真实链路（/adjudicate 拿真检索结果）会抛
+    AttributeError，而用 dict 造假的测试恰好掩盖了它。这个 bug 是 --live
+    首次跑起来才暴露的，所以这里必须用**真的** RetrievalHit。
+    """
+    import asyncio
+
+    from ai_service.retrieval import RetrievalHit
+
+    hit = RetrievalHit(
+        doc_id="rc.glare_detected",
+        title="glare_detected 检测到反光",
+        category="reason_code",
+        content="银行卡镭射防伪区在标准光照下也可能触发该原因码。",
+        score=0.9,
+    )
+    llm = _verdict_llm("pass")
+
+    result = asyncio.run(_call(llm, knowledge_hits=[hit]))
+
+    assert result["decision"] == "pass"
+    assert "镭射" in llm.prompts[0]
+
+
+def test_knowledge_hits_still_accept_plain_dicts() -> None:
+    """测试与调用方常用 dict 造假数据，这条路径不能因为修上面那个 bug 而坏掉。"""
+    import asyncio
+
+    llm = _verdict_llm("review")
+    result = asyncio.run(
+        _call(llm, knowledge_hits=[{"title": "t", "content": "反光可能是误报"}])
+    )
+
+    assert result["decision"] == "review"
+    assert "反光可能是误报" in llm.prompts[0]

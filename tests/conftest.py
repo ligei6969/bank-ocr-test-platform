@@ -63,13 +63,20 @@ AI_ENV_VARS = (
 def isolate_ai_assist(monkeypatch) -> Iterator[None]:
     """Keep AI assistant calls deterministic and offline during tests.
 
-    A developer shell with ``AI_ASSIST_ENABLED=true`` would otherwise make the
-    suite perform real HTTP calls to a local AI service. Clearing the variables
-    and dropping the shared client forces every test to build its own client
-    from an explicit environment.
+    这里**显式设 ``AI_ASSIST_ENABLED=false``**，而不是只删环境变量 ——
+    该开关的默认值是 ``true``，光删变量等于「默认开启」：本地恰好起着
+    AI 服务时，测试会真的把请求发出去，结果随环境而变。
+
+    这个洞是被 P2.3 双判暴露的：一条断言 ``review_result`` 的记录查询测试
+    在「本机没起 AI 服务」时靠快速失败蒙混过关，起了服务之后真实复核意见
+    返回、结论随之改变，测试就红了 —— 而红的原因跟被测逻辑无关。
+
+    清变量仍然要做（覆盖开发者 shell 里设的值），但必须把开关显式关掉，
+    让「不联网」成为默认而不是巧合。
     """
     for name in AI_ENV_VARS:
         monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("AI_ASSIST_ENABLED", "false")
     set_ai_client(None)
     yield
     set_ai_client(None)

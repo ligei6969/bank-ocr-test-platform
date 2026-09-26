@@ -81,11 +81,33 @@ REASON_NO_MODEL = "llm_unavailable"
 REASON_UNPARSEABLE = "unparseable_output"
 
 
-def _format_knowledge(hits: Sequence[Mapping[str, Any]]) -> str:
+def _as_mapping(hit: Any) -> Mapping[str, Any]:
+    """把检索结果统一成 mapping。
+
+    ``retriever.search()`` 返回的是 ``RetrievalHit`` 数据类，而测试里常用
+    dict 造假数据 —— 两种都要能处理。只认 dict 会让真实链路直接炸，
+    而假数据恰好掩盖了这一点（这个 bug 就是 --live 时才暴露的）。
+    """
+    if isinstance(hit, Mapping):
+        return hit
+    to_dict = getattr(hit, "to_dict", None)
+    if callable(to_dict):
+        mapped = to_dict()
+        if isinstance(mapped, Mapping):
+            return mapped
+    return {
+        "title": str(getattr(hit, "title", "") or ""),
+        "doc_id": str(getattr(hit, "doc_id", "") or ""),
+        "content": str(getattr(hit, "content", "") or ""),
+    }
+
+
+def _format_knowledge(hits: Sequence[Any]) -> str:
     if not hits:
         return "（无）"
     lines: List[str] = []
-    for hit in hits[:3]:
+    for raw in hits[:3]:
+        hit = _as_mapping(raw)
         title = str(hit.get("title") or hit.get("doc_id") or "")
         content = str(hit.get("content") or "").strip()
         if content:
