@@ -94,6 +94,9 @@ GET /review-records?doc_type=bank_card&review_result=review
 | `image_dark` | 图片过暗，需要人工复核 |
 | `image_bright` | 图片过亮，需要人工复核 |
 | `glare_detected` | 检测到反光，需要人工复核 |
+| `severe_image_blur` | 严重模糊（方差 < 30），直接拒绝 |
+| `severe_image_dark` | 严重过暗（灰度 < 35），直接拒绝 |
+| `severe_image_bright` | 严重过亮（灰度 > 215），直接拒绝 |
 | `missing_card_number` | 未解析到银行卡号 |
 | `missing_valid_date` | 未解析到银行卡有效期 |
 | `invalid_card_number` | 银行卡号未通过规则校验 |
@@ -101,6 +104,23 @@ GET /review-records?doc_type=bank_card&review_result=review
 | `invalid_file_type` | 上传文件类型不受支持 |
 | `unreadable_image` | 文件为空、损坏或不是可读取图片 |
 | `invalid_ocr_mode` | 服务端 `OCR_MODE` 配置非法 |
+
+### 严重退化 → 直接拒绝
+
+普通的质量退化（模糊/偏暗/偏亮/反光）只是「转人工」，因为重拍之外仍需人看一眼。
+但**极端**退化重拍之外没有补救手段，继续走人工复核只会浪费审核工时，因此直接拒绝：
+
+| 轴 | 转人工门槛 | 直接拒绝门槛 |
+| --- | --- | --- |
+| 清晰度（拉普拉斯方差） | < 80 | < 30 |
+| 偏暗（灰度均值） | < 65 | < 35 |
+| 偏亮（灰度均值） | > 210 | > 215 |
+| 反光（最大高光连通域占比） | > 0.5% | **暂未启用**，一律转人工 |
+
+这些门槛是**在 40 条带人工结论的样本上标定的**，不是行业标准 —— 换一批样本应重新标定。
+反光轴的标定间隙只有 9%（最高「该复核」0.0213 与最低「该拒绝」0.0232），
+据此判拒绝属于过拟合，所以暂不启用。阈值定义见 `app/quality_check.py`，
+AI 侧同口径副本见 `ai_service/thresholds.py`，两侧由一致性测试强制同步。
 
 ## 项目结构
 
