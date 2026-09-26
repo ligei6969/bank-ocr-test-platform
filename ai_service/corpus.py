@@ -332,6 +332,67 @@ REASON_CODE_DOCS: tuple[KnowledgeDoc, ...] = (
         ),
     ),
     KnowledgeDoc(
+        doc_id="rc.file_too_large",
+        title="file_too_large 身份证图片超过大小限制",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("file_too_large",),
+        tags=("文件校验", "资源保护"),
+        content=(
+            "原因码 file_too_large，含义是身份证单张图片超过 10 MiB。"
+            "触发条件：服务端分块读取后确认文件字节数超过 ID_CARD_MAX_UPLOAD_BYTES。"
+            "实现位置：app/main.py 的 save_limited_upload_file()。"
+            "业务含义：这是上传资源限制，不代表图片内容或 OCR 质量不合格。"
+            "处置建议：压缩图片或降低相机导出尺寸后重新上传，保持证件文字清晰。"
+            "用户话术：单张身份证图片不能超过 10 MiB，请压缩后重试。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.invalid_image_format",
+        title="invalid_image_format 图片真实格式或 MIME 不匹配",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("invalid_image_format",),
+        tags=("文件校验", "格式安全"),
+        content=(
+            "原因码 invalid_image_format，含义是图片真实格式不是受支持的 PNG/JPEG，"
+            "或声明的 MIME 与实际格式不一致。"
+            "触发条件：Pillow 识别到的格式不在允许集合，或 image/png、image/jpeg 声明不匹配。"
+            "实现位置：app/main.py 的 validate_id_card_image()。"
+            "业务含义：文件名和浏览器 MIME 不能替代服务端的真实格式校验。"
+            "处置建议：导出为标准 PNG 或 JPEG 后重新上传，不要只修改文件扩展名。"
+            "用户话术：图片格式无法确认，请使用原始 PNG 或 JPG 文件。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.image_dimensions_out_of_range",
+        title="image_dimensions_out_of_range 图片像素尺寸超出范围",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("image_dimensions_out_of_range",),
+        tags=("文件校验", "资源保护"),
+        content=(
+            "原因码 image_dimensions_out_of_range，含义是图片像素尺寸不在身份证处理范围内。"
+            "触发条件：短边小于 300px、长边大于 8000px，或总像素超过 24MP。"
+            "实现位置：app/main.py 的 validate_id_card_image()；尺寸判断会考虑 EXIF Orientation。"
+            "业务含义：尺寸过小会损失证件文字，尺寸过大则会浪费处理资源。"
+            "处置建议：重新导出清晰且尺寸适中的身份证图片，避免仅上传缩略图。"
+            "用户话术：图片尺寸不合适，请上传清晰的原图或适当压缩后的图片。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.image_aspect_ratio_invalid",
+        title="image_aspect_ratio_invalid 图片长宽比过于极端",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("image_aspect_ratio_invalid",),
+        tags=("文件校验", "资源保护"),
+        content=(
+            "原因码 image_aspect_ratio_invalid，含义是图片长边与短边之比超过 5。"
+            "触发条件：横向或纵向图片的极端长条比例超过 ID_CARD_MAX_ASPECT_RATIO。"
+            "实现位置：app/main.py 的 validate_id_card_image()；比例判断会考虑 EXIF Orientation。"
+            "业务含义：该规则只拦截异常输入，不要求图片严格符合身份证实体比例。"
+            "处置建议：确认没有误上传长截图、拼接图或裁切异常的文件后重新拍摄。"
+            "用户话术：图片比例异常，请上传完整的单张身份证照片。"
+        ),
+    ),
+    KnowledgeDoc(
         doc_id="rc.invalid_ocr_mode",
         title="invalid_ocr_mode 服务端 OCR 模式配置非法",
         category=CATEGORY_REASON_CODE,

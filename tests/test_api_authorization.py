@@ -55,7 +55,7 @@ def create_account_and_login(
 
 def image_upload() -> dict[str, tuple[str, io.BytesIO, str]]:
     image_bytes = io.BytesIO()
-    Image.new("RGB", (320, 200), (120, 130, 140)).save(
+    Image.new("RGB", (760, 460), (120, 130, 140)).save(
         image_bytes,
         format="PNG",
     )

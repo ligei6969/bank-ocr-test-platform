@@ -105,6 +105,10 @@ def test_interaction_scripts_use_existing_single_file_endpoints(
     assert 'formData.append("file"' in id_script
     assert "Promise.all([submitSide(front), submitSide(back)])" in id_script
     assert "!front.selectedFile || !back.selectedFile" in id_script
+    assert "10 * 1024 * 1024" in id_script
+    assert "URL.createObjectURL(file)" in id_script
+    assert "image_dimensions_out_of_range" in id_script
+    assert "image_aspect_ratio_invalid" in id_script
 
 
 def test_interaction_scripts_handle_preview_lifecycle_safely(

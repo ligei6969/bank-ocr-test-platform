@@ -48,6 +48,10 @@ INFRASTRUCTURE_CODES = frozenset(
     {
         "invalid_file_type",
         "unreadable_image",
+        "file_too_large",
+        "invalid_image_format",
+        "image_dimensions_out_of_range",
+        "image_aspect_ratio_invalid",
         "invalid_ocr_mode",
         "invalid_request",
         "internal_error",

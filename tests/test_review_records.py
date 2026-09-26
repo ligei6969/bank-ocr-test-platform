@@ -35,10 +35,10 @@ def review_db(monkeypatch, tmp_path: Path) -> Path:
 
 
 def create_upload_image(path: Path) -> None:
-    image = Image.new("RGB", (320, 200), (120, 130, 140))
+    image = Image.new("RGB", (760, 460), (120, 130, 140))
     draw = ImageDraw.Draw(image)
-    for y in range(0, 200, 20):
-        for x in range(0, 320, 20):
+    for y in range(0, 460, 20):
+        for x in range(0, 760, 20):
             color = (60, 70, 80) if (x // 20 + y // 20) % 2 == 0 else (180, 190, 200)
             draw.rectangle((x, y, x + 19, y + 19), fill=color)
     image.save(path)

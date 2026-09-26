@@ -1,6 +1,11 @@
 "use strict";
 
 const ALLOWED_ID_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png"];
+const ID_CARD_MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ID_CARD_MIN_EDGE = 300;
+const ID_CARD_MAX_EDGE = 8000;
+const ID_CARD_MAX_PIXELS = 24_000_000;
+const ID_CARD_MAX_ASPECT_RATIO = 5;
 const ID_CARD_REASON_MESSAGES = {
   image_blur: "图片清晰度不足，请重新拍摄。",
   image_dark: "图片过暗，请在光线充足的环境下重新拍摄。",
@@ -11,6 +16,10 @@ const ID_CARD_REASON_MESSAGES = {
   missing_id_number: "未能识别人像面身份证号码。",
   missing_issue_authority: "未能识别国徽面签发机关。",
   missing_valid_period: "未能识别国徽面有效期限。",
+  file_too_large: "单张身份证图片不能超过 10 MiB。",
+  invalid_image_format: "图片格式无法确认，请使用原始 PNG 或 JPG 文件。",
+  image_dimensions_out_of_range: "图片尺寸不合适，请上传清晰且尺寸适中的图片。",
+  image_aspect_ratio_invalid: "图片比例异常，请上传完整的单张身份证图片。",
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -125,15 +134,67 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSubmitButton();
   }
 
-  function selectFile(side, file) {
-    if (!file || !hasAllowedExtension(file)) {
+  function rejectSelectedFile(side, message) {
+    clearSelectedFile(side);
+    renderSideResult(side, "error", message);
+    renderOverallStatus("error");
+  }
+
+  function inspectImage(file) {
+    return new Promise((resolve, reject) => {
+      const previewUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        URL.revokeObjectURL(previewUrl);
+        resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(previewUrl);
+        reject(new Error("unreadable"));
+      };
+      image.src = previewUrl;
+    });
+  }
+
+  async function selectFile(side, file) {
+    if (!file) {
       clearSelectedFile(side);
-      renderSideResult(
-        side,
-        "error",
-        `请选择 JPG、JPEG 或 PNG 格式的${side.label}图片。`,
-      );
-      renderOverallStatus("error");
+      return;
+    }
+    if (!hasAllowedExtension(file)) {
+      rejectSelectedFile(side, `请选择 JPG、JPEG 或 PNG 格式的${side.label}图片。`);
+      return;
+    }
+    if (file.size === 0) {
+      rejectSelectedFile(side, "所选图片为空，请重新选择。");
+      return;
+    }
+    if (file.size > ID_CARD_MAX_FILE_BYTES) {
+      rejectSelectedFile(side, "单张身份证图片不能超过 10 MiB。");
+      return;
+    }
+
+    let dimensions;
+    try {
+      dimensions = await inspectImage(file);
+    } catch {
+      rejectSelectedFile(side, "无法读取所选图片，请重新拍摄或选择其他图片。");
+      return;
+    }
+
+    const { width, height } = dimensions;
+    const longEdge = Math.max(width, height);
+    const shortEdge = Math.min(width, height);
+    if (
+      shortEdge < ID_CARD_MIN_EDGE
+      || longEdge > ID_CARD_MAX_EDGE
+      || width * height > ID_CARD_MAX_PIXELS
+    ) {
+      rejectSelectedFile(side, "图片尺寸不合适，请上传清晰且尺寸适中的图片。");
+      return;
+    }
+    if (shortEdge === 0 || longEdge / shortEdge > ID_CARD_MAX_ASPECT_RATIO) {
+      rejectSelectedFile(side, "图片比例异常，请上传完整的单张身份证图片。");
       return;
     }
 
@@ -158,6 +219,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     return "图片或证件信息需要进一步核验。";
+  }
+
+  function userMessageForError(data) {
+    const reasonMessage = userMessageForReasons(data?.review_reasons);
+    if (reasonMessage !== "图片或证件信息需要进一步核验。") {
+      return reasonMessage;
+    }
+    return userMessageForErrorDetail(data?.detail);
   }
 
   function userMessageForErrorDetail(detail) {
@@ -237,7 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderSideResult(
           side,
           "error",
-          userMessageForErrorDetail(data.detail),
+          userMessageForError(data),
           detectedLabel,
           currentRequestId,
         );

@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
-from app.main import review_id_card
+from app.main import ID_CARD_MAX_UPLOAD_BYTES, review_id_card
 
 
 client: TestClient
@@ -111,6 +111,78 @@ def test_id_card_review_requires_all_fields() -> None:
     )
 
     assert result == "review"
+
+
+def test_id_card_upload_rejects_file_over_10_mib(monkeypatch) -> None:
+    monkeypatch.setattr("app.main.recognize_text", lambda *args, **kwargs: pytest.fail("OCR must not run"))
+    before = set(Path("reports/tmp_uploads").glob("*"))
+    payload = b"x" * (ID_CARD_MAX_UPLOAD_BYTES + 1)
+
+    response = client.post(
+        "/id-card/review",
+        files={"file": ("large.png", payload, "image/png")},
+    )
+
+    assert response.status_code == 413
+    assert response.json()["review_reasons"] == ["file_too_large"]
+    assert set(Path("reports/tmp_uploads").glob("*")) == before
+
+
+def test_id_card_upload_rejects_mismatched_real_format(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("app.main.recognize_text", lambda *args, **kwargs: pytest.fail("OCR must not run"))
+    image_path = tmp_path / "image.png"
+    Image.new("RGB", (760, 460), "white").save(image_path, format="JPEG")
+
+    with image_path.open("rb") as file:
+        response = client.post(
+            "/id-card/review",
+            files={"file": ("image.png", file, "image/png")},
+        )
+
+    assert response.status_code == 400
+    assert response.json()["review_reasons"] == ["invalid_image_format"]
+
+
+@pytest.mark.parametrize(
+    "size, reason",
+    [
+        ((299, 760), "image_dimensions_out_of_range"),
+        ((8001, 500), "image_dimensions_out_of_range"),
+        ((6000, 5000), "image_dimensions_out_of_range"),
+        ((5000, 900), "image_aspect_ratio_invalid"),
+    ],
+)
+def test_id_card_upload_rejects_unsafe_dimensions(monkeypatch, tmp_path: Path, size, reason) -> None:
+    monkeypatch.setattr("app.main.recognize_text", lambda *args, **kwargs: pytest.fail("OCR must not run"))
+    image_path = tmp_path / "image.png"
+    Image.new("RGB", size, "white").save(image_path, format="PNG")
+
+    with image_path.open("rb") as file:
+        response = client.post(
+            "/id-card/review",
+            files={"file": ("image.png", file, "image/png")},
+        )
+
+    assert response.status_code == 400
+    assert response.json()["review_reasons"] == [reason]
+
+
+def test_id_card_upload_accepts_rotated_exif_dimensions(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("app.main.check_image_quality", lambda path: {"quality_result": "pass"})
+    monkeypatch.setattr("app.main.recognize_text", lambda *args, **kwargs: ["中华人民共和国", "居民身份证"])
+    image_path = tmp_path / "rotated.jpg"
+    image = Image.new("RGB", (500, 760), "white")
+    exif = image.getexif()
+    exif[274] = 6
+    image.save(image_path, format="JPEG", exif=exif.tobytes())
+
+    with image_path.open("rb") as file:
+        response = client.post(
+            "/id-card/review",
+            files={"file": ("rotated.jpg", file, "image/jpeg")},
+        )
+
+    assert response.status_code == 200
 
 
 def test_id_card_unknown_side_returns_reason(monkeypatch) -> None:

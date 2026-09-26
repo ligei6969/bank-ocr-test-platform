@@ -6,6 +6,7 @@ import logging
 import os
 import secrets
 import shutil
+import warnings
 from pathlib import Path
 from uuid import uuid4
 
@@ -15,7 +16,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.ai_routes import router as ai_router
@@ -40,6 +41,13 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 UPLOAD_DIR = ROOT_DIR / "reports" / "tmp_uploads"
 STATIC_DIR = ROOT_DIR / "app" / "static"
 ALLOWED_BANK_CARD_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
+ALLOWED_ID_CARD_IMAGE_SUFFIXES = ALLOWED_BANK_CARD_IMAGE_SUFFIXES
+ID_CARD_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+ID_CARD_MIN_EDGE = 300
+ID_CARD_MAX_EDGE = 8000
+ID_CARD_MAX_PIXELS = 24_000_000
+ID_CARD_MAX_ASPECT_RATIO = 5.0
+ALLOWED_ID_CARD_FORMATS = {"PNG", "JPEG"}
 ALLOWED_OCR_MODES = {"mock", "paddle"}
 REVIEW_PATHS = {"/bank-card/review", "/id-card/review"}
 
@@ -76,6 +84,14 @@ def _error_reason(detail: object) -> str:
     message = str(detail)
     if "Unsupported file type" in message:
         return "invalid_file_type"
+    if "File is too large" in message:
+        return "file_too_large"
+    if "Image format is not supported" in message:
+        return "invalid_image_format"
+    if "Image dimensions are out of range" in message:
+        return "image_dimensions_out_of_range"
+    if "Image aspect ratio is out of range" in message:
+        return "image_aspect_ratio_invalid"
     if "not a readable image" in message or "file is empty" in message:
         return "unreadable_image"
     if "Invalid OCR_MODE" in message:
@@ -224,10 +240,79 @@ def save_upload_file(file: UploadFile) -> Path:
     return image_path
 
 
+def save_limited_upload_file(file: UploadFile, *, max_bytes: int) -> Path:
+    """Save an upload in chunks and remove partial files on any failure."""
+    suffix = Path(file.filename or "upload.png").suffix or ".png"
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    image_path = UPLOAD_DIR / f"{uuid4().hex}{suffix}"
+    total_bytes = 0
+    try:
+        with image_path.open("wb") as temp_file:
+            while chunk := file.file.read(1024 * 1024):
+                total_bytes += len(chunk)
+                if total_bytes > max_bytes:
+                    raise HTTPException(status_code=413, detail="File is too large.")
+                temp_file.write(chunk)
+    except BaseException:
+        image_path.unlink(missing_ok=True)
+        raise
+    return image_path
+
+
 def validate_bank_card_upload(file: UploadFile) -> None:
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_BANK_CARD_IMAGE_SUFFIXES:
         raise HTTPException(status_code=400, detail="Unsupported file type. Upload a PNG or JPEG image.")
+
+
+def validate_id_card_upload(file: UploadFile) -> None:
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in ALLOWED_ID_CARD_IMAGE_SUFFIXES:
+        raise HTTPException(status_code=400, detail="Unsupported file type. Upload a PNG or JPEG image.")
+
+
+def validate_id_card_image(image_path: Path, *, declared_content_type: str | None = None) -> None:
+    """Validate ID-card image format and resource bounds before OCR."""
+    if image_path.stat().st_size == 0:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(image_path) as image:
+                actual_format = image.format
+                if actual_format not in ALLOWED_ID_CARD_FORMATS:
+                    raise HTTPException(status_code=400, detail="Image format is not supported.")
+                expected_mime = {
+                    "PNG": "image/png",
+                    "JPEG": "image/jpeg",
+                }[actual_format]
+                if declared_content_type and declared_content_type != expected_mime:
+                    raise HTTPException(status_code=400, detail="Image format is not supported.")
+                display_image = ImageOps.exif_transpose(image)
+                width, height = display_image.size
+                long_edge = max(width, height)
+                short_edge = min(width, height)
+                pixels = width * height
+                if (
+                    short_edge < ID_CARD_MIN_EDGE
+                    or long_edge > ID_CARD_MAX_EDGE
+                    or pixels > ID_CARD_MAX_PIXELS
+                ):
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Image dimensions are out of range.",
+                    )
+                if short_edge == 0 or long_edge / short_edge > ID_CARD_MAX_ASPECT_RATIO:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Image aspect ratio is out of range.",
+                    )
+            with Image.open(image_path) as image:
+                image.verify()
+    except HTTPException:
+        raise
+    except (Image.DecompressionBombError, Image.DecompressionBombWarning, OSError, UnidentifiedImageError) as exc:
+        raise HTTPException(status_code=400, detail="Uploaded file is not a readable image.") from exc
 
 
 def validate_readable_image(image_path: Path) -> None:
@@ -375,9 +460,9 @@ def review_id_card_image(
                 request_id,
                 mask_sensitive_data(filename),
             )
-            validate_bank_card_upload(file)
-            image_path = save_upload_file(file)
-            validate_readable_image(image_path)
+            validate_id_card_upload(file)
+            image_path = save_limited_upload_file(file, max_bytes=ID_CARD_MAX_UPLOAD_BYTES)
+            validate_id_card_image(image_path, declared_content_type=file.content_type)
             try:
                 quality = check_image_quality(str(image_path))
             except ValueError as exc:

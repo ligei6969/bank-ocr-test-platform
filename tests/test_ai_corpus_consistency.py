@@ -35,6 +35,10 @@ ENTRY_ERROR_DETAILS = (
     "Unsupported file type. Upload a PNG or JPEG image.",
     "Uploaded file is not a readable image.",
     "Uploaded file is empty.",
+    "File is too large.",
+    "Image format is not supported.",
+    "Image dimensions are out of range.",
+    "Image aspect ratio is out of range.",
     "Invalid OCR_MODE. Use 'mock' or 'paddle'.",
     "unexpected internal failure",
 )
@@ -96,8 +100,8 @@ def _source_number(function: Callable[..., Any], pattern: str) -> str:
 # ── 覆盖率 ────────────────────────────────────────────────────────────────────
 
 def test_platform_emits_at_least_the_expected_number_of_reason_codes() -> None:
-    # 22 是当前实现的完整集合；数量变化时本测试会失败，提醒同步语料与文档
-    assert len(emitted_reason_codes()) == 22
+    # 26 是当前实现的完整集合；数量变化时本测试会失败，提醒同步语料与文档
+    assert len(emitted_reason_codes()) == 26
 
 
 def test_every_emitted_reason_code_is_described_in_the_corpus() -> None:

@@ -1,10 +1,33 @@
 # Bank OCR Test Platform
 
-一个面向银行远程开户、信用卡进件场景的影像资料审核测试平台。项目基于 FastAPI，覆盖银行卡和身份证图片从上传、质量检测、OCR、字段解析、规则审核到审核记录追踪的完整测试流程。
+一个面向银行远程开户、信用卡进件场景的影像资料审核测试平台。项目基于 FastAPI，覆盖银行卡和身份证图片从上传、质量检测、OCR、字段解析、规则审核到审核记录追踪的完整测试流程，并在此之上叠加了一套**可解释、可评测、可回放的 AI 能力层**。
 
 当前版本是用于接口测试、规则验证、OCR 适配和性能基线验证的测试开发 Demo，不是生产级银行系统。
 
-当前项目已经接入 Mock/PaddleOCR 双模式。默认使用 mock OCR，适合接口、规则、CI 和性能基线测试；设置 `OCR_MODE=paddle` 后使用真实 PaddleOCR 推理。项目目前支持：
+## 这个项目最有价值的部分：AI 能力层怎么测
+
+平台本身（OCR + 规则 + 记录）是**确定性的**，用传统接口测试就够了。
+真正有方法论价值的是后加的这一层：**一个会调工具、多步决策、输出不确定的 AI 系统，要怎么测。**
+
+围绕这个问题，项目交付了四件事，每件都对应一个具体的困难：
+
+| 困难 | 做法 | 具体产物 |
+| --- | --- | --- |
+| 模型会编、会跑偏，没法断言「它做对了」 | 断言**轨迹**而不是答案：工具序列 / 参数 / 步数 / 预算 | `agentkit.Trajectory` |
+| 会调模型就烧钱、且结果不确定，CI 没法跑 | **录制回放**：未命中直接失败，绝不回退联网 | `cassette.py` |
+| 系统挂了不能拖垮主链路 | AI 是**独立服务**，平台侧超时 + 三态熔断 + 降级 | `ai_client.py` |
+| 「答得对不对」是要量化的 | **四层指标** + 回归门禁（退化 >5% 打红 CI） | `eval/` + `scripts/evaluate_ai_review.py` |
+
+一句话概括这套东西的立场：**AI 的失败往往是「输出看起来对、过程是错的」，
+所以评测必须看过程，而且要能在不联网、不花钱的前提下重复跑。**
+
+细节见 [`ai_service/README.md`](ai_service/README.md)。
+
+## 功能一览
+
+**平台侧（确定性链路，Mock/PaddleOCR 双模式）**
+
+默认使用 mock OCR，适合接口、规则、CI 和性能基线测试；设置 `OCR_MODE=paddle` 后使用真实 PaddleOCR 推理。
 
 - 银行卡审核：解析银行卡号、有效期、持卡人姓名
 - 身份证审核：自动判断正面/反面，并解析对应字段
@@ -12,7 +35,20 @@
 - 审核可解释：返回图片质量原因码和最终审核原因码
 - 日志安全：银行卡号和身份证号写入日志前自动脱敏
 - 测试工程：pytest、Allure、Locust 和 GitHub Actions
-- 银行卡前端审核页：上传图片后调用后端接口并展示审核结果、质量结果、字段、OCR 文本和原始 JSON
+- 前端审核页：上传图片后展示审核结果、质量结果、字段、OCR 文本和原始 JSON
+- 用户/管理端门户：登录、角色权限、CSRF 防护、审核记录查询与 AI 解释面板
+
+**AI 能力层（独立服务 `ai_service/`，默认 127.0.0.1:8100）**
+
+审核员看到的是原因码 `image_blur`，得自己翻文档才知道该怎么办。AI 层把这条记录变成
+「为什么是这个结论、根因在哪一层、接下来该做什么」，并给出**带真实阈值和实现位置**的引用。
+
+- **审核 Agent**：多步工具决策，白名单硬约束（4 个只读工具），三重预算（步数/token/工具调用）
+- **客服 Agent**：第二个产品面，回答业务规则、材料清单、办理流程；两道出口闸门挡住越界与幻觉
+- **多轮会话**：支持「那需要什么材料」这类指代追问，会话状态放调用方、服务端不留
+- **可降级**：没配 API key 也能跑，降级只损失表达质量，**事实准确性不受影响**
+- **可评测**：四层指标（工具/任务/解释/成本）+ judge 校准 + baseline 回归门禁
+- **可回放**：cassette 录制真实模型交互，CI 离线复现，不联网不花钱
 
 ## 功能流程
 
@@ -71,6 +107,7 @@ GET /review-records?doc_type=bank_card&review_result=review
 ```text
 app/
   main.py           FastAPI 入口和接口定义
+  ai_client.py      AI 服务客户端（超时 + 三态熔断 + 降级 + 脱敏）
   ocr_service.py    PaddleOCR 集成层
   quality_check.py  图片模糊、亮度、反光检测
   field_parser.py   银行卡字段解析
@@ -78,12 +115,29 @@ app/
   rule_check.py     审核规则判断
   review_records.py SQLite 审核记录持久化和查询
   logging_utils.py  银行卡号、身份证号日志脱敏
-  static/           银行卡审核前端页面
+  static/           银行卡审核前端页面 + 用户/管理端门户（含 AI 解释面板）
 
-tests/              pytest 测试
-data/               测试数据和生成数据
+ai_service/         AI 能力层（独立进程，HTTP 调用）
+  api.py            FastAPI 接口（/explain、/agent/explain、/knowledge/ask、/search、/health）
+  agent.py          审核 Agent：planner + executor 的多步工具决策循环
+  knowledge/        客服 Agent：语料 / 策略 / 工具 / prompt / 会话 / 循环 / 接口
+  tools.py          审核侧工具白名单与实现
+  corpus.py         知识库语料（唯一事实来源，含真实阈值与实现位置）
+  retrieval.py      切片 / 分词 / BM25 + 哈希向量混合检索
+  tool_manager.py   工具框架：改写、并行召回、去重、重排、熔断、缓存、降级
+  llm.py            可插拔 LLM 适配层（openai / anthropic / none）
+  cassette.py       LLM / 工具的录制回放（未命中直接失败，绝不回退联网）
+  agentkit.py       测试工具箱：轨迹断言、故障注入、cassette 装配
+  eval/             评测层：golden 集、四层指标、judge 校准、回归门禁
+  devtools/         协议靶子：本地假 provider，验证 HTTP / 鉴权 / usage 解析
+  tests/            482 个单测，全部离线可跑
+  README.md         AI 能力层的完整设计说明（推荐先读这个）
+
+tests/              pytest 测试（平台侧 387 项）
+data/               测试数据、标注数据、生成数据
 reports/            测试输出、临时上传文件、OCR 模型缓存
-scripts/            数据生成和处理脚本
+scripts/            数据生成、处理与评测脚本
+docs/               方案文档、阶段开发报告、人工标注操作手册
 ```
 
 ## 环境准备
@@ -167,6 +221,44 @@ http://127.0.0.1:8001/docs
 ```
 
 如果 `8000` 端口启动失败，可以换成 `8001` 或其他未占用端口。
+
+### 启动 AI 能力层（可选）
+
+AI 是**独立进程**，平台侧默认连 `http://127.0.0.1:8100`。
+**不启动它平台照常工作** —— AI 不可用时审核链路不受影响，只是没有解释面板。
+
+```powershell
+python -m ai_service                    # 起服务，默认 127.0.0.1:8100
+```
+
+**不需要任何 API key 也能跑**：没配 key 时自动切到确定性策略，
+降级只影响措辞，事实内容（阈值、处置建议）完全不变。
+
+```powershell
+python -m ai_service --demo             # 自检：不联网跑一次完整链路
+python -m ai_service --agent            # 审核 Agent 路径，打印轨迹/预算/token
+python -m ai_service --search "反光了怎么办"   # 只看检索效果
+python -m ai_service --ask "办理二类账户需要哪些材料"   # 客服 Agent
+```
+
+要看真实模型的完整链路，显式加 `--live`（不加就绝不出网、绝不花钱）：
+
+```powershell
+$env:LLM_API_KEY="..."
+python -m ai_service --agent --live
+```
+
+没有 key 也想验证真实 HTTP 链路（鉴权头、响应解析、usage 抽取），
+可以起一个**本地协议靶子**代替 provider：
+
+```powershell
+python -m ai_service.devtools.mock_llm --port 8137
+# 另一个终端：
+$env:LLM_PROVIDER="openai"; $env:LLM_API_KEY="dev"; $env:LLM_BASE_URL="http://127.0.0.1:8137/v1"
+python -m ai_service --agent --live
+```
+
+> 靶子证明的是「协议通、链路通、用量能取到」，**不证明「模型答得好」**。
 
 ## 使用接口
 
@@ -385,7 +477,27 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前冻结版全量测试结果为 `136 passed`。普通 pytest 会清理外部 `OCR_MODE` 环境变量并使用 mock OCR，不会下载或加载真实 PaddleOCR 模型；GitHub Actions 同样固定使用 mock 路径。
+当前全量测试结果为 **869 passed / 0 failed / 0 errors**（AI 服务侧 482，平台侧 387）。
+
+**全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
+需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
+并使用 mock OCR，不会下载或加载真实 PaddleOCR 模型；GitHub Actions 同样固定使用 mock 路径。
+
+只跑 AI 服务侧的测试（更快，约 10 秒）：
+
+```powershell
+python -m pytest ai_service/tests -q
+```
+
+跑 AI 评测与回归门禁：
+
+```powershell
+python -m scripts.evaluate_ai_review                 # 四层指标 + baseline 比对
+python -m scripts.evaluate_ai_review --calibrate     # 额外跑 judge 校准
+```
+
+> Windows 上如果 teardown 报 `SHFileOperationW`，加环境变量
+> `CODEBUDDY_SAFE_DELETE_ENABLED=0` 再跑。
 
 ## OCR 小规模评估
 
@@ -557,6 +669,20 @@ rmdir /s /q reports\ocr-temp
 - 真实 OCR 效果需要显式使用 PaddleOCR，并通过 `scripts/evaluate_bank_card_ocr.py` 等评估脚本单独验证。
 - Locust 默认 mock 模式结果仅代表接口流程性能基线，不代表真实 PaddleOCR 推理性能。
 - 项目没有实现生产级权限控制、数据加密、分布式存储、审批工作流和合规审计体系。
+
+**AI 能力层特有的边界**（这几条被刻意写在文档里而不是藏起来）：
+
+- **真实 provider 未实测** —— 传输、鉴权、响应解析、usage 抽取已由本地协议靶子覆盖，
+  但「真模型接得上、答得好」这一格仍待一个 API key。协议靶子证明的是链路通，
+  **不证明模型答得好**，两者不能混为一谈。
+- **决策层指标缺人工标注** —— golden 集只标了字段真值与注入的退化类型，不含审核结论。
+  任务层目前用「原因码集合匹配率」作代理指标，报告里显式标为 proxy。
+  这是**数据缺口不是代码缺口**：结论该判 pass 还是 review 只有人能回答，
+  让代码推一份再当基准，等于让系统给自己打分。工具链已就绪（见 `docs/人工标注操作手册.md`）。
+- **judge 校准集是占位标注** —— 管线可用、能暴露 judge 的系统性偏差方向，
+  但标注是项目作者自评的，**数字暂无统计意义**，替换成真实审核员标注后才有对外引用价值。
+- **越界判定是规则表不是分类器** —— 可解释、可复现，代价是新句式要补关键词。
+- **不做双判** —— 本服务只解释不改判。
 
 ## 常见问题
 
