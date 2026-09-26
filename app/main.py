@@ -429,6 +429,11 @@ def review_id_card_with_reasons(side: str, fields: dict, quality: dict) -> tuple
 
     reasons.extend(f"missing_{field}" for field in required if not fields.get(field))
     reasons.extend(reason for reason in _quality_reasons(quality) if reason not in reasons)
+
+    severe_reasons = quality.get("severe_reasons") or []
+    if severe_reasons:
+        return "reject", [reason for reason in severe_reasons if reason not in reasons] + reasons
+
     if reasons or quality.get("quality_result") != "pass":
         return "review", reasons
     return "pass", []

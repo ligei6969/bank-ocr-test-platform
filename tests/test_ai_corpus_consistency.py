@@ -67,6 +67,23 @@ def emitted_reason_codes() -> set[str]:
             {"card_number": "6222021234567890", "valid_date": "01/25", "name": "x"},
             {"quality_result": "review", "quality_reasons": ["image_blur"]},
         ),
+        # 严重退化：命中即 reject，产出 severe_* 原因码
+        (
+            {"card_number": "6222021234567890", "valid_date": "01/25", "name": "x"},
+            {"quality_result": "review", "severe_reasons": ["severe_image_blur"]},
+        ),
+        (
+            {"card_number": "6222021234567890", "valid_date": "01/25", "name": "x"},
+            {"quality_result": "review", "severe_reasons": ["severe_image_dark"]},
+        ),
+        (
+            {"card_number": "6222021234567890", "valid_date": "01/25", "name": "x"},
+            {"quality_result": "review", "severe_reasons": ["severe_image_bright"]},
+        ),
+        (
+            {"card_number": "6222021234567890", "valid_date": "01/25", "name": "x"},
+            {"quality_result": "review", "severe_reasons": ["severe_glare_detected"]},
+        ),
     )
     for fields, quality in bank_card_cases:
         _result, reasons = rule_check.review_bank_card_with_reasons(fields, quality)
@@ -75,6 +92,16 @@ def emitted_reason_codes() -> set[str]:
     for side in ("unknown", "front", "back"):
         _result, reasons = review_id_card_with_reasons(side, {}, {})
         codes.update(reasons)
+
+    # 严重度阈值本身也产出原因码，直接从平台实现驱动一遍
+    severe_metrics = (
+        {"blur_laplacian_variance": 1.0, "brightness_mean": 94.0},
+        {"blur_laplacian_variance": 900.0, "brightness_mean": 15.0},
+        {"blur_laplacian_variance": 900.0, "brightness_mean": 235.0},
+        {"blur_laplacian_variance": 900.0, "brightness_mean": 94.0, "glare_component_ratio": 0.09},
+    )
+    for metrics in severe_metrics:
+        codes.update(quality_check._severe_reasons(metrics))
 
     for detail in ENTRY_ERROR_DETAILS:
         codes.add(_error_reason(detail))
@@ -100,8 +127,9 @@ def _source_number(function: Callable[..., Any], pattern: str) -> str:
 # ── 覆盖率 ────────────────────────────────────────────────────────────────────
 
 def test_platform_emits_at_least_the_expected_number_of_reason_codes() -> None:
-    # 26 是当前实现的完整集合；数量变化时本测试会失败，提醒同步语料与文档
-    assert len(emitted_reason_codes()) == 26
+    # 30 是当前实现的完整集合（26 个原有码 + 4 个严重退化码）；
+    # 数量变化时本测试会失败，提醒同步语料与文档
+    assert len(emitted_reason_codes()) == 30
 
 
 def test_every_emitted_reason_code_is_described_in_the_corpus() -> None:
@@ -159,21 +187,35 @@ def test_every_reason_code_document_is_searchable() -> None:
 # ── 阈值一致性 ────────────────────────────────────────────────────────────────
 
 def test_blur_threshold_matches_the_corpus() -> None:
-    threshold = _source_number(quality_check.detect_blur, r"variance\s*<\s*([0-9.]+)")
+    threshold = f"{quality_check.BLUR_VARIANCE_THRESHOLD:g}"
 
     assert threshold in _corpus_text("image_blur")
 
 
 def test_dark_brightness_threshold_matches_the_corpus() -> None:
-    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*<\s*([0-9.]+)")
+    threshold = f"{quality_check.BRIGHTNESS_DARK_THRESHOLD:g}"
 
     assert threshold in _corpus_text("image_dark")
 
 
 def test_bright_brightness_threshold_matches_the_corpus() -> None:
-    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*>\s*([0-9.]+)")
+    threshold = f"{quality_check.BRIGHTNESS_BRIGHT_THRESHOLD:g}"
 
     assert threshold in _corpus_text("image_bright")
+
+
+def test_severe_thresholds_match_the_corpus() -> None:
+    """严重退化阈值必须写进语料，否则 AI 讲不清「为什么直接拒绝」。
+
+    反光轴当前停用（阈值为 None），因此不参与阈值比对。
+    """
+    cases = (
+        ("severe_image_blur", quality_check.SEVERE_BLUR_VARIANCE_THRESHOLD),
+        ("severe_image_dark", quality_check.SEVERE_BRIGHTNESS_DARK_THRESHOLD),
+        ("severe_image_bright", quality_check.SEVERE_BRIGHTNESS_BRIGHT_THRESHOLD),
+    )
+    for code, threshold in cases:
+        assert f"{threshold:g}" in _corpus_text(code), f"{code} 语料未写明阈值 {threshold}"
 
 
 def test_glare_thresholds_match_the_corpus() -> None:
@@ -264,21 +306,15 @@ from ai_service.thresholds import (  # noqa: E402
 
 
 def test_ai_blur_threshold_matches_platform_source() -> None:
-    threshold = _source_number(quality_check.detect_blur, r"variance\s*<\s*([0-9.]+)")
-
-    assert float(threshold) == DEFAULT_THRESHOLDS.blur_variance
+    assert float(quality_check.BLUR_VARIANCE_THRESHOLD) == DEFAULT_THRESHOLDS.blur_variance
 
 
 def test_ai_dark_brightness_threshold_matches_platform_source() -> None:
-    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*<\s*([0-9.]+)")
-
-    assert float(threshold) == DEFAULT_THRESHOLDS.brightness_dark
+    assert float(quality_check.BRIGHTNESS_DARK_THRESHOLD) == DEFAULT_THRESHOLDS.brightness_dark
 
 
 def test_ai_bright_brightness_threshold_matches_platform_source() -> None:
-    threshold = _source_number(quality_check.detect_brightness, r"mean_value\s*>\s*([0-9.]+)")
-
-    assert float(threshold) == DEFAULT_THRESHOLDS.brightness_bright
+    assert float(quality_check.BRIGHTNESS_BRIGHT_THRESHOLD) == DEFAULT_THRESHOLDS.brightness_bright
 
 
 def test_ai_glare_thresholds_match_platform_constants() -> None:
@@ -286,6 +322,22 @@ def test_ai_glare_thresholds_match_platform_constants() -> None:
     assert DEFAULT_THRESHOLDS.glare_saturation == quality_check.GLARE_SATURATION_THRESHOLD
     assert DEFAULT_THRESHOLDS.glare_component_ratio == pytest.approx(
         quality_check.GLARE_COMPONENT_RATIO_THRESHOLD
+    )
+
+
+def test_ai_severe_thresholds_match_platform_constants() -> None:
+    """严重退化阈值也必须两侧一致 —— 否则 AI 工具与平台的 reject 口径分叉。"""
+    assert DEFAULT_THRESHOLDS.severe_blur_variance == pytest.approx(
+        quality_check.SEVERE_BLUR_VARIANCE_THRESHOLD
+    )
+    assert DEFAULT_THRESHOLDS.severe_brightness_dark == pytest.approx(
+        quality_check.SEVERE_BRIGHTNESS_DARK_THRESHOLD
+    )
+    assert DEFAULT_THRESHOLDS.severe_brightness_bright == pytest.approx(
+        quality_check.SEVERE_BRIGHTNESS_BRIGHT_THRESHOLD
+    )
+    assert DEFAULT_THRESHOLDS.severe_glare_component_ratio == pytest.approx(
+        quality_check.SEVERE_GLARE_COMPONENT_RATIO_THRESHOLD
     )
 
 

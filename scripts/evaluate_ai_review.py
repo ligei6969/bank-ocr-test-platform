@@ -42,6 +42,26 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+
+def _make_stdout_utf8() -> None:
+    """让报告里的 ✗ / ⚠ 在 GBK 控制台也不炸。
+
+    Windows 默认码页是 GBK，打印这些符号会抛 UnicodeEncodeError —— 而且恰好
+    只在**有退化**时才抛（通过时那句用的是纯中文），于是 ``--save-baseline``
+    在真正需要重设基线时反而走不到。把流本身换成 UTF-8 比逐个符号降级更稳。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):  # pragma: no cover - 取决于运行环境
+            pass
+
+
+_make_stdout_utf8()
+
 from ai_service.agent import AgentBudget  # noqa: E402
 from ai_service.eval.golden import DEFAULT_LABELS_PATH, DEFAULT_TARGET_SIZE, load_golden_set  # noqa: E402
 from ai_service.eval.metrics import METRIC_DIRECTIONS  # noqa: E402
@@ -295,6 +315,20 @@ def write_allure(report: EvaluationReport, directory: Path) -> int:
 
 # ── 入口 ──────────────────────────────────────────────────────────────────────
 
+def _platform_verdict_fn():
+    """真实平台规则引擎的结论函数；拿不到平台依赖时返回 None（退回占位推定）。
+
+    惰性 import：``ai_service`` 平时不依赖 ``app`` 的 FastAPI / OpenCV，
+    只有真正要跑平台口径时才引进来。
+    """
+    try:
+        from ai_service.eval.platform_rules import platform_verdict
+    except ImportError as exc:  # pragma: no cover - 取决于运行环境
+        print(f"[评测] 平台规则引擎不可用（{exc}），结论层退回占位推定。", file=sys.stderr)
+        return None
+    return platform_verdict
+
+
 def main(argv: List[str] | None = None) -> int:
     args = parse_args(argv)
 
@@ -315,6 +349,7 @@ def main(argv: List[str] | None = None) -> int:
             prefer_llm_judge=args.live,
             baseline_path=None if args.no_baseline else args.baseline,
             tolerance=args.tolerance,
+            verdict_fn=_platform_verdict_fn(),
         )
     )
 

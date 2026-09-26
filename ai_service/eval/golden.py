@@ -100,6 +100,11 @@ class GoldenSample:
     #: 人工标注的期望结论（pass / review / reject）。没有标注时为 None。
     expected_verdict: Optional[str] = None
     verdict_source: str = "derived"
+    #: 字段真值（来自 labels.json）。规则引擎需要它才能在评测里真正跑起来。
+    fields: Mapping[str, Any] = field(default_factory=dict)
+    #: 身份证正反面（"front" / "back"）。归一成 ``id_card`` 后这个信息会丢，
+    #: 但 id_card 的规则按面别要求不同字段，所以单独留着。
+    id_card_side: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -113,25 +118,46 @@ class GoldenSample:
             "expects_escalation": self.expects_escalation,
             "expected_verdict": self.expected_verdict,
             "verdict_source": self.verdict_source,
+            "fields": dict(self.fields),
+            "id_card_side": self.id_card_side,
         }
 
-    def to_review_context(self) -> Dict[str, Any]:
+    def to_review_context(
+        self,
+        *,
+        review_result: Optional[str] = None,
+        fields: Optional[Mapping[str, Any]] = None,
+        quality_result: Optional[str] = None,
+        quality_reasons: Optional[Sequence[str]] = None,
+        quality_metrics: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """转成 AI 服务接的审核上下文。
 
-        ``review_result`` 是**推定**的：影像正常且字段有真值 => 判定 pass。
+        不带参数时 ``review_result`` 是**推定**的：影像正常 => 判定 pass。
         这一点在 :attr:`verdict_source` 上标记，不要在报告里当成人工结论用。
+
+        评测编排层（``report.evaluate``）会把**真实平台结论**连同字段真值与
+        原始质量指标传进来 —— 那时 ``review_result`` 才是平台的实际判定，
+        决策层指标也才真正测的是平台。``quality_metrics`` 一旦给出，AI 服务
+        的质量核对会从 ``flags`` 模式切到 ``metrics`` 模式（真重算）。
         """
         normal = not self.expected_reason_codes
-        return {
+        resolved_fields = dict(self.fields if fields is None else fields)
+        payload: Dict[str, Any] = {
             "request_id": self.sample_id,
             "doc_type": self.doc_type,
-            "review_result": "pass" if normal else "review",
-            "quality_result": self.expected_quality_result,
-            "quality_reasons": list(self.expected_reason_codes),
+            "review_result": review_result or ("pass" if normal else "review"),
+            "quality_result": quality_result or self.expected_quality_result,
+            "quality_reasons": list(
+                self.expected_reason_codes if quality_reasons is None else quality_reasons
+            ),
             "review_reasons": list(self.expected_reason_codes),
-            "fields": {},
+            "fields": resolved_fields,
             "question": "这条记录为什么是这个结论？应该怎么处置？",
         }
+        if quality_metrics:
+            payload["quality_metrics"] = dict(quality_metrics)
+        return payload
 
 
 def expected_tools_for(
@@ -149,6 +175,49 @@ def expected_tools_for(
     if quality_result:
         tools.append("recompute_quality")
     return tuple(tools)
+
+
+def _side_of(item: Dict[str, Any]) -> str:
+    """样本属于证件的哪一面。
+
+    ``id_card_front`` 与 ``id_card_back`` 归一后同为 ``id_card``，
+    如果不看原始 doc_type，两者会混进同一个桶。
+    """
+    dt = str(item.get("doc_type") or "")
+    if dt == "id_card_front":
+        return "front"
+    if dt == "id_card_back":
+        return "back"
+    return ""
+
+
+def _balanced_take(items: List[Dict[str, Any]], limit: int) -> List[Dict[str, Any]]:
+    """从桶里取 ``limit`` 条，**按面轮转**，避免某一面被字母序挤掉。
+
+    为什么需要这个：``build_golden_set`` 原先按 ``image_path`` 排序取前 N 条。
+    ``id_card`` 桶里 front 和 back 混在一起，而 ``.../back/...`` 的字符串
+    永远排在 ``.../front/...`` 前面 —— 于是 ``per_bucket`` 一截断，
+    取到的全是反面，正面一条都进不了评测集。这是实测发现的偏差。
+
+    做法：按面分组，各组内部排序，再轮流各取一条。没有面的差异时
+    退化成原来的「排序后取前 N 条」，bank_card 的行为完全不变。
+    """
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for item in items:
+        groups.setdefault(_side_of(item), []).append(item)
+
+    if len(groups) <= 1:
+        return sorted(items, key=lambda x: str(x.get("image_path")))[:limit]
+
+    ordered = [sorted(group, key=lambda x: str(x.get("image_path"))) for _side, group in sorted(groups.items())]
+    taken: List[Dict[str, Any]] = []
+    for round_index in range(limit):
+        for group in ordered:
+            if round_index < len(group):
+                taken.append(group[round_index])
+                if len(taken) >= limit:
+                    return taken
+    return taken
 
 
 def build_golden_set(
@@ -181,7 +250,7 @@ def build_golden_set(
         buckets.setdefault((doc_type, quality_type), []).append(item)
 
     ordered_buckets = [
-        (key, sorted(items, key=lambda x: str(x.get("image_path")))[:per_bucket])
+        (key, _balanced_take(items, per_bucket))
         for key, items in sorted(buckets.items())
     ]
 
@@ -193,16 +262,20 @@ def build_golden_set(
                 continue
             reasons = QUALITY_TYPE_TO_REASONS[quality_type]
             quality_result = "pass" if not reasons else "review"
+            item = items[round_index]
+            raw_fields = item.get("fields")
             samples.append(
                 GoldenSample(
                     sample_id=f"golden-{doc_type}-{quality_type}-{round_index:02d}",
-                    image_path=str(items[round_index].get("image_path") or ""),
+                    image_path=str(item.get("image_path") or ""),
                     doc_type=doc_type,
                     quality_type=quality_type,
                     expected_reason_codes=tuple(reasons),
                     expected_quality_result=quality_result,
                     expected_tools=expected_tools_for(reasons, quality_result),
                     expects_escalation=not reasons and quality_result != "pass",
+                    fields=dict(raw_fields) if isinstance(raw_fields, dict) else {},
+                    id_card_side=_side_of(item),
                 )
             )
             if len(samples) >= limit:
@@ -264,7 +337,10 @@ def load_golden_set(
 
     notes = [
         "labels.json 只标字段真值与注入的退化类型，不含审核结论。",
-        "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。",
+        "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。"
+        "期望原因码来自**注入的退化类型标签**，而平台的结论来自**实测指标**；"
+        "两者在阈值边界上会不一致（标为 bright 但实测亮度未过阈值，"
+        "平台就不会给出 image_bright）——这类样本是边界样本，不是缺陷。",
         "doc_type 已归一：id_card_front / id_card_back → id_card；"
         "application_form 不在审核链路上，已排除。",
         f"未映射的退化类型（{', '.join(UNMAPPED_QUALITY_TYPES)}）未纳入 golden 集。",

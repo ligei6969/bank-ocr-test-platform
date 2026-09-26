@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from ai_service.agent import AgentBudget, run_agent_for_context
 from ai_service.eval.golden import GoldenSample, GoldenSet, load_golden_set
@@ -36,6 +36,10 @@ from ai_service.llm import LLMClient, NullLLMClient
 
 DEFAULT_BASELINE_PATH = Path("ai_service/eval/baseline.json")
 DEFAULT_CALIBRATION_PATH = Path("ai_service/eval/judge_calibration.json")
+
+#: 算一条样本的平台结论：``(review_result, review_reasons, quality)``。
+#: 注入而非直接 import，是为了让纯离线路径不必依赖 FastAPI / OpenCV。
+VerdictFn = Callable[[GoldenSample], Tuple[str, List[str], Dict[str, Any]]]
 
 
 @dataclass
@@ -82,18 +86,34 @@ async def evaluate(
     prefer_llm_judge: bool = False,
     baseline_path: Optional[Path] = DEFAULT_BASELINE_PATH,
     tolerance: float = 0.05,
+    verdict_fn: Optional[VerdictFn] = None,
 ) -> EvaluationReport:
     """跑完整个 golden 集，产出四层指标报告。
 
     默认全离线：``llm`` 为 ``None`` 时 Agent 走确定性路径、judge 走确定性 rubric，
     所以 CI 不需要任何 API key。
+
+    ``verdict_fn`` 给出时，每条样本的 ``review_result`` 由**真实平台规则引擎**
+    算出，而不是 ``to_review_context`` 的占位推定 —— 决策层指标那时才真正
+    测的是平台。默认 ``None`` 保持纯离线，不引入 FastAPI / OpenCV 依赖。
     """
     rows: List[Dict[str, Any]] = []
     raw_outcomes: List[Dict[str, Any]] = []
     engines: set[str] = set()
 
     for sample in golden.samples:
-        context = ReviewContext.from_payload(sample.to_review_context())
+        base_payload = sample.to_review_context()
+        if verdict_fn is not None:
+            verdict, verdict_reasons, quality = verdict_fn(sample)
+            base_payload = sample.to_review_context(
+                review_result=verdict,
+                quality_result=quality.get("quality_result"),
+                quality_reasons=quality.get("quality_reasons"),
+                quality_metrics=quality.get("quality_metrics"),
+            )
+            base_payload["review_reasons"] = list(verdict_reasons)
+
+        context = ReviewContext.from_payload(base_payload)
         outcome = await run_agent_for_context(context, llm=llm, budget=budget)
         raw_outcomes.append(outcome)
 
@@ -101,7 +121,7 @@ async def evaluate(
             str(outcome.get("answer") or ""),
             # 把 actions 一并交给 judge：处置建议是独立字段，不看它的话
             # 「有用性」会低估 —— 答复正文本来就只是摘要
-            context={**sample.to_review_context(), "actions": outcome.get("actions") or []},
+            context={**base_payload, "actions": outcome.get("actions") or []},
             facts=outcome.get("reason_details") or [],
             llm=llm,
             prefer_llm=prefer_llm_judge,

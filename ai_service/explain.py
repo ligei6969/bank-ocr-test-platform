@@ -43,7 +43,19 @@ TOOL_NAME = "knowledge_search"
 DEFAULT_TOP_K = 5
 DEFAULT_QUESTION = "这条审核记录为什么是这个结论？应该怎么处置？"
 
-QUALITY_CODES = frozenset({"image_blur", "image_dark", "image_bright", "glare_detected"})
+QUALITY_CODES = frozenset(
+    {
+        "image_blur",
+        "image_dark",
+        "image_bright",
+        "glare_detected",
+        # 严重退化同样源自影像质量，只是程度到「直接拒绝」而非「转人工」
+        "severe_image_blur",
+        "severe_image_dark",
+        "severe_image_bright",
+        "severe_glare_detected",
+    }
+)
 INFRASTRUCTURE_CODES = frozenset(
     {
         "invalid_file_type",

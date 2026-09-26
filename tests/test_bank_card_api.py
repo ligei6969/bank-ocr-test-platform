@@ -371,7 +371,8 @@ def test_bank_card_review_handles_partial_ocr_fields(monkeypatch) -> None:
 
 
 @allure.description("模糊图片人工复核：真实 blur 样本应被检测为模糊，并返回 review。")
-def test_bank_card_review_returns_review_for_blurry_image(monkeypatch) -> None:
+def test_bank_card_review_returns_reject_for_severely_blurry_image(monkeypatch) -> None:
+    """真实 blur 样本的清晰度远低于严重阈值，应直接拒绝而不是转人工。"""
     monkeypatch.setattr(
         "app.main.recognize_text",
         lambda image_path, mode="mock": [
@@ -389,13 +390,14 @@ def test_bank_card_review_returns_review_for_blurry_image(monkeypatch) -> None:
 
     assert response.status_code == 200
     data = response.json()
-    assert data["review_result"] == "review"
+    assert data["review_result"] == "reject"
     assert data["quality"]["is_blur"] is True
     assert "image_blur" in data["quality"]["quality_reasons"]
-    assert "image_blur" in data["review_reasons"]
+    assert "severe_image_blur" in data["review_reasons"]
 
 
-def test_bank_card_review_returns_review_for_bad_image_quality(monkeypatch) -> None:
+def test_bank_card_review_returns_reject_for_severely_dark_image(monkeypatch) -> None:
+    """纯黑图（灰度 25）低于严重阈值 35，应直接拒绝而不是转人工。"""
     monkeypatch.setattr(
         "app.main.recognize_text",
         lambda image_path, mode="mock": [
@@ -415,7 +417,41 @@ def test_bank_card_review_returns_review_for_bad_image_quality(monkeypatch) -> N
 
     assert response.status_code == 200
     data = response.json()
-    assert data["review_result"] == "review"
+    assert data["review_result"] == "reject"
     assert data["quality"]["quality_result"] == "review"
     assert "image_dark" in data["quality"]["quality_reasons"]
+    assert "severe_image_dark" in data["review_reasons"]
+
+
+def test_bank_card_review_returns_review_for_moderately_dark_image(monkeypatch) -> None:
+    """灰度在 35–65 之间属「偏暗但可救」，仍应转人工。"""
+    monkeypatch.setattr(
+        "app.main.recognize_text",
+        lambda image_path, mode="mock": [
+            "TEST BANK",
+            "6222 0202 0202 0001",
+            "CARD HOLDER",
+            "ZHANG SAN",
+            "VALID THRU 12/30",
+        ],
+    )
+    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+    image_path = ARTIFACT_DIR / "dim_bank_card.png"
+    # 用暗色棋盘格而不是纯灰块：纯色图方差为 0 会被判严重模糊，
+    # 那样测的就不是「偏暗但仍可判读」这个中间档了
+    dim = Image.new("RGB", (760, 460), (128, 128, 128))
+    draw = ImageDraw.Draw(dim)
+    for y in range(0, 460, 10):
+        for x in range(0, 760, 10):
+            color = (20, 20, 20) if (x // 10 + y // 10) % 2 == 0 else (90, 90, 90)
+            draw.rectangle((x, y, x + 9, y + 9), fill=color)
+    dim.save(image_path)
+
+    with image_path.open("rb") as file:
+        response = client.post("/bank-card/review", files={"file": ("bank_card.png", file, "image/png")})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["review_result"] == "review"
     assert "image_dark" in data["review_reasons"]
+    assert "severe_image_dark" not in data["review_reasons"]

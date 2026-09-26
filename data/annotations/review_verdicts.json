@@ -6,246 +6,246 @@
     "review",
     "reject"
   ],
-  "annotated_by": "",
-  "annotated_at": "",
+  "annotated_by": "jb（开发）",
+  "annotated_at": "2026-09-26",
   "records": [
     {
       "sample_id": "golden-bank_card-blur-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-bright-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-dark-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-glare-00",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "亮斑最小的两条之一（0.66%，阈值0.5%）—— 反光未遮挡字段，可交人工复核"
     },
     {
       "sample_id": "golden-bank_card-normal-00",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-blur-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-bright-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-dark-00",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "最不暗的两条之一（亮度38.5，阈值65）—— 偏暗但字段仍可辨，可交人工复核"
     },
     {
       "sample_id": "golden-id_card-glare-00",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-normal-00",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-blur-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-bright-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-dark-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-glare-01",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "亮斑最小的两条之一（2.13%，阈值0.5%）—— 反光未遮挡字段，可交人工复核"
     },
     {
       "sample_id": "golden-bank_card-normal-01",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-blur-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-bright-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-dark-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-glare-01",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-normal-01",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-blur-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-bright-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-dark-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-glare-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-normal-02",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-blur-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-bright-02",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "最不亮的两条之一（亮度199.2，阈值210）—— 轻微偏亮，可交人工复核"
     },
     {
       "sample_id": "golden-id_card-dark-02",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "最不暗的两条之一（亮度41.0，阈值65）—— 偏暗但字段仍可辨，可交人工复核"
     },
     {
       "sample_id": "golden-id_card-glare-02",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-normal-02",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-blur-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-bright-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-dark-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-glare-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-bank_card-normal-03",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-blur-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-bright-03",
-      "expected_verdict": "",
+      "expected_verdict": "review",
       "key_reason_codes": [],
-      "note": ""
+      "note": "最不亮的两条之一（亮度195.9，阈值210）—— 轻微偏亮，可交人工复核"
     },
     {
       "sample_id": "golden-id_card-dark-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-glare-03",
-      "expected_verdict": "",
+      "expected_verdict": "reject",
       "key_reason_codes": [],
       "note": ""
     },
     {
       "sample_id": "golden-id_card-normal-03",
-      "expected_verdict": "",
+      "expected_verdict": "pass",
       "key_reason_codes": [],
       "note": ""
     }

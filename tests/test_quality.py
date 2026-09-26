@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageDraw, ImageFilter
 
+from app import quality_check
 from app.quality_check import check_image_quality, detect_blur, detect_brightness, detect_glare
 
 
@@ -76,12 +77,25 @@ def test_check_image_quality_pass() -> None:
 
     result = check_image_quality(str(image_path))
 
-    assert result == {
-        "is_blur": False,
-        "brightness": "normal",
-        "has_glare": False,
-        "quality_result": "pass",
-        "quality_reasons": [],
+    assert result["is_blur"] is False
+    assert result["brightness"] == "normal"
+    assert result["has_glare"] is False
+    assert result["quality_result"] == "pass"
+    assert result["quality_reasons"] == []
+    assert result["severe_reasons"] == []
+
+
+def test_check_image_quality_exposes_raw_metrics() -> None:
+    """原始指标要随结论一起返回 —— 规则层靠它判严重度，AI 服务靠它做真重算。"""
+    image_path = artifact_path("quality_normal_metrics.png")
+    save_checkerboard(image_path)
+
+    result = check_image_quality(str(image_path))
+
+    assert set(result["quality_metrics"]) == {
+        "blur_laplacian_variance",
+        "brightness_mean",
+        "glare_component_ratio",
     }
 
 
@@ -102,9 +116,13 @@ def test_check_image_quality_returns_reason_codes(
     has_glare: bool,
     expected_reasons: list[str],
 ) -> None:
-    monkeypatch.setattr("app.quality_check.detect_blur", lambda image_path: is_blur)
-    monkeypatch.setattr("app.quality_check.detect_brightness", lambda image_path: brightness)
-    monkeypatch.setattr("app.quality_check.detect_glare", lambda image_path: has_glare)
+    # check_image_quality 现在一次读图算出原始指标，所以桩要打在测量函数上
+    metrics = {
+        "blur_laplacian_variance": 10.0 if is_blur else 900.0,
+        "brightness_mean": {"dark": 20.0, "bright": 240.0}.get(brightness, 120.0),
+        "glare_component_ratio": 0.5 if has_glare else 0.0,
+    }
+    monkeypatch.setattr("app.quality_check.measure_image_quality", lambda image_path: metrics)
 
     result = check_image_quality("unused.png")
 
@@ -218,8 +236,72 @@ def test_processed_occlusion_and_rotate_bank_cards_are_processable(quality_type:
     result = check_image_quality(str(image_path))
 
     assert quality_type in {"occlusion", "rotate"}
-    assert set(result) == {"is_blur", "brightness", "has_glare", "quality_result", "quality_reasons"}
+    assert set(result) == {
+        "is_blur",
+        "brightness",
+        "has_glare",
+        "quality_result",
+        "quality_reasons",
+        "quality_metrics",
+        "severe_reasons",
+    }
     assert isinstance(result["is_blur"], bool)
     assert result["brightness"] in {"dark", "normal", "bright"}
     assert isinstance(result["has_glare"], bool)
     assert result["quality_result"] in {"pass", "review"}
+    assert isinstance(result["severe_reasons"], list)
+
+
+# ── 严重退化判定 ──────────────────────────────────────────────────────────────
+
+def test_severe_reasons_empty_for_clean_scan() -> None:
+    metrics = {
+        "blur_laplacian_variance": 900.0,
+        "brightness_mean": 120.0,
+        "glare_component_ratio": 0.0,
+    }
+
+    assert quality_check._severe_reasons(metrics) == []
+
+
+@pytest.mark.parametrize(
+    ("metrics", "expected"),
+    [
+        ({"blur_laplacian_variance": 29.9, "brightness_mean": 120.0}, "severe_image_blur"),
+        ({"blur_laplacian_variance": 30.0, "brightness_mean": 120.0}, None),
+        ({"brightness_mean": 34.9}, "severe_image_dark"),
+        ({"brightness_mean": 35.0}, None),
+        ({"brightness_mean": 215.1}, "severe_image_bright"),
+        ({"brightness_mean": 215.0}, None),
+    ],
+)
+def test_severe_threshold_boundaries(metrics: dict, expected: str | None) -> None:
+    """阈值是排他的：恰好等于阈值不算严重，越过才算。"""
+    reasons = quality_check._severe_reasons(metrics)
+
+    if expected is None:
+        assert reasons == []
+    else:
+        assert reasons == [expected]
+
+
+def test_glare_severity_is_currently_disabled() -> None:
+    """反光的严重度阈值停用中 —— 再大的亮斑也不判 reject。
+
+    原因见 ``SEVERE_GLARE_COMPONENT_RATIO_THRESHOLD``：标定间隙只有 9%，
+    按它判 reject 是过拟合。停用期间反光一律走人工复核。
+    """
+    assert quality_check.SEVERE_GLARE_COMPONENT_RATIO_THRESHOLD is None
+
+    reasons = quality_check._severe_reasons(
+        {"brightness_mean": 120.0, "glare_component_ratio": 0.99}
+    )
+
+    assert reasons == []
+
+
+def test_moderate_degradation_is_not_severe() -> None:
+    """偏暗但未到严重档（35–65）应当只判 review，而不是 reject。"""
+    metrics = {"blur_laplacian_variance": 400.0, "brightness_mean": 50.0}
+
+    assert quality_check._severe_reasons(metrics) == []

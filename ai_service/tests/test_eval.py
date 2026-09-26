@@ -38,6 +38,7 @@ from ai_service.eval.metrics import (
     HIGHER_IS_BETTER,
     LOWER_IS_BETTER,
     METRIC_DIRECTIONS,
+    RegressionAlert,
     SampleOutcome,
     aggregate,
     compare_to_baseline,
@@ -47,6 +48,7 @@ from ai_service.eval.metrics import (
     unregistered_metrics,
 )
 from ai_service.eval.report import (
+    EvaluationReport,
     evaluate,
     load_calibration_cases,
     run_calibration,
@@ -143,11 +145,48 @@ def test_expected_reason_codes_come_from_the_documented_mapping() -> None:
         assert sample.expected_reason_codes == QUALITY_TYPE_TO_REASONS[sample.quality_type]
 
 
-def test_golden_set_declares_that_the_verdict_layer_is_unavailable() -> None:
-    golden = load_golden_set()
+def test_golden_set_reports_whether_the_verdict_layer_is_available(tmp_path: Path) -> None:
+    """决策层可用与否都要在 notes 里讲清楚 —— 不可用时必须说明缺什么。"""
+    unsigned = tmp_path / "verdicts_unsigned.json"
+    unsigned.write_text(
+        json.dumps(
+            _verdicts_payload(
+                records=[
+                    {"sample_id": f"golden-bank_card-blur-{i:02d}", "expected_verdict": "pass"}
+                    for i in range(MIN_READY_SAMPLES)
+                ],
+                annotated_by="",
+            ),
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    golden = load_golden_set(verdicts_path=unsigned)
 
     assert golden.verdict_layer_available is False
     assert any("审核结论" in note for note in golden.notes)
+
+
+def test_golden_set_enables_the_verdict_layer_when_annotations_are_complete() -> None:
+    """真实标注文件已完整签名，决策层应当可用。"""
+    golden = load_golden_set()
+
+    assert golden.verdict_layer_available is True
+    assert all(sample.verdict_source == "human" for sample in golden.samples)
+
+
+def test_boundary_samples_are_named_in_the_notes() -> None:
+    """标签与实测在阈值边界上不一致时，报告必须说明这不是缺陷。
+
+    起因：三个标为 bright 的样本实测亮度都在 195–200，没跨过平台 210 的门槛，
+    所以平台不会给出 image_bright。期望原因码来自注入标签，结论来自实测，
+    两者本就不该强求一致。
+    """
+    notes = " ".join(load_golden_set().notes)
+
+    assert "边界" in notes
+    assert "实测" in notes
 
 
 def test_golden_summary_reports_its_provenance() -> None:
@@ -792,21 +831,28 @@ def test_a_broken_json_file_downgrades_instead_of_crashing(tmp_path: Path) -> No
     assert result.is_ready(_sample_ids()) is False
 
 
-def test_verdicts_never_attach_without_a_human_signature() -> None:
+def test_verdicts_never_attach_without_a_human_signature(tmp_path: Path) -> None:
     """人工结论必须以「可用」为前提附加：宁可没有，不要假的。"""
-    golden = load_golden_set(target_size=4)
-    unattached = parse_verdicts(
-        _verdicts_payload(
-            records=[
-                {"sample_id": sample.sample_id, "expected_verdict": "pass"}
-                for sample in golden.samples
-            ],
-            annotated_by="",
-        )
+    golden = build_golden_set(target_size=4)
+    unsig_path = tmp_path / "verdicts_unsigned.json"
+    unsig_path.write_text(
+        json.dumps(
+            _verdicts_payload(
+                records=[
+                    {"sample_id": sample.sample_id, "expected_verdict": "pass"}
+                    for sample in golden
+                ],
+                annotated_by="",
+            ),
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
     )
 
-    assert unattached.is_ready([s.sample_id for s in golden.samples]) is False
-    assert all(sample.expected_verdict is None for sample in golden.samples)
+    loaded = load_golden_set(target_size=4, verdicts_path=unsig_path)
+
+    assert loaded.verdict_layer_available is False
+    assert all(sample.expected_verdict is None for sample in loaded.samples)
 
 
 def test_human_verdicts_reach_the_decision_layer(tmp_path: Path) -> None:
@@ -829,15 +875,29 @@ def test_human_verdicts_reach_the_decision_layer(tmp_path: Path) -> None:
     assert any("决策层已启用" in note for note in loaded.notes)
 
 
-def test_a_partially_filled_sheet_names_the_exact_blocker() -> None:
+def test_a_partially_filled_sheet_names_the_exact_blocker(tmp_path: Path) -> None:
     """「不可用」必须能直接指导下一步动作，而不是让人自己猜。"""
-    golden = load_golden_set(target_size=6)
-    verdicts_path = Path("data/annotations/review_verdicts.json")
+    golden = build_golden_set(target_size=6)
+    sample_ids = [sample.sample_id for sample in golden]
+    partial = tmp_path / "verdicts_partial.json"
+    partial.write_text(
+        json.dumps(
+            _verdicts_payload(
+                records=[
+                    {"sample_id": sample_id, "expected_verdict": ""}
+                    for sample_id in sample_ids
+                ],
+                annotated_by="",
+            ),
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
 
-    result = load_verdicts(verdicts_path)
-    reasons = result.blocking_reasons([s.sample_id for s in golden.samples])
+    result = load_verdicts(partial)
+    reasons = result.blocking_reasons(sample_ids)
 
-    assert result.is_ready([s.sample_id for s in golden.samples]) is False
+    assert result.is_ready(sample_ids) is False
     assert reasons, "不可用必须给出原因"
     assert any("annotated_by" in reason or "expected_verdict" in reason for reason in reasons)
 
@@ -883,6 +943,39 @@ def test_every_metric_has_a_human_readable_label() -> None:
     bare = {key.split(".", 1)[-1] for key in METRIC_DIRECTIONS}
     missing = sorted(bare - set(METRIC_LABELS))
     assert missing == [], f"这些指标缺中文标签，报告会打印内部键名：{missing}"
+
+
+def test_regression_report_survives_a_gbk_console(capsys) -> None:
+    """报告里的 ✗ 不能因为控制台是 GBK 就抛异常。
+
+    回归：print_regression 只在**有退化**时打印 ✗（通过时那行是纯中文），
+    于是 Windows GBK 控制台下会抛 UnicodeEncodeError，导致后面的
+    ``--save-baseline`` 走不到 —— 恰好在最需要重设基线的时候失效。
+    """
+    from scripts.evaluate_ai_review import print_regression
+
+    report = EvaluationReport(
+        golden={"size": 1},
+        metrics={},
+        flat={},
+        rows=[],
+        judge_engine="deterministic-rubric",
+        baseline_path=Path("baseline.json"),
+        alerts=[
+            RegressionAlert(
+                metric="task.verdict_accuracy",
+                baseline=1.0,
+                current=0.5,
+                change=-0.5,
+                tolerance=0.05,
+                direction="higher",
+            )
+        ],
+    )
+
+    print_regression(report)  # 不应抛异常
+
+    assert "退化" in capsys.readouterr().out
 
 
 def test_score_sample_only_marks_annotated_verdicts() -> None:

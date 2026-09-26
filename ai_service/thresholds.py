@@ -27,6 +27,20 @@ REASON_IMAGE_DARK = "image_dark"
 REASON_IMAGE_BRIGHT = "image_bright"
 REASON_GLARE_DETECTED = "glare_detected"
 
+#: 严重退化是**结论信号**而非质量原因，因此独立于 ``QUALITY_REASON_CODES``
+#: （后者被一致性测试断言与平台 ``get_quality_reasons`` 完全相等）。
+SEVERE_REASON_IMAGE_BLUR = "severe_image_blur"
+SEVERE_REASON_IMAGE_DARK = "severe_image_dark"
+SEVERE_REASON_IMAGE_BRIGHT = "severe_image_bright"
+SEVERE_REASON_GLARE_DETECTED = "severe_glare_detected"
+
+SEVERE_REASON_CODES: tuple[str, ...] = (
+    SEVERE_REASON_IMAGE_BLUR,
+    SEVERE_REASON_IMAGE_DARK,
+    SEVERE_REASON_IMAGE_BRIGHT,
+    SEVERE_REASON_GLARE_DETECTED,
+)
+
 QUALITY_REASON_CODES: tuple[str, ...] = (
     REASON_IMAGE_BLUR,
     REASON_IMAGE_DARK,
@@ -52,6 +66,16 @@ class ImageQualityThresholds:
     glare_saturation: int = 45
     glare_component_ratio: float = 0.005
 
+    #: 严重退化 —— 命中即直接拒绝，而不是转人工。
+    #: 标定自 40 条带人工结论的 golden 样本，换样本应重新标定。
+    severe_blur_variance: float = 30.0
+    severe_brightness_dark: float = 35.0
+    severe_brightness_bright: float = 215.0
+    #: 反光严重度**当前停用**：标定值 0.022 的支撑太薄（最高 review 0.0213
+    #: 与最低 reject 0.0232 只差 9%），换样本几乎必然失效。详见
+    #: ``app/quality_check.py`` 同名常量的说明。
+    severe_glare_component_ratio: float | None = None
+
     def as_dict(self) -> Dict[str, Any]:
         return {
             "blur_variance": self.blur_variance,
@@ -60,6 +84,10 @@ class ImageQualityThresholds:
             "glare_value": self.glare_value,
             "glare_saturation": self.glare_saturation,
             "glare_component_ratio": self.glare_component_ratio,
+            "severe_blur_variance": self.severe_blur_variance,
+            "severe_brightness_dark": self.severe_brightness_dark,
+            "severe_brightness_bright": self.severe_brightness_bright,
+            "severe_glare_component_ratio": self.severe_glare_component_ratio,
         }
 
     def describe(self) -> List[str]:
@@ -114,8 +142,44 @@ def derive_quality_reasons(
     return reasons
 
 
-def derive_quality_result(reasons: List[str]) -> str:
-    """与平台判定一致：任一质检原因码命中即为 review，否则 pass。"""
+def derive_severe_reasons(
+    metrics: Mapping[str, Any],
+    thresholds: ImageQualityThresholds = DEFAULT_THRESHOLDS,
+) -> List[str]:
+    """从原始指标反推「严重退化」原因码。
+
+    与 ``app/quality_check.py:_severe_reasons`` 同口径 —— 平台侧命中即判
+    ``reject``。这里复现一份是为了让 ``recompute_quality`` 工具也能算出
+    ``reject``，否则工具与平台的口径会分叉。
+    """
+    reasons: List[str] = []
+
+    variance = _number(metrics, METRIC_BLUR_VARIANCE)
+    if variance is not None and variance < thresholds.severe_blur_variance:
+        reasons.append(SEVERE_REASON_IMAGE_BLUR)
+
+    mean_value = _number(metrics, METRIC_BRIGHTNESS_MEAN)
+    if mean_value is not None:
+        if mean_value < thresholds.severe_brightness_dark:
+            reasons.append(SEVERE_REASON_IMAGE_DARK)
+        elif mean_value > thresholds.severe_brightness_bright:
+            reasons.append(SEVERE_REASON_IMAGE_BRIGHT)
+
+    glare_ratio = _number(metrics, METRIC_GLARE_COMPONENT_RATIO)
+    if (
+        thresholds.severe_glare_component_ratio is not None
+        and glare_ratio is not None
+        and glare_ratio > thresholds.severe_glare_component_ratio
+    ):
+        reasons.append(SEVERE_REASON_GLARE_DETECTED)
+
+    return reasons
+
+
+def derive_quality_result(reasons: List[str], severe_reasons: Optional[List[str]] = None) -> str:
+    """与平台判定一致：有严重退化即 reject，否则任一质检原因码命中为 review。"""
+    if severe_reasons:
+        return "reject"
     return "review" if reasons else "pass"
 
 
@@ -147,13 +211,15 @@ def audit_quality(
 
     if metrics:
         derived = derive_quality_reasons(metrics, thresholds)
+        severe = derive_severe_reasons(metrics, thresholds)
         result.update(
             {
                 "mode": "metrics",
                 "recomputed": True,
                 "metrics": dict(metrics),
                 "derived_reasons": derived,
-                "derived_quality_result": derive_quality_result(derived),
+                "derived_severe_reasons": severe,
+                "derived_quality_result": derive_quality_result(derived, severe),
                 "matches_stored": sorted(derived) == sorted(stored_reasons),
                 "missing_from_derived": sorted(set(stored_reasons) - set(derived)),
                 "extra_in_derived": sorted(set(derived) - set(stored_reasons)),
@@ -186,8 +252,14 @@ __all__ = (
     "REASON_IMAGE_BLUR",
     "REASON_IMAGE_BRIGHT",
     "REASON_IMAGE_DARK",
+    "SEVERE_REASON_CODES",
+    "SEVERE_REASON_GLARE_DETECTED",
+    "SEVERE_REASON_IMAGE_BLUR",
+    "SEVERE_REASON_IMAGE_BRIGHT",
+    "SEVERE_REASON_IMAGE_DARK",
     "ImageQualityThresholds",
     "audit_quality",
     "derive_quality_reasons",
     "derive_quality_result",
+    "derive_severe_reasons",
 )

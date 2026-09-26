@@ -137,6 +137,78 @@ REASON_CODE_DOCS: tuple[KnowledgeDoc, ...] = (
         ),
     ),
     KnowledgeDoc(
+        doc_id="rc.severe_image_blur",
+        title="severe_image_blur 严重模糊",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("severe_image_blur",),
+        tags=("质量检测", "模糊", "严重退化", "拒绝"),
+        content=(
+            "原因码 severe_image_blur，含义是模糊到无法补救。"
+            "触发条件：清晰度远低于「判模糊」的门槛 —— 拉普拉斯方差低于 30.0，"
+            "而 image_blur 的门槛是 80.0。"
+            "实现位置：app/quality_check.py 的 _severe_reasons()。"
+            "业务含义：到达这个程度时文字结构已被破坏，重拍之外没有补救手段，"
+            "继续走人工复核只会浪费审核工时，因此结论是**拒绝**而不是转人工。"
+            "与 image_blur 的区别：image_blur 是「可能有救，交人工看一眼」，"
+            "severe_image_blur 是「确定没救，直接拒绝」。"
+            "处置建议：直接拒绝并提示用户重新拍摄，不要进入人工队列。"
+            "用户话术：图片过于模糊，无法识别，请重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.severe_image_dark",
+        title="severe_image_dark 严重过暗",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("severe_image_dark",),
+        tags=("质量检测", "亮度", "过暗", "严重退化", "拒绝"),
+        content=(
+            "原因码 severe_image_dark，含义是暗到无法补救。"
+            "触发条件：全图灰度均值低于 35.0，而 image_dark 的门槛是 65。"
+            "实现位置：app/quality_check.py 的 _severe_reasons()。"
+            "业务含义：这个亮度下文字与背景的对比度已不足以支撑人工判读，"
+            "结论是**拒绝**。"
+            "与 image_dark 的区别：image_dark（35 到 65 之间）仍可交人工复核，"
+            "severe_image_dark 直接拒绝。"
+            "处置建议：直接拒绝并提示用户在光线充足处重拍。"
+            "用户话术：照片太暗，无法识别，请在光线充足处重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.severe_image_bright",
+        title="severe_image_bright 严重过亮",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("severe_image_bright",),
+        tags=("质量检测", "亮度", "过亮", "过曝", "严重退化", "拒绝"),
+        content=(
+            "原因码 severe_image_bright，含义是过曝到无法补救。"
+            "触发条件：全图灰度均值高于 215.0，而 image_bright 的门槛是 210。"
+            "实现位置：app/quality_check.py 的 _severe_reasons()。"
+            "业务含义：文字被冲成白色，字段不可能解析出来，结论是**拒绝**。"
+            "处置建议：直接拒绝并提示用户关闭闪光灯重拍。"
+            "用户话术：照片曝光过度，无法识别，请关掉闪光灯重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.severe_glare_detected",
+        title="severe_glare_detected 严重反光",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("severe_glare_detected",),
+        tags=("质量检测", "反光", "高光", "严重退化", "拒绝"),
+        content=(
+            "原因码 severe_glare_detected，含义是反光面积大到遮挡关键字段。"
+            "实现位置：app/quality_check.py 的 _severe_reasons()。"
+            "当前状态：**该判定已停用**。反光严重度需要一个可靠的面积分界，"
+            "而现有标定数据里「该复核」与「该拒绝」的间隙只有 9%，"
+            "据此判拒绝属于过拟合，因此反光统一走人工复核（glare_detected），"
+            "不再单独判拒绝。"
+            "业务含义：大面积高光确实会盖住卡号、有效期等关键字段，"
+            "属于「该人工重点看」的情况，但不足以在无人复核的前提下直接拒绝。"
+            "处置建议：转人工复核，重点确认高光是否压在关键字段上；"
+            "若压在关键字段上，让用户变换角度避开光源重拍。"
+            "用户话术：照片上有反光遮挡，请换个角度、避开灯光重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
         doc_id="rc.missing_card_number",
         title="missing_card_number 未解析到银行卡号",
         category=CATEGORY_REASON_CODE,
