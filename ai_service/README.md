@@ -238,7 +238,7 @@ ai_service/
   devtools/       协议靶子：本地假 provider，验证 HTTP / 鉴权 / usage 解析
   knowledge/      客服 Agent（第二个产品面）：语料 / 策略 / 工具 / prompt / 会话 / 循环 / 接口
   __main__.py     CLI：起服务、--demo、--agent、--ask、--history、--live、--search、--explain
-  tests/          482 个单测，全部离线可跑
+  tests/          519 个单测，全部离线可跑
 ```
 
 ---
