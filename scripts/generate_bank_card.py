@@ -5,6 +5,11 @@ Run:
 
 The images are synthetic OCR test assets. They do not use real bank logos,
 real card artwork, or real customer data.
+
+每张卡的卡号、持卡人、有效期、背景配色与装饰元素都由 ``rng`` 派生，
+所以同一批里的任意两张卡都能肉眼区分 —— 这是数据集的基本要求：
+如果 100 张卡长得一样，它们只能测「流水线能不能跑通」，
+测不出「模型对哪一张判错了」。
 """
 
 from __future__ import annotations
@@ -25,17 +30,32 @@ TEMPLATE_PATH = ROOT_DIR / "data" / "templates" / "bank_card" / "test_bank.json"
 CARD_SIZE = (760, 460)
 DEFAULT_COUNT = 100
 
-NAMES = [
-    "ZHANG SAN",
-    "LI MING",
-    "WANG WEI",
-    "ZHAO LEI",
-    "CHEN JIE",
-    "LIU YANG",
-    "SUN QI",
-    "ZHOU YI",
-    "WU HAO",
-    "XU NING",
+SURNAMES = [
+    "ZHANG", "LI", "WANG", "ZHAO", "CHEN", "LIU", "SUN", "ZHOU",
+    "WU", "XU", "MA", "ZHU", "HU", "GUO", "HE", "LIN",
+]
+GIVEN_NAMES = [
+    "SAN", "MING", "WEI", "LEI", "JIE", "YANG", "QI", "YI",
+    "HAO", "NING", "FENG", "JUN", "TAO", "PENG", "BIN", "KAI",
+]
+
+#: 背景渐变色对。每张卡随机选一对，让整批卡在缩略图里就能区分开。
+BACKGROUND_PAIRS = [
+    ("#29465f", "#516b83"),
+    ("#1f3a5f", "#3d6b8f"),
+    ("#2d4a3e", "#5a8f6b"),
+    ("#4a2c4f", "#7d5585"),
+    ("#5f3a29", "#8f6b51"),
+    ("#1f4a4a", "#3d8080"),
+    ("#3f2d5f", "#6b5a8f"),
+    ("#5f2935", "#8f5163"),
+    ("#2d3f4a", "#5a7285"),
+    ("#4a3f1f", "#85763d"),
+]
+
+ACCENT_COLORS = [
+    "#f2c94c", "#e8a33d", "#6fcf97", "#56ccf2",
+    "#bb6bd9", "#f2994a", "#eb5757", "#9b9b9b",
 ]
 
 
@@ -96,8 +116,79 @@ def draw_gradient(draw: ImageDraw.ImageDraw, size: tuple[int, int], start: str, 
         draw.line((0, y, width, y), fill=color)
 
 
-def make_card_number(index: int) -> str:
-    return f"6222 0202 0202 {index:04d}"
+def draw_background_decor(
+    draw: ImageDraw.ImageDraw,
+    size: tuple[int, int],
+    accent: tuple[int, int, int],
+    rng: random.Random,
+) -> None:
+    """每张卡不同的装饰：圆、斜线、光带。
+
+    这是让同批卡片「肉眼可辨」的主要手段 —— 只改卡号的话，
+    100 张卡在缩略图上仍然是一样的。
+    """
+    width, height = size
+
+    # 两到三个随机位置、随机大小的半透明装饰圆
+    for _ in range(rng.randint(2, 3)):
+        cx = rng.randint(-120, width + 120)
+        cy = rng.randint(-120, height + 120)
+        radius = rng.randint(110, 260)
+        color = accent if rng.random() < 0.6 else (255, 255, 255)
+        alpha = rng.randint(28, 70)
+        draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=(*color, alpha))
+
+    # 随机角度的斜线束
+    angle_x = rng.randint(-80, 80)
+    angle_y = rng.randint(-80, 80)
+    for idx in range(rng.randint(2, 5)):
+        offset = idx * rng.randint(40, 90)
+        draw.line(
+            (offset, angle_y + offset // 2, width + offset, angle_x + offset // 2),
+            fill=(255, 255, 255, rng.randint(30, 80)),
+            width=rng.randint(2, 6),
+        )
+
+    # 随机位置的一条宽光带
+    if rng.random() < 0.7:
+        band_y = rng.randint(0, height)
+        draw.line(
+            (0, band_y, width, band_y + rng.randint(-120, 120)),
+            fill=(255, 255, 255, rng.randint(18, 42)),
+            width=rng.randint(20, 60),
+        )
+
+
+def luhn_check_digit(prefix: str) -> str:
+    """给前缀补上 Luhn 校验位，让卡号看起来是「真的」卡号结构。"""
+    total = 0
+    for idx, digit in enumerate(reversed(prefix)):
+        value = int(digit)
+        if idx % 2 == 0:
+            value *= 2
+            if value > 9:
+                value -= 9
+        total += value
+    return str((10 - total % 10) % 10)
+
+
+def make_card_number(rng: random.Random) -> str:
+    """生成 16 位卡号并分组为 4-4-4-4。
+
+    必须保持 16 位纯数字：``app.field_parser`` 要求 normalize 后是 16–19 位，
+    而 ``app.rule_check.is_valid_card_number`` 用 ``fullmatch(r"\\d{16,19}")``。
+    卡号一旦不合法，最终结论会变成 ``reject`` 而不是 ``review``，
+    质量原因码就没机会被检验了。
+    """
+    prefix = str(rng.randint(4, 6))
+    body = "".join(str(rng.randint(0, 9)) for _ in range(14))
+    digits = prefix + body
+    digits += luhn_check_digit(digits)
+    return " ".join(digits[idx : idx + 4] for idx in range(0, 16, 4))
+
+
+def make_name(rng: random.Random) -> str:
+    return f"{rng.choice(SURNAMES)} {rng.choice(GIVEN_NAMES)}"
 
 
 def make_valid_date(rng: random.Random) -> str:
@@ -114,20 +205,25 @@ def draw_chip(draw: ImageDraw.ImageDraw) -> None:
     draw.line((70, 185, 150, 185), fill=(140, 112, 50), width=2)
 
 
-def draw_card(fields: dict[str, str], template: dict[str, object], path: Path) -> None:
+def draw_card(
+    fields: dict[str, str],
+    template: dict[str, object],
+    path: Path,
+    rng: random.Random,
+) -> None:
     image = Image.new("RGB", CARD_SIZE, (20, 35, 52))
     layer = Image.new("RGBA", CARD_SIZE, (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer)
 
-    background = template.get("background", ["#29465f", "#516b83"])
-    start, end = str(background[0]), str(background[1])  # type: ignore[index]
+    # 背景色对从池里随机抽，而不是一律用模板那对
+    default_pairs = BACKGROUND_PAIRS
+    start, end = rng.choice(default_pairs)
     draw_gradient(draw, CARD_SIZE, start, end)
     draw.rounded_rectangle((0, 0, CARD_SIZE[0] - 1, CARD_SIZE[1] - 1), radius=34, outline=(230, 238, 245, 90), width=3)
 
-    accent = hex_to_rgb(str(template.get("accent", "#f2c94c")))
-    draw.ellipse((520, -120, 880, 220), fill=(*accent, 55))
-    draw.ellipse((-90, 300, 250, 590), fill=(255, 255, 255, 28))
-    draw.line((0, 285, 760, 145), fill=(255, 255, 255, 42), width=3)
+    accent_hex = rng.choice(ACCENT_COLORS)
+    accent = hex_to_rgb(accent_hex)
+    draw_background_decor(draw, CARD_SIZE, accent, rng)
 
     draw.text((54, 42), fields["issuer"], font=FONTS["issuer"], fill=(245, 248, 252))
     draw.text((55, 90), "SYNTHETIC CARD", font=FONTS["mark"], fill=(255, 226, 151))
@@ -162,28 +258,31 @@ def write_labels(labels: list[dict[str, object]]) -> None:
 
 
 def generate(count: int, seed: int) -> list[dict[str, object]]:
-    rng = random.Random(seed)
     template = load_template()
     issuer = str(template.get("issuer", "TEST BANK"))
     card_type = str(template.get("card_type", "Synthetic Debit Card"))
 
     bank_labels: list[dict[str, object]] = []
     for index in range(1, count + 1):
+        # 每个 index 一个独立种子：增删样本不会让整批卡面错位
+        rng = random.Random(f"{seed}-bank-{index:04d}")
         fields = {
-            "name": rng.choice(NAMES),
-            "card_number": make_card_number(index),
+            "name": make_name(rng),
+            "card_number": make_card_number(rng),
             "valid_date": make_valid_date(rng),
             "issuer": issuer,
             "card_type": card_type,
         }
         image_path = OUTPUT_DIR / f"bank_card_{index:04d}.png"
-        draw_card(fields, template, image_path)
+        draw_card(fields, template, image_path, rng)
         bank_labels.append(
             {
+                "sample_id": f"bank_card_{index:04d}",
                 "image_path": relative(image_path),
                 "doc_type": "bank_card",
                 "quality_type": "normal",
                 "is_synthetic": True,
+                "source": "generated_synthetic_bank_card",
                 "fields": fields,
             }
         )

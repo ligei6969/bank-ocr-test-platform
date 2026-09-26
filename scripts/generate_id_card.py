@@ -34,6 +34,14 @@ FRONT_CROP = (290, 500, 2195, 1696)
 BACK_CROP = (285, 1932, 2200, 3135)
 AVATAR_BOX = (1500, 690, 2000, 1360)
 WATERMARK = "\u4ec5\u4f9bOCR\u6d4b\u8bd5 \u975e\u771f\u5b9e\u8bc1\u4ef6"
+
+#: GPL \u6a21\u677f\u7684\u5361\u9762\u662f\u8fd1\u767d\u8272\uff08\u4e2d\u5fc3\u7ea6 RGB[252,245,253]\uff09\uff0c\u5e73\u53f0\u7684\u53cd\u5149\u68c0\u6d4b\u5668
+#: \u5224\u636e\u662f\u300cvalue>245 \u4e14 saturation<45 \u7684\u8fde\u901a\u57df > \u5168\u56fe 0.5%\u300d\uff0c\u4e8e\u662f**\u672a\u505a\u4efb\u4f55
+#: \u589e\u5f3a\u7684\u8eab\u4efd\u8bc1\u80cc\u9762\u672c\u8eab\u5c31\u5224 glare**\uff08\u5b9e\u6d4b 49.6% \u7684\u50cf\u7d20\u6ee1\u8db3\u8be5\u6761\u4ef6\uff0c\u6700\u5927\u8fde\u901a\u57df
+#: \u5360 15%\uff09\u3002\u8fd9\u4f1a\u8ba9 normal \u7c7b\u6c38\u8fdc\u65e0\u6cd5\u901a\u8fc7\uff0cglare \u7c7b\u4e5f\u5931\u53bb\u5bf9\u7167\u3002
+#: \u56e0\u6b64\u751f\u6210\u5e95\u56fe\u65f6\u628a\u5361\u9762\u538b\u5230\u504f\u7070\uff0c\u7559\u51fa\u6b63\u5e38\u7684\u4eae\u5ea6\u7a7a\u95f4\uff1b
+#: \u4ecd\u8fdc\u9ad8\u4e8e\u9608\u503c 245\uff0c\u4e0d\u4f1a\u8bef\u89e6\u53d1\u53cd\u5149\u3002
+PAPER_TARGET_MEAN = 180.0
 QUALITY_JPEG = 95
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
@@ -163,9 +171,17 @@ def load_avatar(rng: random.Random, sources: list[Path]) -> tuple[Image.Image, s
     source = rng.choice(sources)
     try:
         with Image.open(source) as image:
-            return crop_to_cover(image, size), relative(source)
-    except Exception:
+            avatar = crop_to_cover(image, size)
+    except (OSError, ValueError):
+        # 只有「这张源图读不出来」才退回占位头像 —— 之前的裸 except 把
+        # 后面压暗步骤的 bug 也一起吞了，导致问题被静默掩盖。收窄到这里。
         return placeholder_avatar(size), None
+
+    # 头像区域占全图约 15%，只要头像背景有一片白（实测 26/95 张如此，
+    # 最亮的一片占头像 31%），换算到全图就超过 glare 的 0.5% 判据，
+    # 于是「正常」身份证会被判成反光。压暗头像的亮部把这条路堵死。
+    darken_paper(avatar)
+    return avatar, relative(source)
 
 
 def draw_watermark(image: Image.Image) -> None:
@@ -187,8 +203,39 @@ def draw_wrapped_address(draw: ImageDraw.ImageDraw, address: str) -> None:
     draw.text((630, y), address[start:], fill=(0, 0, 0), font=FONTS["field"])
 
 
+def darken_paper(image: Image.Image) -> None:
+    """把卡面近白底色压到偏灰，同时**保留黑色文字**。
+
+    不能整体乘系数：那会把文字一起压暗、失去对比。做法是用查表只处理亮部。
+
+    关键是**硬压**而不是等比缩放：等比缩放会把亮度分布整体平移，
+    原本 250 的像素压完仍有 182，落点仍靠近 glare 判据的 245 边界，
+    一小片白衣服就足以越界。这里把亮部直接映射到目标灰度附近并封顶，
+    让「纸」和「白」都被拉到同一个安全区间，不留明亮的尾巴。
+    """
+    knee = 150.0  # 低于此值视为文字/轮廓，保持原样
+    ceiling = PAPER_TARGET_MEAN
+
+    def table(value: int) -> int:
+        if value <= knee:
+            return value
+        # knee..255 线性映射到 knee..ceiling
+        ratio = (value - knee) / (255.0 - knee)
+        return max(0, min(255, int(knee + ratio * (ceiling - knee))))
+
+    lut = [table(v) for v in range(256)]
+    bands = image.split()
+    if len(bands) == 4:
+        r, g, b, a = bands
+        image.paste(Image.merge("RGBA", (r.point(lut), g.point(lut), b.point(lut), a)))
+    else:
+        r, g, b = bands[:3]
+        image.paste(Image.merge("RGB", (r.point(lut), g.point(lut), b.point(lut))))
+
+
 def render_full(front_fields: dict[str, str], back_fields: dict[str, str], avatar: Image.Image) -> Image.Image:
     image = Image.open(GPL_TEMPLATE_PATH).convert("RGBA")
+    darken_paper(image)
     draw = ImageDraw.Draw(image)
     birth = date.fromisoformat(front_fields["birth"])
 
