@@ -2949,3 +2949,94 @@ label[for]:focus-within {
     padding-left: 30px;
   }
 }
+
+/* ── Agent 轨迹面板（P3）────────────────────────────────────────────────────── */
+
+.agent-trace-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: agent-step;
+}
+
+.agent-trace-item {
+  padding: 12px 14px;
+  background: #fbfcfe;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+
+/* 状态用左边框颜色区分 —— 与 .ai-reason-item 的 data-root-cause 同一手法。
+   被拒与失败的步骤必须一眼可辨：那才是「Agent 有没有按预期行事」的看点。 */
+.agent-trace-item[data-state="ok"] {
+  border-left-color: var(--blue);
+}
+
+.agent-trace-item[data-state="finished"] {
+  border-left-color: #2f7d4f;
+}
+
+.agent-trace-item[data-state="rejected"] {
+  border-left-color: var(--warning-line);
+}
+
+.agent-trace-item[data-state="errored"],
+.agent-trace-item[data-state="failed"] {
+  border-left-color: var(--error);
+}
+
+.agent-trace-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.agent-trace-index {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-trace-title {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.agent-trace-thought {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.agent-trace-observation {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  color: var(--muted);
+  background: var(--blue-pale);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.agent-trace-error {
+  margin: 6px 0 0;
+  color: var(--error);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.agent-trace-meta {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

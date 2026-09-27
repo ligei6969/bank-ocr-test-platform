@@ -29,6 +29,7 @@ AI 服务挂了、超时了、返回垃圾了，审核记录页都必须照常�
 AI_ASSIST_ENABLED        总开关；false 时完全不发请求                true
 AI_SERVICE_URL           AI 服务地址                                 http://127.0.0.1:8100
 AI_ASSIST_TIMEOUT_S      单次调用超时（秒）                          3.0
+AI_ASSIST_AGENT_TIMEOUT_S  Agent 路径超时（多步决策，慢得多）         15.0
 AI_ASSIST_FAILURE_THRESHOLD  连续失败几次后熔断                        3
 AI_ASSIST_RECOVERY_S     熔断后多少秒进入半开探测                     60
 =======================  ==========================================  =============
@@ -52,6 +53,11 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SERVICE_URL = "http://127.0.0.1:8100"
 DEFAULT_TIMEOUT_S = 3.0
+
+#: Agent 路径专用超时。它是多步决策（实测 4.5s / 4 步，每步一次模型调用），
+#: 用为**单次调用**定的 3s 必然超时 —— 实测在浏览器里直接降级成兜底文案。
+#: 单独给一个值而不是抬高全局默认：P0 那条链路本来就快，跟着变慢是纯损失。
+DEFAULT_AGENT_TIMEOUT_S = 15.0
 DEFAULT_FAILURE_THRESHOLD = 3
 DEFAULT_RECOVERY_S = 60.0
 MAX_RESPONSE_BYTES = 1_000_000
@@ -114,6 +120,7 @@ class AIAssistClient:
     base_url: str = DEFAULT_SERVICE_URL
     enabled: bool = True
     timeout_s: float = DEFAULT_TIMEOUT_S
+    agent_timeout_s: float = DEFAULT_AGENT_TIMEOUT_S
     failure_threshold: int = DEFAULT_FAILURE_THRESHOLD
     recovery_s: float = DEFAULT_RECOVERY_S
     _breaker: _CircuitBreaker = field(init=False, repr=False)
@@ -179,6 +186,28 @@ class AIAssistClient:
 
         body = self._sanitize_payload(payload)
         response, reason = self._request("POST", "/explain", body)
+        if response is None:
+            return self._degraded(request_id, reason)
+
+        return self._normalize(response, request_id)
+
+    def agent_explain(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """请求 Agent 路径的解释（多步工具决策），带完整 trace 与预算用量。
+
+        与 :meth:`explain` 的区别只在被测的那条链路：``explain`` 走固定流水线，
+        这个走 Agent 循环。所以额外带回 ``trace`` / ``budget`` / ``budget_used`` /
+        ``stop_reason`` / ``escalation`` 等 —— 管理端的 trace 面板靠这些渲染。
+
+        与 :meth:`explain` 共用超时、熔断与脱敏，**同样永不抛异常**。
+        """
+        request_id = str(payload.get("request_id", ""))
+        if not self.enabled:
+            return self._degraded(request_id, "disabled")
+
+        body = self._sanitize_payload(payload)
+        response, reason = self._request(
+            "POST", "/agent/explain", body, timeout_s=self.agent_timeout_s
+        )
         if response is None:
             return self._degraded(request_id, reason)
 
@@ -261,8 +290,15 @@ class AIAssistClient:
         method: str,
         path: str,
         body: Optional[dict[str, Any]],
+        timeout_s: Optional[float] = None,
     ) -> tuple[Optional[dict[str, Any]], str]:
-        """发一次 HTTP 请求。返回 ``(响应体, 失败原因)``，失败时响应体为 None。"""
+        """发一次 HTTP 请求。返回 ``(响应体, 失败原因)``，失败时响应体为 None。
+
+        ``timeout_s`` 可按调用覆盖：Agent 路径要走 4~5 次模型调用，实测约 4.5s，
+        用为单次调用定的 3s 默认值必然超时。**只覆盖这一条路径**，
+        不动全局默认 —— 那会让 P0 那条本来就快的链路跟着变慢。
+        """
+        effective_timeout = self.timeout_s if timeout_s is None else timeout_s
         if not self._acquire_permission():
             return None, "circuit_open"
 
@@ -281,10 +317,10 @@ class AIAssistClient:
             self._call_count += 1
 
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout_s) as response:
+            with urllib.request.urlopen(request, timeout=effective_timeout) as response:
                 raw = response.read(MAX_RESPONSE_BYTES)
         except TimeoutError:
-            return None, self._record_failure("timeout", f"timeout after {self.timeout_s}s")
+            return None, self._record_failure("timeout", f"timeout after {effective_timeout}s")
         except urllib.error.HTTPError as exc:
             detail = ""
             try:
@@ -400,6 +436,7 @@ def build_ai_client() -> AIAssistClient:
         base_url=os.getenv("AI_SERVICE_URL", DEFAULT_SERVICE_URL).strip() or DEFAULT_SERVICE_URL,
         enabled=_env_bool("AI_ASSIST_ENABLED", True),
         timeout_s=_env_float("AI_ASSIST_TIMEOUT_S", DEFAULT_TIMEOUT_S),
+        agent_timeout_s=_env_float("AI_ASSIST_AGENT_TIMEOUT_S", DEFAULT_AGENT_TIMEOUT_S),
         failure_threshold=max(1, _env_int("AI_ASSIST_FAILURE_THRESHOLD", DEFAULT_FAILURE_THRESHOLD)),
         recovery_s=_env_float("AI_ASSIST_RECOVERY_S", DEFAULT_RECOVERY_S),
     )

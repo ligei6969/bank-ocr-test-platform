@@ -178,3 +178,58 @@ def test_admin_detail_script_handles_not_found_reasons_and_fields_json(
     assert 'item.textContent = "无"' in script
     assert "JSON.parse(value)" in script
     assert "Object.entries(fields)" in script
+
+
+def test_admin_detail_page_renders_the_agent_trace_panel(
+    authenticated_admin_client: TestClient,
+) -> None:
+    """P3 的 Agent 轨迹面板要有按钮、状态位与三个渲染容器。
+
+    与上面的 P0 解释面板并列，但**不是同一个东西** —— P0 走固定流水线，
+    这个走 Agent 循环，返回结构不同（多 trace/budget/stop_reason）。
+    """
+    response = authenticated_admin_client.get("/admin/reviews/abc123")
+
+    assert 'id="agentTraceButton"' in response.text
+    assert 'id="agentTraceStatus"' in response.text
+    assert 'id="agentTraceList"' in response.text
+    assert 'id="agentBudgetMeta"' in response.text
+
+
+def test_admin_detail_script_calls_the_agent_endpoint_with_csrf(
+    isolated_auth_client: TestClient,
+) -> None:
+    """必须打到 /ai/agent/explain，且走 CSRF 路径（它是 POST）。"""
+    script = isolated_auth_client.get("/static/portal/admin_review_detail.js").text
+
+    assert "/ai/agent/explain/${encodeURIComponent(currentRequestId)}" in script
+    assert script.count("fetchWithCsrf") >= 2
+
+
+def test_agent_trace_renders_rejected_steps_distinctly(
+    isolated_auth_client: TestClient,
+) -> None:
+    """被拒步骤要有独立状态 —— 那是「Agent 有没有按预期行事」的看点。
+
+    被拒（executed=false）与执行失败（ok=false）语义不同：前者是安全边界
+    起了作用，后者是工具本身出错。混在一起会看不出区别。
+    """
+    script = isolated_auth_client.get("/static/portal/admin_review_detail.js").text
+
+    assert 'entry.executed === false' in script
+    assert "not_whitelisted" in script
+    assert "invalid_params" in script
+
+
+def test_agent_trace_does_not_reuse_the_p0_meta_renderer(
+    isolated_auth_client: TestClient,
+) -> None:
+    """Agent 面板不能复用 P0 的 renderAiMeta。
+
+    P0 的 meta 读 engine.generation / rewrite / rerank / confidence，
+    这些在 Agent 响应里都不存在 —— 硬套会静默显示成「模板生成」「无」。
+    """
+    script = isolated_auth_client.get("/static/portal/admin_review_detail.js").text
+
+    assert "function renderAgentMeta(" in script
+    assert "function renderAgentBudget(" in script

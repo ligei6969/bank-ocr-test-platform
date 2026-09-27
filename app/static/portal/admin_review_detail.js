@@ -37,6 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const aiActionList = document.querySelector("#aiActionList");
   const aiCitationList = document.querySelector("#aiCitationList");
   const aiMeta = document.querySelector("#aiMeta");
+  const agentStatus = document.querySelector("#agentTraceStatus");
+  const agentButton = document.querySelector("#agentTraceButton");
+  const agentMessage = document.querySelector("#agentTraceMessage");
+  const agentResult = document.querySelector("#agentTraceResult");
+  const agentMeta = document.querySelector("#agentTraceMeta");
+  const agentTraceList = document.querySelector("#agentTraceList");
+  const agentBudgetBlock = document.querySelector("#agentBudgetBlock");
+  const agentBudgetMeta = document.querySelector("#agentBudgetMeta");
   let currentRequestId = null;
 
   function textValue(value, fallback = "无") {
@@ -479,7 +487,278 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ── Agent 轨迹面板 ──────────────────────────────────────────────────────────
+  //
+  // 与上面的 P0 面板渲染的是**两套不同的返回结构**，所以不复用 renderAiMeta：
+  // P0 的 engine 有 generation/rewrite/rerank 与 confidence，Agent 的 engine
+  // 只有 decision/llm/retrieval，数字在 budget / budget_used / token_usage 里。
+  // 硬套会静默显示成「模板生成」「无」这类错标签。
+
+  const AGENT_STOP_LABELS = {
+    finished: "正常收敛",
+    escalated: "转人工",
+    max_steps: "步数用尽",
+    max_tokens: "token 用尽",
+    max_tool_calls: "工具调用次数用尽",
+    too_many_rejections: "连续被拒",
+    repeat_call: "重复调用原地打转",
+  };
+
+  const AGENT_REJECT_LABELS = {
+    not_whitelisted: "不在白名单",
+    invalid_params: "参数不合法",
+    repeat_call: "重复调用",
+  };
+
+  function setAgentState(state) {
+    agentStatus.dataset.state = state;
+    agentStatus.textContent = AI_STATE_LABELS[state] || AI_STATE_LABELS.idle;
+  }
+
+  function setAgentMessage(message, tone) {
+    agentMessage.textContent = message || "";
+    if (tone) {
+      agentMessage.dataset.tone = tone;
+    } else {
+      delete agentMessage.dataset.tone;
+    }
+  }
+
+  function renderAgentMeta(result) {
+    agentMeta.replaceChildren();
+    const engine = result.engine && typeof result.engine === "object" ? result.engine : {};
+    const decision = engine.decision === "llm" ? "模型决策" : "确定性回退";
+
+    appendDefinitionRow(agentMeta, "决策引擎", decision);
+    appendDefinitionRow(
+      agentMeta,
+      "停止原因",
+      AGENT_STOP_LABELS[result.stop_reason] || textValue(result.stop_reason),
+    );
+    appendDefinitionRow(agentMeta, "是否截断", result.truncated === true ? "是（预算用尽）" : "否");
+    appendDefinitionRow(agentMeta, "耗时", `${Number(result.latency_ms || 0).toFixed(1)} ms`);
+
+    const escalation = result.escalation;
+    if (escalation && typeof escalation === "object" && escalation.escalated === true) {
+      appendDefinitionRow(
+        agentMeta,
+        "转人工理由",
+        textValue(escalation.reason, "未给出理由"),
+      );
+    }
+  }
+
+  function renderAgentBudget(result) {
+    const budget = result.budget && typeof result.budget === "object" ? result.budget : null;
+    const used = result.budget_used && typeof result.budget_used === "object" ? result.budget_used : null;
+    const tokens = result.token_usage && typeof result.token_usage === "object" ? result.token_usage : {};
+
+    if (!budget && !used) {
+      agentBudgetBlock.hidden = true;
+      return;
+    }
+
+    agentBudgetMeta.replaceChildren();
+    if (budget && used) {
+      appendDefinitionRow(agentBudgetMeta, "步数", `${used.steps ?? 0} / ${budget.max_steps ?? "-"}`);
+      appendDefinitionRow(
+        agentBudgetMeta,
+        "工具调用",
+        `${used.tool_calls ?? 0} / ${budget.max_tool_calls ?? "-"}`,
+      );
+      appendDefinitionRow(agentBudgetMeta, "token", `${used.tokens ?? 0} / ${budget.max_tokens ?? "-"}`);
+      appendDefinitionRow(agentBudgetMeta, "被拒次数", textValue(used.rejections, "0"));
+    }
+    // 用量来源要如实标注：estimate 不是账单依据
+    const sourceLabels = {
+      none: "未调用模型",
+      provider: "provider 回传（可作计费依据）",
+      estimate: "本地估算（非账单依据）",
+      mixed: "混合（部分估算）",
+    };
+    appendDefinitionRow(
+      agentBudgetMeta,
+      "用量来源",
+      sourceLabels[tokens.source] || textValue(tokens.source),
+    );
+    if (Number(tokens.llm_calls || 0) > 0) {
+      appendDefinitionRow(agentBudgetMeta, "模型调用次数", textValue(tokens.llm_calls));
+    }
+    agentBudgetBlock.hidden = false;
+  }
+
+  function renderAgentStep(entry, index) {
+    const item = document.createElement("li");
+    item.className = "agent-trace-item";
+
+    // 三类形态：工具步骤（有 tool）、finish（kind=finish）、决策失败（step 是字符串）
+    const isFailure = entry.step === "decision_failed";
+    const isFinish = entry.kind === "finish";
+    const hasTool = typeof entry.tool === "string" && entry.tool !== "";
+    const rejected = hasTool && entry.executed === false;
+
+    item.dataset.state = isFailure
+      ? "failed"
+      : rejected
+        ? "rejected"
+        : isFinish
+          ? "finished"
+          : entry.ok === false
+            ? "errored"
+            : "ok";
+
+    const head = document.createElement("div");
+    head.className = "agent-trace-head";
+    const indexNode = document.createElement("span");
+    indexNode.className = "agent-trace-index";
+    indexNode.textContent = `#${index + 1}`;
+    const titleNode = document.createElement("span");
+    titleNode.className = "agent-trace-title";
+    if (isFailure) {
+      titleNode.textContent = "决策失败，退回确定性路径";
+    } else if (isFinish) {
+      titleNode.textContent = "收敛并给出答复";
+    } else if (hasTool) {
+      titleNode.textContent = entry.tool;
+    } else {
+      titleNode.textContent = textValue(entry.step, "未知步骤");
+    }
+    head.append(indexNode, titleNode);
+
+    if (rejected) {
+      const tag = document.createElement("span");
+      tag.className = "ai-reason-tag";
+      tag.textContent = AGENT_REJECT_LABELS[entry.rejected] || "被拒";
+      head.append(tag);
+    }
+    item.append(head);
+
+    if (entry.thought) {
+      const thought = document.createElement("p");
+      thought.className = "agent-trace-thought";
+      thought.textContent = String(entry.thought);
+      item.append(thought);
+    }
+    if (rejected && entry.error) {
+      const error = document.createElement("p");
+      error.className = "agent-trace-error";
+      error.textContent = String(entry.error);
+      item.append(error);
+    }
+    if (entry.observation) {
+      const observation = document.createElement("p");
+      observation.className = "agent-trace-observation";
+      observation.textContent = String(entry.observation);
+      item.append(observation);
+    }
+    if (hasTool && entry.executed === true && entry.latency_ms !== undefined) {
+      const meta = document.createElement("p");
+      meta.className = "agent-trace-meta";
+      const parts = [`${Number(entry.latency_ms || 0).toFixed(1)} ms`];
+      if (entry.cached === true) {
+        parts.push("命中缓存");
+      }
+      meta.textContent = parts.join(" · ");
+      item.append(meta);
+    }
+    return item;
+  }
+
+  function renderAgentTrace(result) {
+    renderAgentMeta(result);
+    renderAgentBudget(result);
+    agentTraceList.replaceChildren();
+    const trace = Array.isArray(result.trace) ? result.trace : [];
+    if (trace.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "ai-empty";
+      empty.textContent = "本次没有产生可展示的决策步骤。";
+      agentTraceList.append(empty);
+    } else {
+      trace.forEach((entry, index) => agentTraceList.append(renderAgentStep(entry, index)));
+    }
+    agentResult.hidden = false;
+  }
+
+  async function requestAgentTrace() {
+    if (!currentRequestId) {
+      setAgentState("error");
+      setAgentMessage("审核记录尚未加载完成，请稍后再试。", "warning");
+      return;
+    }
+    if (!window.portalSecurity || typeof window.portalSecurity.fetchWithCsrf !== "function") {
+      setAgentState("error");
+      setAgentMessage("页面安全组件未就绪，请刷新页面后重试。", "warning");
+      return;
+    }
+
+    setAgentState("loading");
+    setAgentMessage("Agent 正在多步决策，比固定流水线慢，请稍候。", null);
+    agentResult.hidden = true;
+    agentButton.disabled = true;
+
+    try {
+      const response = await window.portalSecurity.fetchWithCsrf(
+        `/ai/agent/explain/${encodeURIComponent(currentRequestId)}`,
+        { method: "POST" },
+      );
+
+      if (response.status === 401) {
+        setAgentState("error");
+        setAgentMessage("登录状态已失效，请重新登录。", "warning");
+        return;
+      }
+      if (response.status === 403) {
+        setAgentState("error");
+        setAgentMessage("当前账号没有调用 Agent 的权限。", "warning");
+        return;
+      }
+      if (response.status === 404) {
+        setAgentState("error");
+        setAgentMessage("未找到该审核记录。", "warning");
+        return;
+      }
+      if (!response.ok) {
+        throw new Error("agent trace request failed");
+      }
+
+      const result = await response.json();
+      if (!result || typeof result !== "object" || Array.isArray(result)) {
+        throw new Error("agent trace response is invalid");
+      }
+      if (result.available !== true) {
+        setAgentState("degraded");
+        setAgentMessage(textValue(result.message, "AI 服务暂不可用。"), "warning");
+        agentResult.hidden = true;
+        return;
+      }
+
+      setAgentState("ready");
+      const stop = result.stop_reason;
+      if (result.truncated === true) {
+        setAgentMessage(
+          `预算用尽（${AGENT_STOP_LABELS[stop] || stop}），轨迹可能不完整 —— 这不代表链路故障。`,
+          "warning",
+        );
+      } else if (stop === "escalated") {
+        setAgentMessage("Agent 判定证据不足，已转人工。", "note");
+      } else if (result.degraded === true) {
+        setAgentMessage("未配置大模型，走的是确定性工具序列。", "note");
+      } else {
+        setAgentMessage("轨迹已生成，可对照工具序列与预算用量核对。", null);
+      }
+      renderAgentTrace(result);
+    } catch {
+      setAgentState("error");
+      setAgentMessage("Agent 请求失败，请稍后重试。", "warning");
+    } finally {
+      agentButton.disabled = false;
+    }
+  }
+
   setAiState("idle");
+  setAgentState("idle");
   aiExplainButton.addEventListener("click", requestAiExplanation);
+  agentButton.addEventListener("click", requestAgentTrace);
   loadRecord();
 });

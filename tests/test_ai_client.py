@@ -398,3 +398,73 @@ def test_invalid_numeric_environment_values_fall_back_to_defaults(
 
     assert client.timeout_s == pytest.approx(3.0)
     assert client.failure_threshold == 3
+
+
+# ── Agent 路径 ────────────────────────────────────────────────────────────────
+
+def test_agent_explain_posts_to_the_agent_endpoint(monkeypatch) -> None:
+    """Agent 路径必须打到 /agent/explain，而不是 P0 的 /explain。
+
+    两条链路的返回结构不同（agent 多出 trace/budget/stop_reason），
+    打错端点会让 trace 面板拿到一份 P0 的扁平流水线日志，
+    字段全对不上还不报错。
+    """
+    calls = install_fake_urlopen(
+        monkeypatch,
+        always({"available": True, "trace": [{"step": 1, "tool": "get_review_record"}]}),
+    )
+
+    client = AIAssistClient()
+    result = client.agent_explain({"request_id": "r-1", "doc_type": "bank_card"})
+
+    assert calls[0]["url"].endswith("/agent/explain")
+    assert result["available"] is True
+    assert result["trace"][0]["tool"] == "get_review_record"
+
+
+def test_agent_explain_never_raises_when_the_service_is_down(monkeypatch) -> None:
+    install_fake_urlopen(monkeypatch, raise_error(urllib.error.URLError("refused")))
+
+    client = AIAssistClient()
+    result = client.agent_explain({"request_id": "r-1"})
+
+    assert result["available"] is False
+    assert result["degraded"] is True
+    assert result["trace"] == []
+
+
+def test_agent_route_returns_404_for_unknown_record(monkeypatch) -> None:
+    from fastapi import HTTPException
+
+    from app import ai_routes
+
+    monkeypatch.setattr(ai_routes, "get_review_record", lambda request_id: None)
+
+    with pytest.raises(HTTPException) as excinfo:
+        ai_routes.agent_explain_review_record(
+            request=None, request_id="nope", _admin={}, _csrf_valid=None
+        )
+
+    assert excinfo.value.status_code == 404
+
+
+def test_agent_path_uses_its_own_longer_timeout(monkeypatch) -> None:
+    """Agent 是多步决策（实测 4.5s / 4 步），必须用比 P0 更长的超时。
+
+    回归：原先复用为单次调用定的 3s，真实模型下必然超时 ——
+    浏览器里点「跑一次 Agent 决策」直接降级成兜底文案，面板永远出不来轨迹。
+    """
+    calls = install_fake_urlopen(monkeypatch, always({"available": True}))
+
+    client = AIAssistClient(timeout_s=3.0, agent_timeout_s=15.0)
+    client.agent_explain({"request_id": "r-1"})
+    client.explain({"request_id": "r-2"})
+
+    assert calls[0]["timeout"] == 15.0   # agent
+    assert calls[1]["timeout"] == 3.0    # P0 不受影响
+
+
+def test_agent_timeout_is_configurable_via_env(monkeypatch) -> None:
+    monkeypatch.setenv("AI_ASSIST_AGENT_TIMEOUT_S", "42")
+
+    assert build_ai_client().agent_timeout_s == 42.0

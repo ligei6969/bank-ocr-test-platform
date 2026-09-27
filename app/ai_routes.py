@@ -91,3 +91,46 @@ def explain_review_record(
         result.get("reason"),
     )
     return result
+
+
+@router.post("/agent/explain/{request_id}")
+def agent_explain_review_record(
+    request: Request,
+    request_id: str,
+    _admin: dict = Depends(require_admin_api_user),
+    _csrf_valid: None = Depends(validate_csrf_request),
+) -> dict:
+    """Agent 路径的解释：多步工具决策，额外带回 trace 与预算用量。
+
+    与 ``/ai/explain/{id}`` 并存而不是替换 —— 固定流水线更快更省，简单记录
+    用它就够；想看「Agent 是怎么一步步得出结论的」才走这条。
+
+    返回结构与 P0 那条**不同**（多出 ``trace`` / ``budget`` / ``budget_used`` /
+    ``stop_reason`` / ``escalation`` / ``quality_audit``），前端不能复用同一套
+    渲染。降级契约一致：AI 不可用返回 200 + ``available=false``。
+    """
+    record = get_review_record(request_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Review record not found.")
+
+    payload = {
+        "request_id": record.get("request_id", request_id),
+        "doc_type": record.get("doc_type") or "bank_card",
+        "review_result": record.get("review_result") or "",
+        "quality_result": record.get("quality_result"),
+        "quality_reasons": record.get("quality_reasons") or [],
+        "review_reasons": record.get("review_reasons") or [],
+        "fields": record.get("fields_json") or {},
+        "error_message": record.get("error_message"),
+        "ocr_mode": record.get("ocr_mode"),
+    }
+
+    result = _client().agent_explain(payload)
+    logger.info(
+        "ai agent explain request_id=%s available=%s degraded=%s stop_reason=%s",
+        request_id,
+        result.get("available"),
+        result.get("degraded"),
+        result.get("stop_reason"),
+    )
+    return result

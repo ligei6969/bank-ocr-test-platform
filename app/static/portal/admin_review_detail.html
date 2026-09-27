@@ -127,6 +127,42 @@
               <dl class="ai-meta" id="aiMeta"></dl>
             </div>
           </section>
+
+          <section
+            class="content-card detail-card detail-card-wide ai-assistant-card"
+            aria-labelledby="agentTraceHeading"
+          >
+            <div class="ai-assistant-head">
+              <h2 id="agentTraceHeading">Agent 轨迹</h2>
+              <div class="ai-assistant-actions">
+                <span class="status-badge neutral" id="agentTraceStatus" data-state="idle">未请求</span>
+                <button class="outline-button" id="agentTraceButton" type="button">
+                  跑一次 Agent 决策
+                </button>
+              </div>
+            </div>
+            <p class="ai-assistant-note">
+              与上面的固定流水线不同：这条路会让 Agent 自己决定查什么、走几步，
+              并受步数 / token / 工具调用三重预算约束。用于验证「它是否按预期行事」，
+              比固定流水线更慢也更贵。
+            </p>
+            <p class="ai-assistant-message" id="agentTraceMessage" role="status" aria-live="polite"></p>
+
+            <div class="ai-assistant-result" id="agentTraceResult" hidden>
+              <section class="ai-block">
+                <h3>本次决策摘要</h3>
+                <dl class="ai-meta" id="agentTraceMeta"></dl>
+              </section>
+              <section class="ai-block">
+                <h3>工具调用轨迹</h3>
+                <ol class="agent-trace-list" id="agentTraceList"></ol>
+              </section>
+              <section class="ai-block" id="agentBudgetBlock" hidden>
+                <h3>预算用量</h3>
+                <dl class="ai-meta" id="agentBudgetMeta"></dl>
+              </section>
+            </div>
+          </section>
         </div>
       </main>
     </div>
