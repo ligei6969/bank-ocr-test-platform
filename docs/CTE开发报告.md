@@ -1,9 +1,9 @@
-# CTE 开发报告（CTE-0 骨架 + CTE-1 首个闭环 + CTE-2 OCR 快照）
+# CTE 开发报告（CTE-0 骨架 · CTE-1 首个闭环 · CTE-2 OCR 快照 · CTE-3 缺陷修复）
 
-> 阶段：P5 Continuous Test Evolution（CTE-0 骨架 + CTE-1 首个闭环 + CTE-2 OCR 快照）
+> 阶段：P5 Continuous Test Evolution（CTE-0 · CTE-1 · CTE-2 · CTE-3）
 > 日期：2026-09-27
 > 前置文档：[`p5计划.md`](p5计划.md)（初版方案）、[`p5修订md`](p5修订md)（吸收审计后的修订版）
-> 测试基线：**1052 → 1164 passed / 0 failed**（新增 112 项，零回归）
+> 测试基线：**1052 → 1185 passed / 0 failed**（新增 133 项，零回归）
 
 ---
 
@@ -48,19 +48,20 @@ test_evolution/
 scripts/run_cte.py                               CTE 闭环 CLI 入口
 scripts/record_ocr_snapshot.py                   OCR 快照录制/校验（不进 CI）
 ai_service/tests/test_cte_regressions.py         晋级出的回归资产（14 项）
+tests/test_id_card_parser_real_ocr.py            用真实 OCR 形状的解析测试（CTE-3）
 data/annotations/ocr_outputs.json                真实 PaddleOCR 快照（50 条观测）
-docs/baseline_migrations/001_real_ocr_fields.md  基线口径变更记录
+docs/baseline_migrations/001_real_ocr_fields.md  基线口径变更：字段改为真实 OCR 观测
+docs/baseline_migrations/002_severity_outranks_missing.md  基线口径变更：严重度优先
 ```
 
 ### 生成的过程证据（已入库，是审计轨迹）
 
 ```
-test_evolution/events/EVT-001.json           事件（征信漏拒）
-test_evolution/events/EVT-002.json           事件（身份证跨行解析）
-test_evolution/predictions/PRED-EVT-00*.json 盲预测（执行前落盘）
-test_evolution/retros/EVT-00*.md             复盘
-test_evolution/candidates/CTE-00*.json       候选
-test_evolution/validated/CTE-001.md          晋级后的知识
+test_evolution/events/EVT-001..004.json          四个事件
+test_evolution/predictions/PRED-EVT-00*.json     盲预测（执行前落盘）
+test_evolution/retros/EVT-00*.md                 复盘
+test_evolution/candidates/CTE-00*.json           候选
+test_evolution/validated/CTE-001.md              晋级后的知识
 ```
 
 ---
@@ -233,6 +234,93 @@ mock 的拼接行为上**。
 
 ---
 
+## 四之三、CTE-3：把暴露出来的缺陷修掉
+
+CTE-2 交付了「能看见真实行为」的能力，CTE-3 用它把看见的问题变成事件、
+按边界修复、再验证。**四个事件，两个真实修复。**
+
+| 事件 | surface | 结论 | 候选 | 状态 |
+| --- | --- | --- | --- | --- |
+| `EVT-001` | threat | 征信改写绕过关键词表 | `CTE-001` NEW_TEST | 已验证、已晋级 |
+| `EVT-002` | ocr | 身份证解析要求标签与值同行 | `CTE-002` NEW_TEST | 已修复、已验证 |
+| `EVT-003` | ocr | 分不清「OCR 没认出来」与「解析器没取到」 | `CTE-003` DOCUMENTATION | 只产出方法 |
+| `EVT-004` | adjudication | 严重退化被字段缺失降级 | `CTE-004` NEW_TEST | 已修复、已验证 |
+
+### 修复一：解析器跨行取值（EVT-002）
+
+| 字段 | 修复前 | 修复后 |
+| --- | --- | --- |
+| `name` | 0/10 | **9/10** |
+| `address` | 0/10 | **9/10** |
+| `id_number` | 0/10 | 2/10 |
+| `gender` / `nation` / `birth` | 8/10 / 7/10 / 7/10 | 持平或略升 |
+
+四处一并修：跨行取值、地址多行拼接（跳过底纹噪声行）、
+`id_number` 正则不再拒绝前导零、`valid_period` 支持跨行。
+
+> **`id_number` 的 2/10 不是没修好 —— 上限就是 2。**
+> 另外 8 张的 OCR 文本里根本没有那串数字（文本止于「公民身份号码」，
+> 后面跟的是水印「非真实证件」）。这是 OCR 的局限。
+>
+> 把这两件事分开本身是一个发现：EVT-002 最初把 `0/10` 整个归因给解析器，
+> 那会让验收标准定错（以为要修到 10/10）。**先分清归因再动手**，
+> 这条写进了 `EVT-003`。
+
+### 修复二：判定顺序（EVT-004）
+
+`review_bank_card_with_reasons` 把字段缺失检查排在严重度之前：
+
+```python
+if missing_reasons:                      # ← 先返回
+    return "review", missing_reasons + quality_reasons
+...
+if severe_reasons:                       # ← 永远到不了
+    return "reject", ...
+```
+
+于是「严重模糊 + 字段读不出」返回 `review`，`severe_image_blur`
+**被整条丢弃**。但字段读不出**正是**严重模糊造成的 —— 症状覆盖了病因。
+
+严重度是**图像自身的性质**，与解析结果无关，所以先判且不受字段层影响。
+
+效果：`verdict_accuracy` **0.675 → 0.725**。
+
+对照证据：`review_id_card_with_reasons`（`app/main.py`）的写法是正确的
+（严重度先判并前置到原因码），**只有银行卡这条路径有 bug** ——
+两条路径行为不一致本身就是线索。
+
+### 那个把缺陷藏住的测试
+
+```python
+def test_missing_fields_still_outrank_severity() -> None:
+    """字段缺失应先给出具体缺失项，严重度判拒也要带上原因码。"""
+    assert result == "review"
+    assert "missing_card_number" in reasons
+```
+
+**docstring 说「严重度判拒也要带上原因码」，断言却在为一个丢弃严重度的
+实现背书。** 它只检查 `missing_card_number` 在不在，从没检查
+`severe_image_blur` 是否幸存 —— 所以缺陷一直是绿的。
+
+> 教训：**断言要检查 docstring 承诺的那件事。**
+> 这比没有测试更危险 —— 它给了「这块测过了」的错觉。
+
+### 快照 verify 流程经受住了考验
+
+用修复后的解析器重录时，`--verify` 报出 **22 处解析字段变化、
+0 处 OCR 文本变化** —— 精确地把「解析器改进了」与「OCR 行为漂移了」分开，
+并且**没有覆盖快照**，等人工确认后才 `--update`。
+
+### 仍未解决（诚实清单）
+
+- **反光严重度阈值仍停用**：剩下 7 条「该拒却转人工」全是反光样本
+  （比值 0.0232–0.0881）。本次记录了新证据，但启用需产品口径决策。
+- **`id_number` 上限 2/10**：要提升得从图像侧入手，不是解析器的事。
+- **4 条 `pass→review`**：平台偏保守，与人工结论（该放行）不一致。
+  这属于阈值标定，同样待决策。
+
+---
+
 ## 五、Surface Readiness（方案第九节的落地）
 
 | Surface | 就绪度 | 为什么 |
@@ -258,19 +346,29 @@ CTE-2 之后就过期了 —— 一份过期的常量比没有常量更糟
 
 | # | 遗留 | 说明 |
 | --- | --- | --- |
-| 1 | **EVT-002 暴露的解析缺陷没有修** | 身份证跨行取值。改 `app/id_card_parser.py` 是生产代码变更，按 CTE 边界须由人决定后另开 commit；CTE 只提交了提案 `CTE-002` |
-| 2 | **OCR 快照只有 50 条观测** | 覆盖 golden 用到的全部图（含降质样本，每桶 5 张），但降质样本的字段错误率还没有系统化基线 |
+| 1 | **反光严重度阈值仍然停用** | 剩下 7 条「该拒却转人工」全是反光样本（比值 0.0232–0.0881）。CTE-3 记录了新证据，但启用需产品口径决策 |
+| 2 | **`id_number` 在真实 OCR 下上限是 2/10** | 另外 8 张的文本里根本没这串数字 —— OCR 局限，要提升得从图像侧入手 |
+| 2b | **4 条 `pass→review`** | 平台偏保守，与人工结论（该放行）不一致，属阈值标定 |
+| 2c | **OCR 快照只有 50 条观测** | 覆盖 golden 用到的全部图（含降质样本，每桶 5 张），但降质样本的字段错误率还没有系统化基线 |
 | 3 | **快照只录了 golden 用到的图** | `--all` 能录全量 2100 张，但很慢，且那部分观测目前没有消费者 |
 | 4 | **历史重演只到规则层** | 不含当时的 prompt 与模型版本差异 |
 | 5 | **只实现了 2 类 Candidate 的自动验证** | `NEW_TEST` 与 `THREAT_CASE`；其余六类有 schema 与验证矩阵，但检查器要手工填 `checks` |
 | 6 | **`validated/` 还没被 RAG 消费** | 它是为将来准备的索引源，当前没有检索代码读它 |
 | 7 | **KPI 只留了三个** | Candidate Count / Validated Count / Executable Test Yield。1 个 Candidate 算出来的「接受率 100%」没有信息量 |
 
-### 下一步（CTE-3）
+### 下一步（CTE-4）
 
-把 CTE-2 暴露的三条缺陷（尤其身份证解析）转成事件走完闭环，
-并在修复后重录快照、再走一次 Baseline Migration。
-在此之前**不应继续调双判参数** —— 输入本身还有已知缺陷，调了也无法归因。
+CTE-3 修掉了两条明确的生产缺陷，也把剩余问题**精确地**收敛到了阈值标定上：
+
+- 反光严重度阈值（7 条）—— 需要产品口径决策，不是技术问题
+- 4 条过度保守的 `pass→review` —— 同上
+
+这两项都不该靠调参解决，应该先补的是一件别的事：
+**把「evidence 在不在 OCR 文本里」变成明确信号**（`EVT-003` 的方法），
+否则下一次归因仍会把 OCR 的局限算到解析器账上。
+
+双判改判正确性的标定仍建议**暂缓** —— 反光阈值未定，
+标定会把阈值问题混进双判指标。
 
 ---
 
@@ -278,10 +376,10 @@ CTE-2 之后就过期了 —— 一份过期的常量比没有常量更糟
 
 | 项 | 基线 | 当前 |
 | --- | --- | --- |
-| 全量测试 | 1052 passed | **1164 passed** |
-| CTE 自身测试 | — | 98 |
+| 全量测试 | 1052 passed | **1185 passed** |
+| CTE 自身测试 | — | 103 |
 | 晋级回归资产 | — | 14 |
-| `task.verdict_accuracy` | 0.775（标注真值口径） | **0.675**（真实 OCR 口径，见迁移记录） |
+| `task.verdict_accuracy` | 0.775（标注真值） | **0.725**（真实 OCR + CTE-3 修复） |
 | 破坏既有接口 | — | 无（`app/` 一行未动） |
 | CI 离线可跑 | 是 | 是（新增测试全部离线；真实 OCR 只在独立 job） |
 

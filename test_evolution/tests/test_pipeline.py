@@ -404,35 +404,58 @@ def test_loop_is_rerunnable(root):
     assert len(list((root / "predictions").glob("*.json"))) == 1
 
 
-def test_cte2_loop_stops_before_promotion_because_the_fix_is_not_made(root):
-    """EVT-002 的 ``passes_after_fix`` 必须是 ``skipped``，而不是 pass。
+def test_cte2_loop_refuses_to_promote_before_the_fix_lands(root):
+    """修复未落地时 ``passes_after_fix`` 必须是 ``skipped``，而不是 pass。
 
-    这是个具体的诚实性检查：EVT-002 暴露的解析缺陷**还没修**，
-    所以「修复后通过」这一步没有可测对象。如果它被标成 pass，
-    ``is_machine_validated`` 会变成真，这个提案就会显得「已验证」——
-    而实际上没人动过 parser。标 skipped 才能挡住晋级。
+    这是个具体的诚实性检查：CTE-2 提出 CTE-002 时解析缺陷**还没修**，
+    所以「修复后通过」这一步没有可测对象。把它标成 pass 会让
+    ``is_machine_validated`` 变真 —— 提案会显得「已验证」，而实际上
+    没人动过 parser。标 skipped 才能挡住晋级（**即便有人签名**）。
+
+    CTE-3 修复落地后，同一个候选在 ``fix_landed=True`` 下才应当通过 ——
+    见 :func:`test_cte3_lands_the_parser_fix_and_completes_cte_002`。
     """
     from test_evolution.pipeline import EVENT_LOG
 
-    spec = EVENT_LOG[1]
-    assert spec["event_id"] == "EVT-002"
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-002")
 
     outcome = run_event_loop(
         spec, root=root, candidate_id="CTE-002", candidate_type="NEW_TEST",
         candidate_title="身份证字段解析必须容忍标签与值分行",
         proposed_change="提案：改 parser 支持跨行取值",
-        full_regression={"outcome": "pass"}, approver="jb",
+        full_regression={"outcome": "pass"}, approver="jb", fix_landed=False,
     )
 
     checks = outcome["candidate"]["checks"]
-    assert checks["reproduces_before_fix"] == "pass", "缺陷当前仍在，应能复现"
+    assert checks["reproduces_before_fix"] == "pass", "缺陷应能复现"
     assert checks["passes_after_fix"] == "skipped", "没有修复版本可测，不能假称 pass"
     assert outcome["candidate"]["is_machine_validated"] is False
     assert outcome["promoted"] is None, "未验证的提案不得晋级，即便有人签名"
 
 
-def test_ocr_execution_reads_the_snapshot_not_a_fresh_ocr_run(root):
-    """OCR 面执行读快照 —— 重跑 PaddleOCR 只会引入「两次识别不同」的噪音。"""
+def test_cte3_lands_the_parser_fix_and_completes_cte_002(root):
+    """CTE-3 落地修复后，同一候选才拿到 ``passes_after_fix=pass``。
+
+    把两个阶段放在一起断言，是为了让「修复前 skipped / 修复后 pass」
+    这个状态迁移本身成为被测试的行为 —— 而不是靠人记得改测试。
+    """
+    from test_evolution.pipeline import EVENT_LOG
+
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-002")
+    outcome = run_event_loop(
+        spec, root=root, candidate_id="CTE-002", candidate_type="NEW_TEST",
+        candidate_title="t", proposed_change="p", full_regression={"outcome": "pass"},
+        fix_landed=True,
+    )
+
+    checks = outcome["candidate"]["checks"]
+    assert checks["reproduces_before_fix"] == "pass"
+    assert checks["passes_after_fix"] == "pass", "修复已落地，这一步现在有可测对象"
+    assert outcome["candidate"]["is_machine_validated"] is True
+
+
+def test_ocr_execution_uses_the_snapshot_texts_not_a_fresh_ocr_run(root):
+    """OCR 面执行读快照录到的文本 —— 重跑 PaddleOCR 只会引入「两次识别不同」的噪音。"""
     from test_evolution.pipeline import EVENT_LOG, execute, observe
 
     spec = EVENT_LOG[1]
@@ -440,7 +463,84 @@ def test_ocr_execution_reads_the_snapshot_not_a_fresh_ocr_run(root):
     execution = execute(event)
 
     assert execution.executor.startswith("ocr_snapshot@")
-    assert "populated_fields" in execution.detail
+    assert execution.detail["ocr_texts"], "必须用录到的真实文本行"
+
+
+def test_ocr_execution_reparses_with_the_current_parser(root):
+    """执行要用**当前**解析器，而不是快照里存的历史解析结果。
+
+    快照的 ``parsed_fields`` 是录制那一刻解析器的输出，会随解析器改进而
+    过时。拿它当「实际结果」的话，修好解析器之后事件仍会报旧结果 ——
+    EVT-003 最初就是这样，显示的还是修复前的「3 个字段解析成功」。
+
+    快照在 CTE-3 用修复后的解析器重录过，所以两者现在相等；
+    断言的是**重解析这条路被走了**（``reparsed=True``），
+    而不是「两者不等」——后者只是修复期的暂时现象。
+    """
+    from test_evolution.pipeline import EVENT_LOG, execute, observe
+
+    event = observe(EVENT_LOG[1], root=root)
+    execution = execute(event)
+
+    assert execution.detail["reparsed"] is True
+    assert execution.detail["recorded_parsed_fields"] is not None, "历史结果要留档"
+
+    # 关键：populated_fields 来自重解析的结果，不是快照里存的字段
+    reparsed_populated = sorted(
+        k for k, v in execution.detail["parsed_fields"].items() if v and not k.startswith("_")
+    )
+    assert execution.detail["populated_fields"] == reparsed_populated
+    assert len(reparsed_populated) == 5, "修复后应取到 5 个字段（id_number 是 OCR 没认出来）"
+
+
+def test_ocr_execution_can_replay_the_historical_result(root):
+    """``reparse=False`` 时回答「**当时**系统是什么表现」—— 重演历史要用这个。"""
+    from test_evolution.pipeline import EVENT_LOG, _execute_ocr, observe
+
+    event = observe(EVENT_LOG[1], root=root)
+    execution = _execute_ocr(event, reparse=False)
+
+    assert execution.detail["reparsed"] is False
+    assert "快照录制时" in execution.executor
+
+
+def test_adjudication_event_is_validated_by_the_rule_engine_not_by_parsing(root):
+    """``adjudication`` 面的验证要跑规则引擎，而不是查解析字段。
+
+    EVT-004 是判定**顺序**问题（严重度 vs 字段缺失），与字段解不解析得出来无关。
+    最初它被路由到 OCR 面的验证器，去找 ``name``/``address`` —— 全都对不上，
+    于是 reproduces/passes 双双 fail。路由必须按 surface 分。
+    """
+    from test_evolution.pipeline import EVENT_LOG
+
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-004")
+    assert spec["surface"] == "adjudication"
+
+    outcome = run_event_loop(
+        spec, root=root, candidate_id="CTE-004", candidate_type="NEW_TEST",
+        candidate_title="严重退化必须压过字段缺失", proposed_change="调顺序",
+        full_regression={"outcome": "pass"}, fix_landed=True,
+    )
+
+    checks = outcome["candidate"]["checks"]
+    assert checks["reproduces_before_fix"] == "pass", "旧代码在该输入下确实判 review"
+    assert checks["passes_after_fix"] == "pass", "当前规则引擎应判 reject"
+    assert outcome["candidate"]["is_machine_validated"] is True
+
+
+def test_adjudication_validation_reports_skipped_before_the_fix_lands(root):
+    """修复未落地时不能假称通过 —— 与 OCR 面同样的诚实要求。"""
+    from test_evolution.pipeline import EVENT_LOG
+
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-004")
+    outcome = run_event_loop(
+        spec, root=root, candidate_id="CTE-004", candidate_type="NEW_TEST",
+        candidate_title="t", proposed_change="p", full_regression={"outcome": "pass"},
+        fix_landed=False,
+    )
+
+    assert outcome["candidate"]["checks"]["passes_after_fix"] == "skipped"
+    assert outcome["candidate"]["is_machine_validated"] is False
 
 
 def test_loop_writes_nothing_outside_its_own_tree(root):

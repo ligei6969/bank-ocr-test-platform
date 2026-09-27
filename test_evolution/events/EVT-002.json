@@ -3,11 +3,11 @@
   "source": "ocr_error",
   "surface": "ocr",
   "title": "身份证字段解析要求标签与值同行，真实 OCR 下 100% 失败",
-  "observed_at": "2026-09-27T09:22:47+00:00",
+  "observed_at": "2026-09-27T09:45:22+00:00",
   "system_version": "HEAD",
   "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
   "current_result": "name=None address=None id_number=None（正面 10/10 全部解析不出）",
   "expected_result": "三字段应解析出（标注真值里都有）",
-  "notes": "CTE-2 录制真实 PaddleOCR 观测后立刻暴露。根因不在 OCR 也不在数据，而在 app/id_card_parser.py 的 _value_after_label：它要求「标签 值」同一行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框。mock OCR 把整段拼成一行，所以这个假设从未被检验 —— 此前所有身份证正面的字段结论都建立在 mock 的拼接行为上。此事件落在 ocr surface，**learning_blocked**：可以记录，但按 readiness 表它不产出学习结论，归因留给 CTE-3。",
+  "notes": "CTE-2 录制真实 PaddleOCR 观测后立刻暴露。根因不在 OCR 也不在数据，而在 app/id_card_parser.py 的 _value_after_label：它要求「标签 值」同一行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框。mock OCR 把整段拼成一行，所以这个假设从未被检验 —— 此前所有身份证正面的字段结论都建立在 mock 的拼接行为上。",
   "learning_blocked": false
 }

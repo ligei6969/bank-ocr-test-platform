@@ -6,13 +6,13 @@
     "EVT-002"
   ],
   "surface": "ocr",
-  "proposed_change": "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。新增测试用真实 OCR 的分行序列做输入（快照里就有），断言 name / address / id_number 能解析出来。\n**这是提案，不是已完成的修复** —— 改 parser 属于生产代码，按 CTE 边界必须由人决定后另开 commit，CTE 不自行 merge。",
-  "created_at": "2026-09-27T09:22:47+00:00",
-  "status": "candidate",
+  "proposed_change": "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。同类四处一并修：地址跨行收集、id_number 正则拒绝前导零、valid_period 只认同行。新增测试用真实 OCR 的分行序列做输入，断言解析器能取到 OCR 已经给出的字段。\n**CTE-3 已落地该修复**（人工决定后由开发提交），所以本次验证的 passes_after_fix 有可测对象。",
+  "created_at": "2026-09-27T09:45:22+00:00",
+  "status": "machine_validated",
   "checks": {
     "executable": "pass",
     "reproduces_before_fix": "pass",
-    "passes_after_fix": "skipped",
+    "passes_after_fix": "pass",
     "full_regression": "pass"
   },
   "validated_at": "",
@@ -25,7 +25,7 @@
     "passes_after_fix",
     "full_regression"
   ],
-  "is_machine_validated": false,
+  "is_machine_validated": true,
   "needs_human_review": true,
   "is_proposal_only": false,
   "is_elevated": false,

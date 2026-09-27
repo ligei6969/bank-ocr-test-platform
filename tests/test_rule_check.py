@@ -128,8 +128,21 @@ def test_reject_when_degradation_is_severe(severe_reason: str) -> None:
     assert severe_reason in reasons
 
 
-def test_missing_fields_still_outrank_severity() -> None:
-    """字段缺失应先给出具体缺失项，严重度判拒也要带上原因码。"""
+def test_severity_outranks_missing_fields_but_keeps_them_in_reasons() -> None:
+    """严重退化压过字段缺失，但缺失项仍要出现在原因码里。
+
+    **这条测试改过。** 原版叫 ``test_missing_fields_still_outrank_severity``，
+    断言 ``result == "review"`` —— 而它的 docstring 写的是
+    「严重度判拒也要带上原因码」。两者矛盾：实现里 ``missing_reasons``
+    在 ``severe_reasons`` 之前返回，于是 ``severe_image_blur``
+    **被整条丢掉**，返回的是 ``review``。测试只检查了
+    ``missing_card_number`` 在不在，没检查严重度是否幸存，
+    所以这个缺陷一直是绿的。
+
+    CTE-3 用真实数据发现了它：9 条人工结论为 ``reject`` 的样本被平台判成
+    ``review``，其中 3 条正是「variance ≈ 1.1（远低于 severe 阈值 30）+
+    字段缺失」—— 字段读不出**正是**严重模糊造成的，让症状覆盖病因是错的。
+    """
     quality = {
         "is_blur": False,
         "brightness": "normal",
@@ -139,8 +152,33 @@ def test_missing_fields_still_outrank_severity() -> None:
 
     result, reasons = review_bank_card_with_reasons({}, quality)
 
-    assert result == "review"
-    assert "missing_card_number" in reasons
+    assert result == "reject", "影像严重到该拒，不该因为字段缺失降级成 review"
+    assert "severe_image_blur" in reasons, "严重度必须出现在原因码里（原实现把它丢了）"
+    assert "missing_card_number" in reasons, "缺失项仍要告诉审核员"
+
+
+def test_severity_with_unreadable_fields_is_rejected_not_reviewed() -> None:
+    """回归 CTE-3 抓到的真实场景：严重模糊图上字段全读不出。
+
+    对应快照样本 ``bank_card/blur/bank_card_0001.png``
+    （variance 1.08，severe 阈值 30）。
+    """
+    quality = {
+        "is_blur": True,
+        "brightness": "normal",
+        "has_glare": False,
+        "quality_result": "review",
+        "quality_reasons": ["image_blur"],
+        "quality_metrics": {"blur_laplacian_variance": 1.08, "brightness_mean": 80.6, "glare_component_ratio": 0.0},
+        "severe_reasons": ["severe_image_blur"],
+    }
+
+    result, reasons = review_bank_card_with_reasons(
+        {"card_number": None, "valid_date": None, "name": None}, quality
+    )
+
+    assert result == "reject"
+    assert reasons[0] == "severe_image_blur", "严重度应排在原因码最前"
 
 
 def test_severity_does_not_override_invalid_card_number() -> None:

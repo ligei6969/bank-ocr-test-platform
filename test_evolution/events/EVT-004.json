@@ -1,0 +1,13 @@
+{
+  "event_id": "EVT-004",
+  "source": "manual_review",
+  "surface": "adjudication",
+  "title": "严重退化被字段缺失降级：9 条该拒的样本被判成转人工",
+  "observed_at": "2026-09-27T09:45:23+00:00",
+  "system_version": "HEAD",
+  "input_case": "data/processed/bank_card/blur/bank_card_0001.png",
+  "current_result": "review ['missing_valid_date', 'missing_name', 'image_blur']（severe_image_blur 被丢弃）",
+  "expected_result": "reject ['severe_image_blur', ...]（人工结论为 reject）",
+  "notes": "CTE-3 用真实 OCR 字段重跑评测后发现：9 条人工结论为 reject 的样本被平台判成 review。逐条核对指标发现 3 条是「variance ≈ 1.1，远低于 severe 阈值 30，但字段缺失」—— 根因是 review_bank_card_with_reasons 把 missing_reasons 的返回排在 severe_reasons 之前。同一文件的单测 test_missing_fields_still_outrank_severity 的 docstring 说「严重度判拒也要带上原因码」，断言却只检查 missing 项，所以这个缺陷一直是绿的。",
+  "learning_blocked": false
+}

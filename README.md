@@ -534,7 +534,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1164 passed / 0 failed / 0 errors**。
+当前全量测试结果为 **1185 passed / 0 failed / 0 errors**。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
@@ -785,12 +785,30 @@ rmdir /s /q reports\ocr-temp
   mock 把整段拼成一行所以这个假设从未被检验。
   也就是说，此前所有身份证正面的字段结论都建立在 mock 的拼接行为上。
 
-  这三条已作为 CTE 事件登记（`EVT-002`，提案 `CTE-002`）；
-  修复 parser 属生产代码变更，留待人工决策。
   完整记录见 [`docs/baseline_migrations/001_real_ocr_fields.md`](docs/baseline_migrations/001_real_ocr_fields.md)。
 
-  注意：`verdict_accuracy` 因此从 0.775 变成 **0.675** ——
-  这是**测量口径变真实**，不是模型变差。
+  **CTE-3 已修掉其中两条**（见下），`verdict_accuracy` 0.775 → 0.675 → **0.725**。
+
+### CTE-3：修掉 CTE-2 暴露出来的缺陷
+
+| 事件 | 结论 | 修复 |
+| --- | --- | --- |
+| `EVT-002` | 身份证解析要求标签与值同行 | `name`/`address` **0/10 → 9/10**；另修 `id_number` 前导零、`valid_period` 跨行 |
+| `EVT-004` | 严重退化被字段缺失降级成转人工 | 判定顺序调整；`verdict_accuracy` **0.675 → 0.725** |
+| `EVT-003` | 分不清「OCR 没认出来」与「解析器没取到」 | 只产出方法（`CTE-003` DOCUMENTATION） |
+
+两处修复都不是「顺手改的」，而是各自被 CTE 事件记录、验证、再落地。
+`EVT-004` 尤其值得看：**一条自称「严重度优先」的测试，断言却在为一个
+丢弃严重度的实现背书**，于是缺陷一直是绿的 ——
+[`docs/baseline_migrations/002_severity_outranks_missing.md`](docs/baseline_migrations/002_severity_outranks_missing.md)。
+
+仍未解决的两项（都写在这里而不是藏起来）：
+
+- **`id_number` 在真实 OCR 下上限是 2/10** —— 另外 8 张的文本里
+  根本没有那串数字，这是 OCR 的局限，不是解析器能解决的。
+- **反光严重度阈值仍然停用** —— 剩下 7 条「该拒却转人工」全是反光样本。
+  本次记录了新证据（比值分布 0.0232–0.0881，比当初标定用的范围更宽），
+  但启用它需要产品口径决策。
 
 - ~~**真实 provider 未实测**~~ —— **已补**：2026-09-26 用 `deepseek-chat`
   跑了全量 40 条 `--live` 评测（含真实 judge）。结果与解读见
@@ -802,8 +820,8 @@ rmdir /s /q reports\ocr-temp
   也没有多模型对比。见 `ai_service/README.md` 第 9 节。
 - ~~**决策层指标缺人工标注**~~ —— **已补**：`data/annotations/review_verdicts.json`
   有 40 条人工结论标注（署名 `jb（开发）`），评测改为调用平台真实规则引擎，
-  `结论正确率` 已可用。CTE-2 之后字段输入改为真实 OCR 观测，
-  该指标为 **0.675**（此前用标注真值时是 0.775，口径不同不可直接比较）。
+  `结论正确率` 已可用。CTE-2 起字段输入改为真实 OCR 观测，CTE-3 修复了
+  严重度判定顺序，该指标为 **0.725**（口径演变：0.775 标注真值 → 0.675 真实 OCR → 0.725 修复后，不可直接比较）。
   样本量仍小，数字只作趋势参考。
 - **judge 校准集是占位标注** —— 管线可用、能暴露 judge 的系统性偏差方向，
   但标注是项目作者自评的，**数字暂无统计意义**，替换成真实审核员标注后才有对外引用价值。

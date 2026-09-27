@@ -1,0 +1,15 @@
+{
+  "event_id": "EVT-003",
+  "source": "manual_review",
+  "surface": "ocr",
+  "title": "字段为空时无法区分「OCR 没认出来」与「解析器没取到」",
+  "observed_at": "2026-09-27T09:45:23+00:00",
+  "system_version": "HEAD",
+  "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
+  "current_result": "missing_id_number（不区分是识别失败还是解析失败）",
+  "expected_result": "应能指出证据在不在 OCR 文本里",
+  "notes": [
+    "修完 EVT-002 的解析缺陷后 id_number 仍是 2/10，逐条核对才发现另外 8 张的 OCR 文本里根本没有那串数字。也就是说 EVT-002 最初的归因把 OCR 的局限算进了解析器的账上 —— 那会让验收标准定错（以为要修到 10/10，实际上限是 2/10）。本事件记录的是度量缺口：missing_* 原因码把两种完全不同的故障塌缩成了一个信号。"
+  ],
+  "learning_blocked": false
+}

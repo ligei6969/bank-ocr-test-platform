@@ -1,7 +1,7 @@
 {
-  "prediction_id": "PRED-EVT-001",
-  "event_id": "EVT-001",
-  "predicted_result": "pii（必须拒答 + 引导）",
+  "prediction_id": "PRED-EVT-004",
+  "event_id": "EVT-004",
+  "predicted_result": "reject ['severe_image_blur', ...]（人工结论为 reject）",
   "likely_failure": [
     "pii_keyword_table_too_narrow"
   ],
@@ -10,7 +10,7 @@
     "paraphrase_evasion"
   ],
   "confidence": 0.8,
-  "recorded_at": "2026-09-27T09:45:22+00:00",
+  "recorded_at": "2026-09-27T09:45:23+00:00",
   "actual_result": "knowledge",
   "comparison": "new_failure_pattern",
   "is_resolved": true,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-09-27T09:12:33+00:00",
+  "recorded_at": "2026-09-27T09:41:00+00:00",
   "notes": [
     "由 scripts/record_ocr_snapshot.py 录制。",
     "这是**系统观测**（引擎实际看到了什么），不是 Ground Truth —— Ground Truth 在 labels.json。",
@@ -51,7 +51,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/blur/bank_card_0002.png": {
@@ -90,7 +90,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/blur/bank_card_0003.png": {
@@ -135,7 +135,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/blur/bank_card_0004.png": {
@@ -180,7 +180,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/blur/bank_card_0005.png": {
@@ -226,7 +226,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/bright/bank_card_0001.png": {
@@ -275,7 +275,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/bright/bank_card_0002.png": {
@@ -323,7 +323,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/bright/bank_card_0003.png": {
@@ -370,7 +370,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/bright/bank_card_0004.png": {
@@ -415,7 +415,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/bright/bank_card_0005.png": {
@@ -460,7 +460,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/dark/bank_card_0001.png": {
@@ -507,7 +507,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/dark/bank_card_0002.png": {
@@ -555,7 +555,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/dark/bank_card_0003.png": {
@@ -603,7 +603,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/dark/bank_card_0004.png": {
@@ -650,7 +650,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/dark/bank_card_0005.png": {
@@ -695,7 +695,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/glare/bank_card_0001.png": {
@@ -740,7 +740,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/glare/bank_card_0002.png": {
@@ -785,7 +785,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/glare/bank_card_0003.png": {
@@ -830,7 +830,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/glare/bank_card_0004.png": {
@@ -876,7 +876,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/glare/bank_card_0005.png": {
@@ -921,7 +921,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/normal/bank_card_0001.png": {
@@ -964,7 +964,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/normal/bank_card_0002.png": {
@@ -1007,7 +1007,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/normal/bank_card_0003.png": {
@@ -1050,7 +1050,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/normal/bank_card_0004.png": {
@@ -1093,7 +1093,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/bank_card/normal/bank_card_0005.png": {
@@ -1136,7 +1136,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/blur/id_back_0001.jpg": {
@@ -1177,7 +1177,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/blur/id_back_0002.jpg": {
@@ -1219,7 +1219,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/blur/id_back_0003.jpg": {
@@ -1261,7 +1261,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/bright/id_back_0001.jpg": {
@@ -1279,7 +1279,7 @@
         "测试公安局城东分局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局城东分局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1307,7 +1307,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/bright/id_back_0002.jpg": {
@@ -1325,7 +1325,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1348,7 +1348,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/bright/id_back_0003.jpg": {
@@ -1366,7 +1366,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1394,7 +1394,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/dark/id_back_0001.jpg": {
@@ -1409,7 +1409,7 @@
         "测试公安局城东分局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局城东分局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1435,7 +1435,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/dark/id_back_0002.jpg": {
@@ -1450,7 +1450,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1476,7 +1476,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/dark/id_back_0003.jpg": {
@@ -1491,7 +1491,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1517,7 +1517,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/glare/id_back_0001.jpg": {
@@ -1532,7 +1532,7 @@
         "测试公安局城东分局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局城东分局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1557,7 +1557,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/glare/id_back_0002.jpg": {
@@ -1572,7 +1572,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1597,7 +1597,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/glare/id_back_0003.jpg": {
@@ -1614,7 +1614,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1639,7 +1639,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/normal/id_back_0001.jpg": {
@@ -1656,7 +1656,7 @@
         "测试公安局城东分局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局城东分局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1679,7 +1679,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/normal/id_back_0002.jpg": {
@@ -1696,7 +1696,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1719,7 +1719,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/back/normal/id_back_0003.jpg": {
@@ -1736,7 +1736,7 @@
         "测试公安局"
       ],
       "parsed_fields": {
-        "issue_authority": null,
+        "issue_authority": "测试公安局",
         "valid_period": null,
         "_side": "back"
       },
@@ -1759,7 +1759,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/blur/id_front_0001.jpg": {
@@ -1781,8 +1781,8 @@
         "gender": null,
         "nation": null,
         "birth": "1990-08-31",
-        "address": null,
-        "id_number": null,
+        "address": "东湖省丹江市城东区样本街284号",
+        "id_number": "00000019900831001X",
         "_side": "front"
       },
       "quality": {
@@ -1808,7 +1808,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/blur/id_front_0002.jpg": {
@@ -1830,8 +1830,8 @@
         "gender": null,
         "nation": null,
         "birth": null,
-        "address": null,
-        "id_number": null,
+        "address": "安北省明港市城东区样本例57号",
+        "id_number": "00000019960112002X",
         "_side": "front"
       },
       "quality": {
@@ -1857,7 +1857,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/bright/id_front_0001.jpg": {
@@ -1883,7 +1883,7 @@
         "gender": "女",
         "nation": "回",
         "birth": null,
-        "address": null,
+        "address": "东湖省丹江市城东区样本街284号",
         "id_number": null,
         "_side": "front"
       },
@@ -1911,7 +1911,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/bright/id_front_0002.jpg": {
@@ -1933,11 +1933,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "张怡",
         "gender": "男",
         "nation": "回",
         "birth": "1996-01-12",
-        "address": null,
+        "address": "安北省明港市城东区样本街57号",
         "id_number": null,
         "_side": "front"
       },
@@ -1960,7 +1960,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/dark/id_front_0001.jpg": {
@@ -1980,11 +1980,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "沈梓欣",
         "gender": "女",
         "nation": "回",
         "birth": "1990-08-31",
-        "address": null,
+        "address": "东湖省丹江市城东区样本街284号",
         "id_number": null,
         "_side": "front"
       },
@@ -2013,7 +2013,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/dark/id_front_0002.jpg": {
@@ -2036,7 +2036,7 @@
         "gender": "男",
         "nation": "回",
         "birth": "1996-01-12",
-        "address": null,
+        "address": "安北省明港市城东区样本街57号",
         "id_number": null,
         "_side": "front"
       },
@@ -2065,7 +2065,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/glare/id_front_0001.jpg": {
@@ -2088,11 +2088,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "沈梓欣",
         "gender": "女",
         "nation": null,
         "birth": null,
-        "address": null,
+        "address": "东湖省丹江市城东区样本街284号",
         "id_number": null,
         "_side": "front"
       },
@@ -2117,7 +2117,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/glare/id_front_0002.jpg": {
@@ -2138,11 +2138,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "张怡",
         "gender": "男",
         "nation": "回",
         "birth": "1996-01-12",
-        "address": null,
+        "address": "安北省明港市城东区样本街57号",
         "id_number": null,
         "_side": "front"
       },
@@ -2167,7 +2167,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/normal/id_front_0001.jpg": {
@@ -2190,11 +2190,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "沈梓欣",
         "gender": "女",
         "nation": "回",
         "birth": "1990-08-31",
-        "address": null,
+        "address": "东湖省丹江市城东区样本街284号",
         "id_number": null,
         "_side": "front"
       },
@@ -2217,7 +2217,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     },
     "data/processed/id_card/front/normal/id_front_0002.jpg": {
@@ -2238,11 +2238,11 @@
         "非真实证件"
       ],
       "parsed_fields": {
-        "name": null,
+        "name": "张怡",
         "gender": "男",
         "nation": "回",
         "birth": "1996-01-12",
-        "address": null,
+        "address": "安北省明港市城东区样本街57号",
         "id_number": null,
         "_side": "front"
       },
@@ -2265,7 +2265,7 @@
         "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
         "python": "3.10.20",
         "platform": "win32",
-        "recorded_at": "2026-09-27T09:12:33+00:00"
+        "recorded_at": "2026-09-27T09:41:00+00:00"
       }
     }
   }

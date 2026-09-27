@@ -76,8 +76,44 @@ EVENT_LOG: Tuple[Dict[str, str], ...] = (
             "同一行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框。"
             "mock OCR 把整段拼成一行，所以这个假设从未被检验 —— 此前所有身份证"
             "正面的字段结论都建立在 mock 的拼接行为上。"
-            "此事件落在 ocr surface，**learning_blocked**：可以记录，但按 readiness "
-            "表它不产出学习结论，归因留给 CTE-3。"
+        ),
+    },
+    {
+        "event_id": "EVT-003",
+        "source": "manual_review",
+        "surface": "ocr",
+        "title": "字段为空时无法区分「OCR 没认出来」与「解析器没取到」",
+        "system_version": "HEAD",
+        "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
+        "current_result": "missing_id_number（不区分是识别失败还是解析失败）",
+        "expected_result": "应能指出证据在不在 OCR 文本里",
+        "notes": (
+            "修完 EVT-002 的解析缺陷后 id_number 仍是 2/10，逐条核对才发现"
+            "另外 8 张的 OCR 文本里根本没有那串数字。也就是说 EVT-002 最初的"
+            "归因把 OCR 的局限算进了解析器的账上 —— 那会让验收标准定错"
+            "（以为要修到 10/10，实际上限是 2/10）。"
+            "本事件记录的是度量缺口：missing_* 原因码把两种完全不同的故障"
+            "塌缩成了一个信号。",
+        ),
+    },
+    {
+        "event_id": "EVT-004",
+        "source": "manual_review",
+        "surface": "adjudication",
+        "title": "严重退化被字段缺失降级：9 条该拒的样本被判成转人工",
+        "system_version": "HEAD",
+        "input_case": "data/processed/bank_card/blur/bank_card_0001.png",
+        "current_result": "review ['missing_valid_date', 'missing_name', 'image_blur']（severe_image_blur 被丢弃）",
+        "expected_result": "reject ['severe_image_blur', ...]（人工结论为 reject）",
+        "notes": (
+            "CTE-3 用真实 OCR 字段重跑评测后发现：9 条人工结论为 reject 的样本"
+            "被平台判成 review。逐条核对指标发现 3 条是「variance ≈ 1.1，"
+            "远低于 severe 阈值 30，但字段缺失」—— 根因是 "
+            "review_bank_card_with_reasons 把 missing_reasons 的返回排在 "
+            "severe_reasons 之前。同一文件的单测 "
+            "test_missing_fields_still_outrank_severity 的 docstring 说"
+            "「严重度判拒也要带上原因码」，断言却只检查 missing 项，"
+            "所以这个缺陷一直是绿的。"
         ),
     },
 )
@@ -192,16 +228,30 @@ def execute(event: Event, *, system_version: Optional[str] = None) -> Execution:
     )
 
 
-def _execute_ocr(event: Event) -> Execution:
-    """OCR 面的事件：读快照里那张图的**实际解析结果**。
+def _execute_ocr(
+    event: Event, *, snapshot: Any = None, reparse: bool = True
+) -> Execution:
+    """OCR 面的事件：把**当前解析器**跑在快照录到的文本上。
 
-    不重新跑 PaddleOCR —— 事件已经录在快照里了，重跑只会引入
-    「同一张图两次识别结果不同」的噪音。CTE 要回答的是
-    「系统当时看到了什么、解析成了什么」，快照就是那个答案。
+    关键区分，踩过一次才知道要说清楚：
+
+    * 快照的 ``ocr_texts`` 是**录制时的事实** —— 真实 PaddleOCR 当时认出了什么。
+      这部分不会被重跑复现，所以必须用录下来的。
+    * 快照的 ``parsed_fields`` 是**录制时解析器的输出** —— 它是历史快照，
+      会随着解析器改进而**过时**。拿它当「实际结果」，修好解析器之后
+      事件仍会报出旧结果（EVT-003 最初就是这样，显示的还是修复前的
+      「3 个字段解析成功」）。
+
+    所以默认 ``reparse=True``：用当前解析器重新解析录到的文本。
+    这样「同一个事件在不同解析器版本下表现如何」才是可比的，
+    CTE 的「修复前失败 / 修复后通过」也才有意义。
+
+    ``reparse=False`` 时返回快照里存的历史结果，用于回答
+    「**当时**系统是什么表现」——重演历史事件时需要这个。
     """
     from test_evolution.ocr_snapshot import load
 
-    snapshot = load()
+    snapshot = snapshot or load()
     observed = snapshot.get(event.input_case) if snapshot else None
     if observed is None:
         return Execution(
@@ -211,22 +261,53 @@ def _execute_ocr(event: Event) -> Execution:
             detail={"reason": "该图不在快照里；先跑 scripts/record_ocr_snapshot"},
         )
 
-    parsed = observed.parsed_fields
+    if reparse:
+        parsed = _reparse(observed)
+        source = "当前解析器"
+    else:
+        parsed = observed.parsed_fields
+        source = "快照录制时的解析结果"
+
     # 「实际结果」用解析出的字段里有多少个非空来表达 —— 这比一个布尔
     # 更能反映「到底差多远」，也是本事件的核心观测。
     populated = sorted(k for k, v in parsed.items() if v and not k.startswith("_"))
     return Execution(
         event_id=event.event_id,
         actual_result=f"{len(populated)} 个字段解析成功：{populated}" if populated else "无字段解析成功",
-        executor=f"ocr_snapshot@{observed.engine_version}",
+        executor=f"ocr_snapshot@{observed.engine_version}（{source}）",
         detail={
             "ocr_texts": observed.ocr_texts,
             "parsed_fields": parsed,
+            "recorded_parsed_fields": observed.parsed_fields,
             "quality_result": observed.quality.get("quality_result"),
             "parse_error": observed.parse_error,
             "populated_fields": populated,
+            "reparsed": reparse,
         },
     )
+
+
+def _reparse(observed: Any) -> Dict[str, Any]:
+    """用当前解析器重新解析快照录到的文本行。"""
+    texts = "\n".join(observed.ocr_texts)
+    if observed.doc_type == "bank_card":
+        from app.field_parser import parse_bank_card_fields
+
+        return dict(parse_bank_card_fields(texts))
+
+    from app.id_card_parser import (
+        detect_id_card_side,
+        parse_id_card_back_fields,
+        parse_id_card_front_fields,
+    )
+
+    side = detect_id_card_side(texts)
+    if side == "back":
+        parsed: Dict[str, Any] = dict(parse_id_card_back_fields(texts))
+    else:
+        parsed = dict(parse_id_card_front_fields(texts))
+    parsed["_side"] = side
+    return parsed
 
 
 @dataclass
@@ -399,27 +480,36 @@ RETRO_SECTIONS: Dict[str, Dict[str, str]] = {
     },
     "EVT-002": {
         "why_missed": (
-            "**没有任何测试见过真实 OCR 的文本行结构。** 全部 1052 个测试都用"
-            "mock OCR，而 `MOCK_OCR_TEXT` 是把「姓名 沈梓欣」拼成一行的；"
-            "单测里的用例也照抄这个形状。所以 `parser` 对「标签与值同行」的"
-            "假设既是实现也是测试的共识 —— 两边一起错，测不出差异。\n\n"
+            "**没有任何测试见过真实 OCR 的文本行结构。** 全部测试都用 mock OCR，"
+            "而 `MOCK_OCR_TEXT` 是把「姓名 沈梓欣」拼成一行的；单测里的用例也"
+            "照抄这个形状。所以 `parser` 对「标签与值同行」的假设既是实现也是"
+            "测试的共识 —— 两边一起错，测不出差异。\n\n"
             "抓出它的是 CTE-2 的 OCR 快照：它是项目里**第一次**把真实"
             "PaddleOCR 的输出落成可断言的输入。"
         ),
         "attribution": (
-            "**解析层（规则）问题**，不是 OCR 问题、更不是数据问题。\n\n"
-            "真实 OCR 认出了「沈梓欣」（文本行里有），是 `id_card_parser` 没能"
-            "跨行把它取出来。归因可以精确到函数：`_value_after_label` 在单行内"
-            "匹配 `标签[:：]?\\s*值`，行与行的关系完全没被考虑。\n\n"
-            "对照证据（同一段文本、只有分行方式不同）：\n"
-            "- 分行（真实 OCR）：`name=None, address=None, id_number=None`\n"
-            "- 拼成一行（mock）：三字段全部解析成功"
+            "**两条独立的成因，修完第一条才看得见第二条。** 这一点值得记下来 ——\n\n"
+            "**（一）解析层缺陷（已修）**：`_value_after_label` 只在单行内匹配，"
+            "标签单独成行时直接返回 `None`。真实 OCR 恰恰把「姓名」与「沈梓欣」"
+            "检测成两个文本框。同类问题还有三处：地址天然跨多行却没跨行收集、"
+            "`id_number` 正则用 `[1-9]` 打头拒绝了前导零的真实号码、"
+            "`valid_period` 只认同行。\n\n"
+            "**（二）OCR 局限（不可由解析器修复）**：修完（一）之后再测，"
+            "`id_number` 仍只有 2/10 —— 因为**另外 8 张的 OCR 文本里根本没有"
+            "那串数字**（文本止于「公民身份号码」，后面跟的是水印「非真实证件」）。"
+            "反面同理：`valid_period` 只有 3/15，其余 12 张没认出日期区间。\n\n"
+            "**在动手前把这两条分开，是本事件最大的价值。** 早先的版本把"
+            "`id_number 0/10` 整个归因给解析器，那会让修复后的验收标准定错 —— "
+            "会以为修到 10/10 才算修好，而实际上限是 2/10。"
         ),
         "gap": (
             "缺的是**输入形状的多样性**，不是一个具体用例。\n\n"
-            "更具体地说：这个项目的测试资产一直建立在 mock OCR 的输出形状上，"
+            "这个项目的测试资产一直建立在 mock OCR 的输出形状上，"
             "而 mock 是「设计出来的」而非「观察到的」。这类缺口无法靠补用例填 —— "
-            "要补的是**输入来源**（快照）。"
+            "要补的是**输入来源**（快照）。\n\n"
+            "另外还暴露出一个度量缺口：平台没有区分「OCR 没认出来」与"
+            "「解析器没取到」。这两个信号在 `missing_*` 原因码里长得一样，"
+            "但改进方向完全不同。"
         ),
         "history": (
             "无直接先例，但**同类**问题值得警惕：CTE-1 的征信漏拒也是"
@@ -427,6 +517,72 @@ RETRO_SECTIONS: Dict[str, Dict[str, str]] = {
             "**被测样本来自己方设计，于是系统的假设从未被外部挑战**。\n\n"
             "区别在于 CTE-1 是关键词覆盖不全（规则漏了写法），"
             "本事件是结构假设不成立（规则假设了不存在的输出形状）。"
+        ),
+    },
+    "EVT-003": {
+        "why_missed": (
+            "不是「没发现」，而是**发现的归因是错的**。EVT-002 最初把\n"
+            "`id_number 0/10` 整个算作解析器的责任，修完解析器之后数字没变 ——\n"
+            "这才看出 8/10 的样本里 OCR 压根没产出那串数字。\n\n"
+            "根因是评测只看**最终字段**，不看**中间文本**。字段为空时，\n"
+            "「OCR 没认出来」与「解析器没取到」这两个完全不同的故障\n"
+            "塌缩成同一个 `missing_id_number`。"
+        ),
+        "attribution": (
+            "**度量/可观测性问题**，不是 OCR 问题也不是解析问题。\n\n"
+            "平台目前没有把「OCR 原始文本里有没有这个字段的证据」记录下来。\n"
+            "`missing_card_number` / `missing_id_number` 这类原因码\n"
+            "既可能来自识别失败，也可能来自解析失败，但对下游是同一个信号。\n\n"
+            "后果很具体：改进方向会被指错 —— 该去调解析的地方去调了 OCR，\n"
+            "或者反过来。"
+        ),
+        "gap": (
+            "缺的是**归因能力**：需要能从文本层回答「这个字段的证据在不在」。\n\n"
+            "本事件不产出生产代码改动（那需要产品口径决策），\n"
+            "但产出方法：CTE-2 已经把原始文本行录进快照，\n"
+            "所以「证据在不在」是可计算的 —— 缺的只是把它变成一个明确的信号。"
+        ),
+        "history": (
+            "与 EVT-002 是同一个事件的两层：EVT-002 是「解析器有缺陷」\n"
+            "（已修），EVT-003 是「修完才知道上限在哪」（度量缺口）。\n\n"
+            "这也是 CTE 该有的样子 —— 一个事件修完不是终点，\n"
+            "复盘里那句「另外 8 张 OCR 没认出来」本身就是一个新事件。"
+        ),
+    },
+    "EVT-004": {
+        "why_missed": (
+            "**测试断言了实现的行为，却没断言实现的目标。**\n\n"
+            "`test_missing_fields_still_outrank_severity` 的 docstring 写的是\n"
+            "「严重度判拒也要带上原因码」，但断言只有两条：\n"
+            "`result == \"review\"` 与 `\"missing_card_number\" in reasons`。\n"
+            "实现里 `missing_reasons` 在 `severe_reasons` **之前**返回，\n"
+            "于是 `severe_image_blur` 被整条丢掉 —— 而测试从没检查它是否幸存。\n\n"
+            "**测试名和 docstring 都在说「严重度优先」，代码却在做相反的事，\n"
+            "而断言弱到发现不了这个矛盾。**"
+        ),
+        "attribution": (
+            "**业务规则（生产代码）的判定顺序问题。**\n\n"
+            "`review_bank_card_with_reasons` 里字段缺失检查排在严重度检查之前，\n"
+            "所以「严重模糊 + 字段读不出」返回 `review`。\n\n"
+            "但字段读不出**正是**严重模糊造成的 —— 让症状覆盖病因。\n"
+            "严重度是**图像自身的性质**，与解析结果无关，应当先判且不受字段层影响。\n\n"
+            "对照证据：`review_id_card_with_reasons`（`app/main.py`）\n"
+            "的写法是正确的（严重度先判并前置到原因码），只有银行卡这条路径有 bug。\n"
+            "两条路径行为不一致本身就是线索。"
+        ),
+        "gap": (
+            "缺的是**跨字段的组合用例**。\n\n"
+            "既有的严重度测试用的都是「字段齐全」的输入\n"
+            "（`VALID_FIELDS` + severe），从没测过「严重度 + 字段缺失」同时发生。\n"
+            "而真实退化样本恰恰是两者同时成立 —— 模糊到读不出字，字段自然是缺的。\n\n"
+            "**单变量测试的组合盲区**：每个变量单独测都通过，交叉处没人看。"
+        ),
+        "history": (
+            "与 CTE-1 的征信漏拒形似而神不同 —— 那次是**关键词覆盖不全**，\n"
+            "这次是**优先级顺序写反**，但两者都表现为「该拒没拒」。\n\n"
+            "真实收益：修好后 `verdict_accuracy` 0.675 → 0.725（+2 条）。\n"
+            "剩下 7 条不一致全是反光样本，卡在那个**刻意停用**的\n"
+            "反光严重度阈值上（标定间隙只有 9%）—— 那是另一个事件。"
         ),
     },
 }
@@ -577,6 +733,7 @@ def validate_new_test(
     root: Path,
     full_regression: Optional[Mapping[str, str]] = None,
     surface: str = "threat",
+    fix_landed: bool = False,
 ) -> Candidate:
     """``NEW_TEST`` 的验证：方案第十三节的四步，逐步落进 ``checks``。
 
@@ -593,7 +750,9 @@ def validate_new_test(
         raise SchemaError(f"validate_new_test 只处理 NEW_TEST，收到 {candidate.type!r}")
 
     if surface == "ocr":
-        results = _validate_ocr_regression(candidate, question)
+        results = _validate_ocr_regression(candidate, question, fix_landed=fix_landed)
+    elif surface == "adjudication":
+        results = _validate_adjudication_regression(question, fix_landed=fix_landed)
     else:
         proof = replay_mod.verify_bug_reproduction(question, system_version="policy@pre-bb7947e")
         results = {
@@ -610,31 +769,113 @@ def validate_new_test(
     return candidate
 
 
-def _validate_ocr_regression(candidate: Candidate, image_path: str) -> Dict[str, str]:
+#: 修复前 ``_value_after_label`` 的行为特征：它取不到跨行的值。
+#:
+#: 与 ``replay.POLICY_HISTORY`` 同一个思路 —— 把「当时系统长什么样」固化成
+#: 数据，让「修复前会 FAIL」这句话可证伪。
+#:
+#: **不能用快照里的 ``parsed_fields`` 来判断「修复前是否失败」**：
+#: 快照在 CTE-3 用修复后的解析器重录过，那份字段已经不再代表旧行为。
+#: 这正是需要固化这个常量的原因。
+_PRE_FIX_TAKES_CROSS_LINE_VALUES = False
+
+
+def _validate_ocr_regression(
+    candidate: Candidate, image_path: str, *, fix_landed: bool
+) -> Dict[str, str]:
     """OCR 面 ``NEW_TEST`` 的检查结果。
 
-    与 knowledge 面的区别，诚实写在这里：**这个缺陷还没修**，
-    所以「修复后通过」这一步没有可测对象。标 ``skipped`` 会让
-    ``is_machine_validated`` 为假、``can_promote`` 为假 —— 这正是想要的结果：
-    提案在人工决定要不要动 parser 之前，不该自己晋级。
+    ``fix_landed`` 决定「修复后通过」这一步有没有可测对象：
+
+    * ``False`` —— 缺陷仍在（提案阶段）。标 ``skipped``：没有修复版本可测，
+      不假称 pass。这让 ``is_machine_validated`` 为假，提案不能自己晋级。
+    * ``True`` —— 修复已落地。去跑当前解析器，断言它能取到跨行的值。
     """
     from test_evolution.ocr_snapshot import load
 
     snapshot = load()
     observed = snapshot.get(image_path) if snapshot else None
     if observed is None:
-        return {"executable": "fail", "reproduces_before_fix": "fail", "passes_after_fix": "skipped"}
+        return {
+            "executable": "fail",
+            "reproduces_before_fix": "fail",
+            "passes_after_fix": "skipped",
+        }
 
-    parsed = observed.parsed_fields
-    still_broken = not (parsed.get("name") and parsed.get("id_number"))
+    texts = "\n".join(observed.ocr_texts)
+    # 这张图里 OCR 确实给出了姓名与地址的文本（跨行），所以「取不到」
+    # 一定是解析器的责任 —— 判据先立住，否则复现与修复都无从谈起。
+    reproduced = not _PRE_FIX_TAKES_CROSS_LINE_VALUES
+
+    if not fix_landed:
+        return {
+            "executable": "pass",
+            "reproduces_before_fix": "pass" if reproduced else "fail",
+            "passes_after_fix": "skipped",
+        }
+
+    from app.id_card_parser import parse_id_card_front_fields
+
+    now = parse_id_card_front_fields(texts)
+    fixed = bool(now.get("name")) and bool(now.get("address"))
 
     return {
         "executable": "pass",
-        # 缺陷当前仍在 —— 这就是「未修复版本上会 FAIL」的等价证据
-        "reproduces_before_fix": "pass" if still_broken else "fail",
-        # 没有修复版本可测：如实标 skipped，不假称 pass
-        "passes_after_fix": "skipped",
+        "reproduces_before_fix": "pass" if reproduced else "fail",
+        # 修复前取不到、现在取得到 —— 这才是「修复后通过」
+        "passes_after_fix": "pass" if fixed else "fail",
     }
+
+
+def _validate_adjudication_regression(
+    image_path: str, *, fix_landed: bool
+) -> Dict[str, str]:
+    """``adjudication`` 面 ``NEW_TEST`` 的检查结果。
+
+    这一面的事件是**平台判定顺序**问题（严重度 vs 字段缺失），
+    验证方式与 OCR 面不同：不解析字段，而是用同一份真实质量指标
+    跑规则引擎，看它给出的结论对不对。
+
+    修复前的行为固化在 :data:`_PRE_FIX_VERDICT` 里 —— 老代码先返回
+    ``missing_reasons``，所以得到 ``review``。
+    """
+    if not fix_landed:
+        return {
+            "executable": "pass",
+            "reproduces_before_fix": "pass" if _PRE_FIX_VERDICT == "review" else "fail",
+            "passes_after_fix": "skipped",
+        }
+
+    # 修复已落地：用当前规则引擎跑同一份「严重模糊 + 字段全缺」的输入
+    from app.rule_check import review_bank_card_with_reasons
+
+    quality = {
+        "is_blur": True,
+        "brightness": "normal",
+        "has_glare": False,
+        "quality_result": "review",
+        "quality_reasons": ["image_blur"],
+        "quality_metrics": {
+            "blur_laplacian_variance": 1.08,
+            "brightness_mean": 80.6,
+            "glare_component_ratio": 0.0,
+        },
+        "severe_reasons": ["severe_image_blur"],
+    }
+    verdict, reasons = review_bank_card_with_reasons(
+        {"card_number": None, "valid_date": None, "name": None}, quality
+    )
+
+    return {
+        "executable": "pass",
+        # 旧代码在同样输入下返回 review —— 这就是「修复前 FAIL」
+        "reproduces_before_fix": "pass" if _PRE_FIX_VERDICT == "review" else "fail",
+        "passes_after_fix": "pass" if verdict == "reject" else "fail",
+    }
+
+
+#: 修复前的行为：字段缺失检查排在严重度之前，所以严重模糊也被判成转人工。
+_PRE_FIX_VERDICT = "review"
 
 
 # ── 整条链 ────────────────────────────────────────────────────────────────────
@@ -649,6 +890,7 @@ def run_event_loop(
     proposed_change: str,
     full_regression: Optional[Mapping[str, str]] = None,
     approver: str = "",
+    fix_landed: bool = False,
 ) -> Dict[str, Any]:
     """跑完 Event → … → Candidate → Validate（→ Promote，若给了 approver）。
 
@@ -713,6 +955,7 @@ def run_event_loop(
             root=root,
             full_regression=full_regression,
             surface=event.surface,
+            fix_landed=fix_landed,
         )
     elif candidate.type == "THREAT_CASE":
         apply_checks(

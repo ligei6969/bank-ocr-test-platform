@@ -1,7 +1,7 @@
 {
-  "prediction_id": "PRED-EVT-002",
-  "event_id": "EVT-002",
-  "predicted_result": "三字段应解析出（标注真值里都有）",
+  "prediction_id": "PRED-EVT-003",
+  "event_id": "EVT-003",
+  "predicted_result": "应能指出证据在不在 OCR 文本里",
   "likely_failure": [
     "pii_keyword_table_too_narrow"
   ],
@@ -10,7 +10,7 @@
     "paraphrase_evasion"
   ],
   "confidence": 0.8,
-  "recorded_at": "2026-09-27T09:45:22+00:00",
+  "recorded_at": "2026-09-27T09:45:23+00:00",
   "actual_result": "5 个字段解析成功：['address', 'birth', 'gender', 'name', 'nation']",
   "comparison": "new_failure_pattern",
   "is_resolved": true,

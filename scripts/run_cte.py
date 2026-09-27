@@ -55,6 +55,14 @@ from test_evolution.schema import (  # noqa: E402
     load_events,
 )
 
+#: 哪些事件的修复**已经落地**。
+#:
+#: 这不是「谁做的」的记账，而是验证时的必要输入：``passes_after_fix``
+#: 这一步需要有一个「修复后的版本」可测。没有它，该步只能标 ``skipped``，
+#: 候选也就无法完成机器验证。把「修复已落地」写成显式事实，
+#: 比让验证去猜「现在算不算修好了」可靠。
+FIX_LANDED = {"EVT-002", "EVT-004"}
+
 #: 事件 → 它应该产出的 Candidate 类型与说明。
 #: 写成表而不是让 CLI 现推：Candidate 的类型是人对复盘的判断，不是程序能猜的。
 CANDIDATE_PLAN = {
@@ -75,10 +83,37 @@ CANDIDATE_PLAN = {
         "proposed_change": (
             "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与"
             "「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。"
-            "新增测试用真实 OCR 的分行序列做输入（快照里就有），"
-            "断言 name / address / id_number 能解析出来。\n"
-            "**这是提案，不是已完成的修复** —— 改 parser 属于生产代码，"
-            "按 CTE 边界必须由人决定后另开 commit，CTE 不自行 merge。"
+            "同类四处一并修：地址跨行收集、id_number 正则拒绝前导零、"
+            "valid_period 只认同行。新增测试用真实 OCR 的分行序列做输入，"
+            "断言解析器能取到 OCR 已经给出的字段。\n"
+            "**CTE-3 已落地该修复**（人工决定后由开发提交），"
+            "所以本次验证的 passes_after_fix 有可测对象。"
+        ),
+    },
+    "EVT-003": {
+        "candidate_id": "CTE-003",
+        "candidate_type": "DOCUMENTATION",
+        "candidate_title": "记录「OCR 未识别」与「解析失败」的区分方法",
+        "proposed_change": (
+            "不产出生产代码改动 —— 让 missing_* 原因码区分两种故障需要产品口径"
+            "决策（是否对外暴露、算不算同一个指标）。本候选只把方法固定下来：\n"
+            "1. CTE-2 的快照已录原始文本行，所以「证据在不在文本里」可计算；\n"
+            "2. `tests/test_id_card_parser_real_ocr.py` 里的分布断言"
+            "（2 张认出 / 8 张没认出）就是当前的事实基线；\n"
+            "3. 归因前必须先做这一步，否则会把 OCR 的局限算成解析器的账。"
+        ),
+    },
+    "EVT-004": {
+        "candidate_id": "CTE-004",
+        "candidate_type": "NEW_TEST",
+        "candidate_title": "严重退化必须压过字段缺失",
+        "proposed_change": (
+            "调整 app/rule_check.py 的判定顺序：severe_reasons 先判，"
+            "且不受 missing_reasons 影响；字段缺失项仍保留在原因码里。\n"
+            "新增两条测试：严重度 + 字段全缺 → reject 且 severe 排在原因码最前；"
+            "以及真实快照样本（variance 1.08）的回归。\n"
+            "**CTE-3 已落地该修复**，并修掉了那条断言过弱、"
+            "实际在为一个 bug 背书的旧测试。"
         ),
     },
 }
@@ -148,6 +183,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         root=args.root,
         full_regression={"outcome": args.regression},
         approver=args.approve,
+        fix_landed=args.event in FIX_LANDED,
         **plan,
     )
 
