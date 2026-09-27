@@ -183,6 +183,7 @@ app/
   field_parser.py   银行卡字段解析
   id_card_parser.py 身份证正反面检测和字段解析
   rule_check.py     审核规则判断
+  ocr_evidence.py   字段缺失归因（CTE-4：区分「OCR 没认出来」与「解析器没取到」）
   review_records.py SQLite 审核记录持久化和查询
   logging_utils.py  银行卡号、身份证号日志脱敏
   static/           银行卡审核前端页面 + 用户/管理端门户（含 AI 解释面板）
@@ -200,7 +201,7 @@ ai_service/         AI 能力层（独立进程，HTTP 调用）
   agentkit.py       测试工具箱：轨迹断言、故障注入、cassette 装配
   eval/             评测层：golden 集、四层指标、judge 校准、回归门禁
   devtools/         协议靶子：本地假 provider，验证 HTTP / 鉴权 / usage 解析
-  tests/            519 个单测，全部离线可跑
+  tests/            561 个单测，全部离线可跑
   README.md         AI 能力层的完整设计说明（推荐先读这个）
 
 test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，不持有测试数据主权）
@@ -210,15 +211,18 @@ test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，�
   ocr_snapshot.py  真实 OCR 的录制/回放（CTE-2：让评测用上真实字段）
   ocr_report.py    字段错误率基线（CTE-5）
   pipeline.py      闭环编排
-app/ocr_evidence.py  字段缺失归因（CTE-4：区分「OCR 没认出来」与「解析器没取到」）
   README.md        CTE 的设计、边界与诚实清单
 docs/baseline_migrations/  基线口径变更的记录（001 真实 OCR / 002 严重度优先 / 003 全量扩样）
 
-tests/              pytest 测试（平台侧 492 项）
+tests/              pytest 测试（平台侧 562 项；CTE 侧另见 test_evolution/tests，140 项）
 data/               测试数据、标注数据、生成数据
 reports/            测试输出、临时上传文件、OCR 模型缓存
 scripts/            数据生成、处理与评测脚本（含 run_cte.py）
 docs/               方案文档、阶段开发报告、人工标注操作手册
+  项目交接文档.md   ← **接手先读这个**（怎么跑、东西在哪、坑在哪）
+  项目现状总结.md   这是什么 / 做完什么 / 诚实的自我评价
+  CTE开发报告.md    P5 的完整记录
+  ocr_field_error_rates.md  全量 2100 张的字段错误率基线
 ```
 
 ## 环境准备
