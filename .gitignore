@@ -22,3 +22,6 @@ data/processed/bank_card/*/*.png
 银行OCR测试平台_面试问题与参考答案_已补充.docx
 银行OCR测试平台_面试问题与参考答案.docx
 reports/test-documents/
+
+# CTE 的过程证据要入库（它们是审计轨迹），但 CTE 的临时报告不入库
+test_evolution/reports/

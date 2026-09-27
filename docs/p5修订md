@@ -1,0 +1,1115 @@
+这份审计我**基本认可，而且比我上一版 P5 计划更接近真正能落地的版本**。尤其前四个问题确实不是“文档措辞优化”，而是会直接影响后面实现路线的设计决策。
+
+你当前项目已经有 **1052 passed / 0 failed、GitHub Actions 离线回归门禁、40 条 golden、双判和安全不变式**，所以 CTE 不该再平行造一套测试基础设施。:chatgpt-content-reference{index="1"} :chatgpt-content-reference{index="2"}
+
+我建议把 P5 正式修订成下面这套。
+
+# 一、最重要的修正：OCR 采用“录制 + 回放”双轨
+
+这个审计意见我完全同意。
+
+我们本来已经在 LLM 上用了 cassette：
+
+```text
+真实调用
+↓
+录制
+↓
+CI 回放
+```
+
+OCR 应该用完全相同的哲学：
+
+```text
+              Real PaddleOCR
+                    │
+            手动 / 定时执行
+                    ↓
+            OCR Snapshot Record
+                    │
+                    ↓
+       data/annotations/ocr_outputs.json
+                    │
+          ┌─────────┴─────────┐
+          ↓                   ↓
+      Push CI             Live Verify
+     Replay 快照          真 PaddleOCR
+          │                   │
+          ↓                   ↓
+     Regression            Diff Snapshot
+```
+
+这样解决三个问题：
+
+**Push CI 不安装、不实时执行 PaddleOCR。**
+
+CI 直接消费：
+
+```text
+ocr_outputs.json
+```
+
+但这份文件不是人工填写的假字段，而是：
+
+> **真实 PaddleOCR 曾经运行产生的 OCR 结果快照。**
+
+所以原来的：
+
+```text
+labels.json.fields
+```
+
+要逐渐拆成：
+
+```text
+Ground Truth
+labels.json
+
+vs
+
+System Observation
+ocr_outputs.json
+```
+
+这个区别极其重要。
+
+---
+
+# 二、OCR Snapshot 应该保存什么
+
+建议不要只保存最终 `fields`。
+
+因为以后出了错误，你还需要知道错误来自：
+
+```text
+OCR
+还是 parser
+```
+
+第一版 Schema 可以保持很简单：
+
+```json
+{
+  "case_id": "bank_blur_001",
+  "image_sha256": "...",
+
+  "ocr_runtime": {
+    "engine": "paddleocr",
+    "engine_version": "...",
+    "platform": "linux"
+  },
+
+  "ocr_output": {
+    "texts": [
+      "622202...",
+      "JB",
+      "08/29"
+    ]
+  },
+
+  "parsed_fields": {
+    "card_number": "******",
+    "name": "JB",
+    "expiry": "08/29"
+  }
+}
+```
+
+敏感字段继续遵守项目现有脱敏策略。
+
+评测时：
+
+```text
+ocr_outputs.json
+        ↓
+parsed_fields
+        ↓
+真实 rule engine
+        ↓
+adjudication
+```
+
+而不是：
+
+```text
+labels.json
+↓
+直接 fields
+↓
+规则
+```
+
+当前 `fields` 使用标注真值而非真实 OCR 输出，确实正是项目自己已经确认的数据瓶颈。:chatgpt-content-reference{index="3"}
+
+---
+
+# 三、Live OCR 不属于 Push Gate
+
+这里也要明确。
+
+以后有两条 CI 路线：
+
+### Gate CI
+
+每次：
+
+```text
+push / PR
+```
+
+执行：
+
+```text
+pytest
+
+OCR snapshot replay
+
+golden evaluation
+
+security invariant
+
+baseline regression
+```
+
+必须：
+
+```text
+稳定
+快速
+确定性
+离线
+```
+
+---
+
+### Live Verification
+
+手动或者以后定时：
+
+```text
+Real PaddleOCR
+
+↓
+
+全部指定 Golden Images
+
+↓
+
+生成 new_ocr_outputs.json
+
+↓
+
+和 approved snapshot diff
+```
+
+输出：
+
+```text
+新增 OCR error
+消失 OCR error
+字段变化
+规则结果变化
+最终 verdict 变化
+```
+
+但：
+
+> **Live OCR Diff 不能自动覆盖 Snapshot。**
+
+必须：
+
+```text
+record
+↓
+diff
+↓
+人工 review
+↓
+approve
+↓
+更新 snapshot
+```
+
+否则某一天 PaddleOCR 升了版本，把结果跑坏了，系统还非常勤劳地自动更新 baseline，然后宣布：
+
+> “所有测试都通过。”
+
+这类自动化堪称质量工程行为艺术。
+
+---
+
+# 四、Baseline 也不能因为 OCR 改了就自动重录
+
+这点尤其重要。
+
+`fields` 从：
+
+```text
+annotation truth
+```
+
+改成：
+
+```text
+real OCR output
+```
+
+以后，现有：
+
+```text
+verdict_accuracy = 0.775
+```
+
+很可能会变。这个数字目前建立在真实规则引擎上，但字段输入仍受评测数据设计影响。:chatgpt-content-reference{index="4"}
+
+正确流程应该是：
+
+```text
+切换到 OCR Snapshot
+↓
+运行 Evaluation
+↓
+旧 baseline FAIL
+↓
+人工检查差异
+↓
+确认“这是测量方式变真实导致的合理变化”
+↓
+生成新的 baseline
+↓
+Git commit 记录 baseline reset 原因
+```
+
+这叫：
+
+> **Baseline Migration**
+
+而不是 regression failure。
+
+最好留一份：
+
+```text
+docs/baseline_migrations/
+    001_real_ocr_fields.md
+```
+
+记录：
+
+```text
+为什么 baseline 发生变化
+之前怎么测
+现在怎么测
+哪些指标受到影响
+```
+
+这个面试的时候其实很好讲。
+
+---
+
+# 五、Regression 不再建立第二套数据集
+
+这个批评也完全正确。
+
+我上一版：
+
+```text
+data/cte/regression/
+```
+
+应该删掉。
+
+因为你已经有：
+
+```text
+Golden
++
+pytest
++
+baseline
++
+Threat Set
++
+Security Invariants
+```
+
+CTE 不应该再制造：
+
+```text
+Regression A
+Regression B
+```
+
+最后半年以后没人知道哪个才是真的。
+
+## 新设计
+
+CTE 只拥有：
+
+```text
+test_evolution/
+
+events/
+predictions/
+retros/
+candidates/
+validated/
+rejected/
+reports/
+```
+
+**不拥有正式测试数据主权。**
+
+Promotion 后：
+
+```text
+NEW_TEST
+↓
+tests/
+```
+
+```text
+THREAT_CASE
+↓
+现有 threat dataset
+```
+
+```text
+GOLDEN_CASE
+↓
+现有 golden dataset
+```
+
+```text
+BASELINE
+↓
+现有 eval baseline
+```
+
+也就是说：
+
+> CTE 是**测试资产的孵化器**，不是第二套测试系统。
+
+这个定义漂亮多了。
+
+---
+
+# 六、Holdout 也需要修正
+
+这里审计指出得对。
+
+如果：
+
+```text
+Agent
+```
+
+能读取整个 Repository，那么：
+
+```text
+data/cte/holdout/
+```
+
+这种目录并不叫隔离。
+
+只是把答案藏到了另一个抽屉，然后把整间房钥匙交给 Agent。
+
+---
+
+# 七、第一版 Holdout 怎么做才诚实
+
+我建议不要搞复杂密码学。
+
+采用：
+
+```text
+Holdout Inputs
+可以进入仓库
+
+Holdout Labels
+不进入 Agent 工作区
+```
+
+例如：
+
+```text
+data/holdout/
+    case001.png
+    case002.png
+```
+
+但：
+
+```text
+holdout_labels.local.json
+```
+
+加入：
+
+```gitignore
+```
+
+只有：
+
+```text
+Human Promotion
+```
+
+阶段运行：
+
+```bash
+python scripts/validate_holdout.py \
+    --labels /secure/path/holdout_labels.json
+```
+
+Agent只能得到：
+
+```text
+PASS: 17
+FAIL: 3
+```
+
+而不是 Ground Truth 内容。
+
+以后如果做服务器：
+
+```text
+Holdout labels
+```
+
+可以放：
+
+```text
+自托管 runner
+或受控 CI 环境
+```
+
+但 MVP 没必要为了 20 个 Label 部署一台秘密基地。
+
+---
+
+# 八、而且第一版不要吹“绝对隔离”
+
+文档改成：
+
+> **CTE 不提供密码学意义上的模型隔离。第一版通过“Holdout Ground Truth 不进入 Agent 工作区 + Promotion 阶段独立加载”的方式降低测试泄漏风险。**
+
+这符合你整个 BankOCR 一个非常好的传统：
+
+> 不把自己没有做到的东西假装成做到了。
+
+你现有项目总结里对真实数据、Judge、SQLite、真实模型验证的局限本来就明确写得很清楚。:chatgpt-content-reference{index="5"}
+
+---
+
+# 九、最重要的架构调整：按 Surface 设置 CTE Readiness
+
+这个审计意见是这次最有价值的一条。
+
+我之前说：
+
+```text
+Phase 0 没完成
+↓
+CTE 不启动
+```
+
+确实太粗暴了。
+
+因为 BankOCR 现在不是一个单一系统。
+
+实际上至少有：
+
+| Surface | 现在能不能 CTE | 原因 |
+|---|---|---|
+| Knowledge / Policy | **可以** | 有确定 Ground Truth 和真实历史漏拒 |
+| Threat / Injection | **可以** | 已有 45 条 threat set 和明确 pass/fail |
+| Agent Tool Use | **可以有限进行** | 有工具白名单、轨迹和离线测试 |
+| OCR | **暂缓正式演进** | fields 真实性问题 |
+| Adjudication | **暂缓关键结论演进** | 双判正确性受 OCR 数据影响 |
+
+所以：
+
+```text
+CTE Core
+     │
+ ┌───┼───────────────┐
+ ↓   ↓               ↓
+Knowledge Threat    Agent
+ READY     READY     PARTIAL
+
+OCR                 Adjudication
+BLOCKED              BLOCKED*
+```
+
+`BLOCKED*` 不是完全不能测试。
+
+安全不变式当然继续能跑。
+
+只是：
+
+> **不能根据当前数据得出“应该怎样改双判行为”的学习结论。**
+
+---
+
+# 十、因此第一条 CTE 闭环现在就能做
+
+正好用这个真实历史问题：
+
+```text
+“我征信上有什么问题”
+```
+
+你当前项目总结已经记录过，这确实是 Threat Evaluation 抓到的真实漏判，而且已经修复。:chatgpt-content-reference{index="6"}
+
+用它跑第一条完整链：
+
+```text
+EVENT
+“我征信上有什么问题”
+
+↓
+
+OBSERVE
+旧规则把它当普通咨询
+
+↓
+
+PREDICT
+Risk = intent bypass
+
+↓
+
+EXECUTE
+旧版本复现漏拒
+
+↓
+
+COMPARE
+expected reject
+actual answer
+
+↓
+
+REFLECT
+“我的征信”关键词规则过窄
+
+↓
+
+CANDIDATE
+新增 threat case
++
+failure pattern
+
+↓
+
+VALIDATE
+现有 threat suite
++
+pytest
+
+↓
+
+PROMOTE
+
+↓
+
+进入正式 Threat Set
+```
+
+这才应该成为：
+
+# **CTE-1 MVP**
+
+甚至不依赖 OCR。
+
+---
+
+# 十一、Phase 编号全部改成 CTE-X
+
+同意审计。
+
+以后：
+
+```text
+P1
+P2
+P3
+P4
+P5 = CTE
+```
+
+里面再写：
+
+```text
+CTE-0
+CTE-1
+CTE-2
+...
+```
+
+不要里面继续：
+
+```text
+Phase 1
+Phase 2
+```
+
+不然项目文档读久了会开始出现 P2.3 Phase 2 Step 3 这种军事坐标。
+
+---
+
+# 十二、Candidate 必须改成“按类型验证”
+
+这一点也应该改。
+
+原来的：
+
+```text
+所有 Candidate
+↓
+Regression
+↓
+Holdout
+```
+
+确实太机械。
+
+正确的是 Candidate Validation Matrix。
+
+| Candidate Type | 必须执行 |
+|---|---|
+| `NEW_TEST` | 测试可执行 + 旧版本能复现问题 + 修复版本通过 + 全量 regression |
+| `THREAT_CASE` | threat runner + expected policy verdict + regression |
+| `FAILURE_PATTERN` | 至少一个 Evidence + 历史案例验证 + 人工审核 |
+| `BOUNDARY_CASE` | boundary deterministic test + adjacent values + regression |
+| `SKILL_UPDATE` | 固定 Eval Cases 前后比较 + regression |
+| `DOCUMENTATION` | Evidence 引用 + 人工 review |
+| `RULE_CHANGE_PROPOSAL` | **禁止自动 Promotion 到 production**，只能形成提案 |
+
+这才合理。
+
+---
+
+# 十三、比如 NEW_TEST 应该怎么验证
+
+CTE 自动生成一个测试：
+
+```python
+def test_credit_report_question_is_rejected():
+    ...
+```
+
+不是：
+
+```text
+pytest pass
+→ GOOD
+```
+
+因为一个永远：
+
+```python
+assert True
+```
+
+的测试也 PASS。
+
+真正验证：
+
+```text
+① 测试本身能运行
+
+② 在修复前版本：
+   test FAIL
+
+③ 在修复后版本：
+   test PASS
+
+④ 当前所有 tests：
+   PASS
+```
+
+如果能做到：
+
+```text
+bug reproduction
+```
+
+CTest 价值就出来了。
+
+---
+
+# 十四、Failure Pattern 又不一样
+
+比如：
+
+```text
+FP-001
+Personal credit query paraphrase bypass
+```
+
+它不需要：
+
+```text
+pytest
+```
+
+本身 PASS。
+
+它需要的是：
+
+```text
+Evidence >= 1
+
+Example
+
+Counterexample
+
+Scope
+
+Known Fix
+
+Associated Tests
+
+Human Approval
+```
+
+所以确实应该按 Candidate Type 定义 Validator。
+
+---
+
+# 十五、Skill 路径也改掉
+
+如果目前仓库主要服务 Claude/Codex 这套工作流，按照现有项目实际结构：
+
+```text
+.claude/
+└── skills/
+    └── bankocr-test-evolution/
+        └── SKILL.md
+```
+
+先这么落。
+
+不要为了未来某一天可能会统一：
+
+```text
+.skills/
+```
+
+现在先创造不存在的目录约定。
+
+以后 DSH 真正统一 Skill Protocol 再搬。
+
+---
+
+# 十六、`test_evolution` 路径统一
+
+我建议：
+
+```text
+test_evolution/
+
+├── events/
+├── predictions/
+├── retros/
+├── candidates/
+├── validated/
+├── rejected/
+└── reports/
+```
+
+**不再有：**
+
+```text
+datasets/
+```
+
+正式 Dataset 全部继续归现有测试/评测系统管理。
+
+因此：
+
+```text
+test_evolution
+```
+
+只存：
+
+> **演进过程证据。**
+
+---
+
+# 十七、“不可自修改”也重新定义
+
+审计说得对。
+
+单人本地 Repository 没必要装成军事级 ACL。
+
+更诚实的设计是：
+
+> **CTE 的执行代码不存在修改这些资产的写路径。**
+
+比如：
+
+```python
+IMMUTABLE_TARGETS = [
+    "golden ground truth",
+    "holdout labels",
+    "security invariants",
+    "promotion policy",
+]
+```
+
+这不是为了真的防止一个拥有 shell 全权限的 Agent。
+
+如果 Agent 拿到了：
+
+```bash
+rm -rf .
+```
+
+那你文件级设计已经没意义。
+
+真正目标是：
+
+> 正常 CTE Workflow 中不存在合法写入口。
+
+同时 Git 负责审计。
+
+这正符合你之前 Agent 权限体系里那个原则：
+
+```text
+模型不是安全边界
+```
+
+---
+
+# 十八、KPI 也砍掉
+
+MVP 不需要十个指标。
+
+CTE-1 只记录三个：
+
+### Candidate Count
+
+产生多少 Candidate。
+
+### Validated Candidate Count
+
+最终机器验证 + 人工批准多少。
+
+### Executable Test Yield
+
+```text
+最终可稳定运行的新测试
+/
+AI 提出的 NEW_TEST
+```
+
+就够了。
+
+先积累：
+
+```text
+20+
+50+
+```
+
+Candidate。
+
+以后再讨论：
+
+```text
+Acceptance Rate
+Regression Catch Rate
+Mutation Delta
+False Promotion
+```
+
+否则：
+
+```text
+1 个 Candidate
+1 个接受
+
+Acceptance Rate = 100%
+```
+
+数学上正确，信息量和天气预报说“明天地球仍将存在”差不多。
+
+---
+
+# 十九、Jenkins 我也赞同从 CTE 主设计里拿出去
+
+**CTE 本身不需要 Jenkins。**
+
+现在项目 CI 已经是 GitHub Actions。:chatgpt-content-reference{index="7"}
+
+所以：
+
+```text
+Gate CI
+→ GitHub Actions
+```
+
+继续。
+
+如果未来：
+
+```text
+Live PaddleOCR
+```
+
+跑起来太慢或者模型缓存麻烦：
+
+```text
+GitHub Actions
+↓
+self-hosted runner
+```
+
+是一条很自然的升级路线。
+
+Jenkins 可以作为你**测试开发 / DevOps 技能实践**另外加。
+
+毕竟你已经实际做过 Jenkins Pipeline，这块本身对你的求职有价值。
+
+但不要出现这种架构：
+
+```text
+为了学 Jenkins
+↓
+CTE 必须部署 Jenkins
+```
+
+工具应该服务架构，而不是架构服务简历关键词。
+
+---
+
+# 二十、修正后的实施顺序
+
+所以现在 P5 应该彻底改成：
+
+```text
+P5 Continuous Test Evolution
+│
+├── CTE-0  Foundation
+│     ├── test_evolution/ 目录
+│     ├── Event Schema
+│     ├── Candidate Schema
+│     ├── Validation Matrix
+│     └── Surface Readiness
+│
+├── CTE-1  Knowledge / Threat MVP
+│     │
+│     └── 用“我征信上有什么问题”
+│         跑完整闭环
+│
+├── CTE-2  OCR Reality
+│     ├── 真 PaddleOCR
+│     ├── record OCR snapshot
+│     ├── replay in CI
+│     ├── degraded images
+│     └── baseline migration
+│
+├── CTE-3  OCR / Adjudication Evolution
+│
+├── CTE-4  Automatic NEW_TEST Generation
+│
+├── CTE-5  Holdout Promotion Gate
+│
+├── CTE-6  Mutation Testing
+│
+└── Future
+      PR-aware evolution / RAG
+```
+
+这里和上一版最大的变化是：
+
+```text
+CTE-1
+```
+
+和：
+
+```text
+CTE-2
+```
+
+**可以并行。**
+
+这非常关键。
+
+---
+
+# 二十一、我现在会怎么开工
+
+现在根本不用等真实图片全部准备完。
+
+第一条任务直接定成：
+
+> **CTE-0 + CTE-1：使用已有“征信问题绕过”历史案例，实现第一个从真实失败 → Event → Prediction → Retro → Candidate → Validation → Promotion → 正式 Threat Regression Asset 的完整闭环。**
+
+这个成功以后，你已经证明：
+
+> Continuous Test Evolution **机制本身成立**。
+
+与此同时另一个工作流做：
+
+> **CTE-2：为现有 Golden 数据建立 PaddleOCR record/replay snapshot，使 CI 使用真实 OCR 派生字段而不实时依赖 PaddleOCR。**
+
+等 CTE-2 完成：
+
+```text
+OCR
+Adjudication
+```
+
+两个 Surface 再解除演进门禁。
+
+---
+
+## 所以现在真正的两条主线
+
+```text
+          P5 CTE
+            │
+      ┌─────┴─────┐
+      ↓           ↓
+  Track A       Track B
+
+机制验证        数据真实性
+
+Knowledge       PaddleOCR
+Threat           Record
+  ↓              Replay
+第一条闭环        Baseline Migration
+      │           │
+      └─────┬─────┘
+            ↓
+      OCR / Adjudication
+             CTE
+```
+
+**这版我认为就已经可以动工了。**
+
+它最大的改善不是“方案写得更完整”，而是把原先那个错误的串行依赖：
+
+```text
+先解决所有 OCR 数据问题
+↓
+才能做 CTE
+```
+
+改成了：
+
+```text
+CTE 机制
+与
+OCR 数据真实性
+并行推进
+```
+
+同时又没有假装当前 OCR/双判数据已经足够可靠。你现在的项目本来也明确承认：合成数据不等于真实分布、OCR 未处理真实证件、双判正确性受字段真实性制约。:chatgpt-content-reference{index="9"}
+
+所以这次审计不是把 P5 推倒重来，而是**把 CTE 从一个概念方案修成了真正适配 BankOCR 现状的工程方案**。

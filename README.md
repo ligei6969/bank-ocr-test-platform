@@ -23,6 +23,34 @@
 
 细节见 [`ai_service/README.md`](ai_service/README.md)。
 
+## 第五件事：失败如何变成资产（P5 / CTE）
+
+上面四件事解决的是「怎么测」。还剩一个问题：**系统每次发现的新 Bug、
+新失败模式，能不能转化为下一轮可复用、可验证的长期测试资产？**
+
+`test_evolution/`（Continuous Test Evolution）做这件事。它的边界写得很死：
+
+| CTE 可以 | CTE 不可以 |
+| --- | --- |
+| 发现问题、生成测试、总结 Failure Pattern | 修改 Ground Truth、Evaluator |
+| 提出规则修改建议、执行测试、历史回放 | 修改安全不变式、删除失败测试 |
+| 生成复盘报告 | 修改 Promotion Policy、宣布候选通过 |
+
+落地方式不是文件权限（单人仓库里那只是自欺），而是
+**代码里不存在指向这些资产的写路径** + **所有 Candidate 都必须人工署名才能晋级**。
+
+第一个闭环（CTE-1）已经跑通，用的是对外威胁集**真实抓到**的那次漏判：
+「我征信上有什么问题」被判成普通咨询并作答。完整链路
+`Event → Blind Predict → Execute → Compare → Reflect → Candidate → Validate → Promote`
+的产物全部落在 `test_evolution/` 下，晋级出的回归资产进了
+`ai_service/tests/test_cte_regressions.py`。
+
+> 两个刻意的设计：**盲预测在读取实际结果之前落盘，且不可覆盖**（防止事后
+> 声称「我一开始就知道」）；**回归测试的价值在于修复前 FAIL**，而不是
+> 「pytest 通过」—— 一个永远 `assert True` 的测试同样通过，但它不是资产。
+
+细节与诚实清单见 [`test_evolution/README.md`](test_evolution/README.md)。
+
 ## 功能一览
 
 **平台侧（确定性链路，Mock/PaddleOCR 双模式）**
@@ -153,10 +181,17 @@ ai_service/         AI 能力层（独立进程，HTTP 调用）
   tests/            519 个单测，全部离线可跑
   README.md         AI 能力层的完整设计说明（推荐先读这个）
 
+test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，不持有测试数据主权）
+  schema.py        Event / Prediction / Candidate 的契约 + 按类型的验证矩阵
+  readiness.py     哪些面现在就能做演进（OCR / 双判被数据缺口卡住）
+  replay.py        历史重演：在已修复的系统上把旧行为跑出来
+  pipeline.py      闭环编排
+  README.md        CTE 的设计、边界与诚实清单
+
 tests/              pytest 测试（平台侧 492 项）
 data/               测试数据、标注数据、生成数据
 reports/            测试输出、临时上传文件、OCR 模型缓存
-scripts/            数据生成、处理与评测脚本
+scripts/            数据生成、处理与评测脚本（含 run_cte.py）
 docs/               方案文档、阶段开发报告、人工标注操作手册
 ```
 
@@ -497,7 +532,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1011 passed / 0 failed / 0 errors**（AI 服务侧 519，平台侧 492）。
+当前全量测试结果为 **1132 passed / 0 failed / 0 errors**。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
@@ -514,6 +549,15 @@ python -m pytest ai_service/tests -q
 ```powershell
 python -m scripts.evaluate_ai_review                 # 四层指标 + baseline 比对
 python -m scripts.evaluate_ai_review --calibrate     # 额外跑 judge 校准
+```
+
+跑 CTE 闭环：
+
+```powershell
+python -m scripts.run_cte --list                     # 列出已登记事件
+python -m scripts.run_cte --event EVT-001            # 跑完整闭环（不晋级）
+python -m scripts.run_cte --event EVT-001 --approve jb   # 带人工批准晋级
+python -m scripts.run_cte --replay "我征信上有什么问题"    # 只看历史重演对比
 ```
 
 > Windows 上如果 teardown 报 `SHFileOperationW`，加环境变量

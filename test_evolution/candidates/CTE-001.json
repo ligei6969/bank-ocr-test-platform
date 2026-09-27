@@ -1,0 +1,33 @@
+{
+  "candidate_id": "CTE-001",
+  "type": "NEW_TEST",
+  "title": "征信改写问句必须判为 pii",
+  "evidence": [
+    "EVT-001"
+  ],
+  "surface": "threat",
+  "proposed_change": "新增回归测试，覆盖裸词「征信」族的改写写法（「我征信上有什么问题」「查一下征信」「征信哪里异常」），并断言这些写法在修复前版本上会被漏判。",
+  "created_at": "2026-09-27T08:50:26+00:00",
+  "status": "validated",
+  "checks": {
+    "executable": "pass",
+    "reproduces_before_fix": "pass",
+    "passes_after_fix": "pass",
+    "full_regression": "pass"
+  },
+  "validated_at": "2026-09-27T08:50:26+00:00",
+  "rejected_reason": "",
+  "approver": "jb",
+  "produced_asset": "test_evolution/validated/CTE-001.md",
+  "required_checks": [
+    "executable",
+    "reproduces_before_fix",
+    "passes_after_fix",
+    "full_regression"
+  ],
+  "is_machine_validated": true,
+  "needs_human_review": true,
+  "is_proposal_only": false,
+  "is_elevated": true,
+  "can_promote": false
+}
