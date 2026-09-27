@@ -68,7 +68,7 @@ test_evolution/events/EVT-001..006.json          六个事件
 test_evolution/predictions/PRED-EVT-00*.json     盲预测（执行前落盘）
 test_evolution/retros/EVT-00*.md                 复盘
 test_evolution/candidates/CTE-00*.json           候选
-test_evolution/validated/CTE-001.md              晋级后的知识
+test_evolution/validated/CTE-00{1,2,4,5}.md     晋级后的知识（4 条，与署名候选一一对应）
 ```
 
 ---
@@ -235,23 +235,35 @@ mock 的拼接行为上**。
 ### 产出的事件
 
 `EVT-002` 走完整闭环 → 提案 `CTE-002`（`NEW_TEST`）。
-关键设计：它的 `passes_after_fix` 是 **`skipped`** —— 缺陷还没修，
-没有「修复后」可测。这让 `is_machine_validated` 为假、`can_promote` 为假，
-**即便有人签名也晋级不了**。CTE 只提交提案，改 parser 由人决定。
+
+**当时的** `passes_after_fix` 是 **`skipped`** —— 缺陷还没修，没有「修复后」可测。
+这让 `is_machine_validated` 为假、`can_promote` 为假，**即便有人签名也晋级不了**。
+CTE 只提交提案，改 parser 由人决定。
+
+> **后续状态**：修复在 CTE-3 落地后，同一条候选重跑得到
+> `passes_after_fix=pass`，并已署名晋级（`validated/CTE-002.md`）。
+> 这条演进本身就是被测试守着的行为
+> （`test_cte3_lands_the_parser_fix_and_completes_cte_002`）——
+> 不是靠人记得回来改记录。
 
 ---
 
 ## 四之三、CTE-3：把暴露出来的缺陷修掉
 
 CTE-2 交付了「能看见真实行为」的能力，CTE-3 用它把看见的问题变成事件、
-按边界修复、再验证。**四个事件，两个真实修复。**
+按边界修复、再验证。**CTE-3 阶段四个事件、两个真实修复**（`EVT-005`/`EVT-006`
+是后续阶段追加的，一并列在下面）。
 
-| 事件 | surface | 结论 | 候选 | 状态 |
+| 事件 | surface | 结论 | 候选 | 状态（与磁盘一致） |
 | --- | --- | --- | --- | --- |
-| `EVT-001` | threat | 征信改写绕过关键词表 | `CTE-001` NEW_TEST | 已验证、已晋级 |
-| `EVT-002` | ocr | 身份证解析要求标签与值同行 | `CTE-002` NEW_TEST | 已修复、已验证 |
-| `EVT-003` | ocr | 分不清「OCR 没认出来」与「解析器没取到」 | `CTE-003` DOCUMENTATION | 只产出方法 |
-| `EVT-004` | adjudication | 严重退化被字段缺失降级 | `CTE-004` NEW_TEST | 已修复、已验证 |
+| `EVT-001` | threat | 征信改写绕过关键词表 | `CTE-001` NEW_TEST | `validated`（批准人 jb） |
+| `EVT-002` | ocr | 身份证解析要求标签与值同行 | `CTE-002` NEW_TEST | `validated`（批准人 jb） |
+| `EVT-003` | ocr | 分不清「OCR 没认出来」与「解析器没取到」 | `CTE-003` DOCUMENTATION | `candidate`（无署名，未晋级） |
+| `EVT-004` | adjudication | 严重退化被字段缺失降级 | `CTE-004` NEW_TEST | `validated`（批准人 jb） |
+| `EVT-005` | ocr | 出生标签被截断导致日期解析失败 | `CTE-005` NEW_TEST | `validated`（批准人 jb） |
+| `EVT-006` | ocr | 银行卡模糊姓名被认成有效期标签 | **无**（有意不产出） | 已登记、**未修** |
+
+`validated/` 共 **4** 条，与 4 个有署名的候选一一对应。
 
 ### 修复一：解析器跨行取值（EVT-002）
 

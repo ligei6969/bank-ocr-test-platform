@@ -608,6 +608,63 @@ def test_adjudication_validation_reports_skipped_before_the_fix_lands(root):
     assert outcome["candidate"]["is_machine_validated"] is False
 
 
+def test_a_wrong_value_is_not_reported_as_a_successful_parse(root):
+    """「取到」与「取对」必须分开报 —— 否则实际结果会自相矛盾。
+
+    EVT-006 踩到过：姓名被认成 ``VALID THIRU``，字段**非空**，
+    于是 ``actual_result`` 打印成「3 个字段解析成功」。可它明明发生了失败。
+    只数「有几个字段非空」的措辞会让复盘读起来像成功。
+    """
+    from test_evolution.pipeline import EVENT_LOG, execute, observe
+
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-006")
+    event = observe(spec, root=root)
+    execution = execute(event)
+
+    assert execution.detail["wrong_fields"] == ["name"]
+    assert "值与真值不符" in execution.actual_result
+    assert "解析成功" not in execution.actual_result
+
+
+def test_record_only_events_do_not_claim_a_candidate_exists(root):
+    """有意不产出候选的事件，复盘不能指向一个不存在的 Candidate。
+
+    初版把「见同目录 Candidate」写死成默认文案 —— EVT-006 的复盘末尾
+    让读者去找候选，而它有意没有候选。
+    """
+    from test_evolution.pipeline import EVENT_LOG, RECORD_ONLY, blind_predict, compare, execute, observe, reflect
+
+    assert "EVT-006" in RECORD_ONLY
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-006")
+    event = observe(spec, root=root)
+    prediction = blind_predict(event, root=root)
+    execution = execute(event)
+    comparison = compare(
+        prediction, execution, expected=event.expected_result, known_patterns=()
+    )
+    path = reflect(event, comparison, root=root, executor=execution.executor)
+    body = path.read_text(encoding="utf-8")
+
+    assert "见同目录 Candidate" not in body, "该事件没有候选，不该让读者去找"
+    assert "有意不产出 Candidate" in body
+
+
+def test_record_only_events_are_distinguished_from_unconfigured_ones():
+    """「有意不产出」与「忘了配方案」必须在代码上分开。
+
+    两种情况在 CLI 里长得一样（都落到「还没配方案」分支），
+    而那个分支的提示语会误导 —— 它叫人去补方案，
+    而 RECORD_ONLY 里的事件恰恰是「已经想清楚、现在不该产出候选」。
+    """
+    from scripts.run_cte import CANDIDATE_PLAN, FIX_LANDED, RECORD_ONLY
+    from test_evolution.pipeline import EVENT_LOG
+
+    event_ids = {s["event_id"] for s in EVENT_LOG}
+    assert set(RECORD_ONLY) <= event_ids, "RECORD_ONLY 里有未登记的事件"
+    assert not (set(RECORD_ONLY) & set(CANDIDATE_PLAN)), "两处不能同时声明"
+    assert all(reason for reason in RECORD_ONLY.values()), "必须写明为什么不产出候选"
+
+
 def test_loop_writes_nothing_outside_its_own_tree(root):
     """CTE 不得越界写文件 —— 这是「不可自修改区」在行为层的证据。"""
     run_event_loop(

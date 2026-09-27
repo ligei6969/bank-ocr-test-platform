@@ -76,7 +76,7 @@ test_evolution/
 ├── predictions/    Phase 2 产物（写盘后不可覆盖）
 ├── retros/         Phase 5 产物
 ├── candidates/     Phase 6 产物
-├── validated/      晋级后的知识（未来 RAG 的**唯一**索引源）
+├── validated/      晋级后的知识（4 条，与署名候选一一对应）
 ├── rejected/       被拒的提议 + 原因
 └── reports/
 ```
@@ -204,9 +204,12 @@ Candidate  CTE-001  [NEW_TEST]  validated
 ### 产出的事件
 
 `EVT-002` 已走完整闭环，产出 `CTE-002`（`NEW_TEST`，提案：让 parser 容忍跨行）。
-它的 `passes_after_fix` 是 **`skipped`** —— 因为缺陷还没修，没有「修复后」可测。
+
+**提出时的** `passes_after_fix` 是 **`skipped`** —— 缺陷还没修，没有「修复后」可测。
 这让 `is_machine_validated` 为假、晋级被挡住：**提案不能自己宣布自己成立**。
-改 parser 属于生产代码，按 CTE 边界要由人决定后另开 commit。
+
+> 修复在 CTE-3 落地后，同一条候选重跑得到 `passes_after_fix=pass` 并已晋级。
+> 这个状态迁移由 `test_cte3_lands_the_parser_fix_and_completes_cte_002` 守着。
 
 ## 六之三、CTE-3：修掉暴露出来的缺陷（已完成）
 
@@ -216,10 +219,10 @@ CTE-2 录下真实观测之后，CTE-3 把它们变成事件、按边界修复�
 
 | 事件 | surface | 结论 | 候选 |
 | --- | --- | --- | --- |
-| `EVT-001` | threat | 征信改写绕过关键词表 | `CTE-001` NEW_TEST（已验证、已晋级） |
-| `EVT-002` | ocr | 身份证解析要求标签与值同行 | `CTE-002` NEW_TEST（已修复、已验证） |
-| `EVT-003` | ocr | 分不清「OCR 没认出来」与「解析器没取到」 | `CTE-003` DOCUMENTATION（仅方法） |
-| `EVT-004` | adjudication | 严重退化被字段缺失降级成转人工 | `CTE-004` NEW_TEST（已修复、已验证） |
+| `EVT-001` | threat | 征信改写绕过关键词表 | `CTE-001` NEW_TEST（`validated`） |
+| `EVT-002` | ocr | 身份证解析要求标签与值同行 | `CTE-002` NEW_TEST（`validated`） |
+| `EVT-003` | ocr | 分不清「OCR 没认出来」与「解析器没取到」 | `CTE-003` DOCUMENTATION（`candidate`，未署名） |
+| `EVT-004` | adjudication | 严重退化被字段缺失降级成转人工 | `CTE-004` NEW_TEST（`validated`） |
 
 ### 修了什么
 

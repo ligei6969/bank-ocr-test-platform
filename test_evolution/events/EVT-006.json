@@ -1,0 +1,13 @@
+{
+  "event_id": "EVT-006",
+  "source": "ocr_error",
+  "surface": "ocr",
+  "title": "银行卡模糊样本的姓名被识别成有效期标签（VALID THIRU）",
+  "observed_at": "2026-09-27T14:54:16+00:00",
+  "system_version": "HEAD",
+  "input_case": "data/processed/bank_card/blur/bank_card_0001.png",
+  "current_result": "name='VALID THIRU'（真值 'ZHU BIN'）",
+  "expected_result": "name='ZHU BIN'",
+  "notes": "CTE-5 把快照扩到全量 2100 张后，错误率基线显示 bank_card/blur 的 name 只有 48%，其中 31% 是**解析器责任** —— 文本里有名字，解析器取错了行。逐条看：模糊图上 CARD HOLDER 被 OCR 认成 CARD HOLDEN，标签正则匹配不上，于是退回「取第一行像人名的」；而 VALID THIRU 这行（有效期标签也被认糊）恰好符合人名的形状（两个词、全字母、非停用词）。样本量 5 张时看不见这个模式，100 张时它占了三成。**本事件尚未修复** —— 它需要先确定「怎么判断一行是不是有效期标签」（改停用词？按位置？按与 VALID/THRU 的模糊匹配？），那是设计选择，不是显而易见的修法。",
+  "learning_blocked": false
+}

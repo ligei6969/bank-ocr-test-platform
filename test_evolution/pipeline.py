@@ -308,12 +308,23 @@ def _execute_ocr(
         parsed = observed.parsed_fields
         source = "快照录制时的解析结果"
 
-    # 「实际结果」用解析出的字段里有多少个非空来表达 —— 这比一个布尔
-    # 更能反映「到底差多远」，也是本事件的核心观测。
+    # 「实际结果」的措辞要区分**取到**与**取对**。
+    #
+    # 只数「有几个字段非空」会把「取到了但取错」报成成功 ——
+    # EVT-006 就踩到了：姓名被认成 VALID THIRU，字段非空，
+    # 于是实际结果打印成「3 个字段解析成功」，与「发生了失败」自相矛盾。
     populated = sorted(k for k, v in parsed.items() if v and not k.startswith("_"))
+    wrong = _wrong_fields(parsed, observed.image_path, event.event_id)
+    if wrong:
+        actual = f"取到 {len(populated)} 个字段，但 {len(wrong)} 个值与真值不符：{wrong}"
+    elif populated:
+        actual = f"{len(populated)} 个字段解析成功：{populated}"
+    else:
+        actual = "无字段解析成功"
+
     return Execution(
         event_id=event.event_id,
-        actual_result=f"{len(populated)} 个字段解析成功：{populated}" if populated else "无字段解析成功",
+        actual_result=actual,
         executor=f"ocr_snapshot@{observed.engine_version}（{source}）",
         detail={
             "ocr_texts": observed.ocr_texts,
@@ -322,9 +333,75 @@ def _execute_ocr(
             "quality_result": observed.quality.get("quality_result"),
             "parse_error": observed.parse_error,
             "populated_fields": populated,
+            "wrong_fields": wrong,
             "reparsed": reparse,
         },
     )
+
+
+#: **有意只记录、不产出 Candidate** 的事件。
+#:
+#: 判据是「修法需要设计选择」：有多个方向、各有取舍，
+#: 属于产品/设计判断而不是显而易见的缺陷修复。按 CTE 边界，
+#: 这类只登记量化证据，把决定留给人。
+#:
+#: 放在本模块而不是 CLI：复盘渲染需要知道「这次有没有候选」，
+#: 才能写对「该补什么资产」那一节 —— 写死「见同目录 Candidate」
+#: 会在只记录的事件上指向一个不存在的文件。
+RECORD_ONLY: Dict[str, str] = {
+    "EVT-006": (
+        "修法有多个方向（扩充停用词 / 与有效期标签做模糊匹配 / "
+        "要求姓名行与卡号行相邻），各有取舍 —— 属于设计选择。"
+        "CTE-5 已量化证据（bank_card/blur 的 name 48%，31% 解析器责任），"
+        "决定留给人。"
+    ),
+}
+
+#: 事件 → 这条事件关心哪些字段的**值**是否正确。
+#:
+#: 只对「值取错了」类的事件有意义（EVT-006 是姓名被认成有效期标签）。
+#: 没登记的事件返回空 —— 不猜。
+EVENT_VALUE_CHECK: Dict[str, tuple] = {
+    "EVT-006": ("name",),
+}
+
+
+def _wrong_fields(
+    parsed: Mapping[str, Any], image_path: str, event_id: str
+) -> list:
+    """比对真值，返回**值与真值不符**的字段名。
+
+    真值来自 ``labels.json`` —— 它是人工标注，用来判「对不对」，
+    与「拿它当输入」是两回事。取不到真值时返回空（不判）。
+    """
+    fields = EVENT_VALUE_CHECK.get(event_id)
+    if not fields:
+        return []
+
+    labels_path = ROOT_DIR / "data" / "annotations" / "labels.json"
+    if not labels_path.is_file():
+        return []
+
+    import json as _json
+    import re as _re
+
+    from test_evolution.ocr_snapshot import _key
+
+    def norm(value: Any) -> str:
+        return _re.sub(r"[\s\-]", "", str(value or "")).upper()
+
+    truth: Dict[str, Any] = {}
+    wanted = _key(image_path)
+    for item in _json.loads(labels_path.read_text(encoding="utf-8")):
+        if _key(str(item.get("image_path") or "")) == wanted:
+            truth = dict(item.get("fields") or {})
+            break
+
+    if not truth:
+        return []
+    return [
+        name for name in fields if norm(parsed.get(name)) != norm(truth.get(name))
+    ]
 
 
 def _reparse(observed: Any) -> Dict[str, Any]:
@@ -724,7 +801,16 @@ def render_retro(
             },
         )
     )
-    sections.setdefault("assets", "见同目录 Candidate。")
+    # 「该补什么资产」的默认文案要**看这次到底产没产 Candidate**。
+    # 写死「见同目录 Candidate」在只记录的事件上会指向一个不存在的文件 ——
+    # EVT-006 就是这样：复盘末尾让读者去找候选，而它有意没有候选。
+    sections.setdefault(
+        "assets",
+        "**本事件有意不产出 Candidate** —— 修法需要设计选择，决定留给人。"
+        "证据已在复盘里量化，不需要新的测试资产。"
+        if event.event_id in RECORD_ONLY
+        else "见同目录 Candidate。",
+    )
     sections.update(extra_sections or {})
 
     return RETRO_TEMPLATE.format(

@@ -7,18 +7,18 @@
   ],
   "surface": "ocr",
   "proposed_change": "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。同类四处一并修：地址跨行收集、id_number 正则拒绝前导零、valid_period 只认同行。新增测试用真实 OCR 的分行序列做输入，断言解析器能取到 OCR 已经给出的字段。\n**CTE-3 已落地该修复**（人工决定后由开发提交），所以本次验证的 passes_after_fix 有可测对象。",
-  "created_at": "2026-09-27T10:29:28+00:00",
-  "status": "machine_validated",
+  "created_at": "2026-09-27T14:50:44+00:00",
+  "status": "validated",
   "checks": {
     "executable": "pass",
     "reproduces_before_fix": "pass",
     "passes_after_fix": "pass",
     "full_regression": "pass"
   },
-  "validated_at": "",
+  "validated_at": "2026-09-27T14:50:44+00:00",
   "rejected_reason": "",
-  "approver": "",
-  "produced_asset": "",
+  "approver": "jb",
+  "produced_asset": "test_evolution/validated/CTE-002.md",
   "required_checks": [
     "executable",
     "reproduces_before_fix",
@@ -28,6 +28,6 @@
   "is_machine_validated": true,
   "needs_human_review": true,
   "is_proposal_only": false,
-  "is_elevated": false,
+  "is_elevated": true,
   "can_promote": false
 }

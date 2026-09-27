@@ -46,7 +46,16 @@ def _make_stdout_utf8() -> None:
 
 _make_stdout_utf8()
 
-from test_evolution.pipeline import EVENT_LOG, observe, run_event_loop  # noqa: E402
+from test_evolution.pipeline import (  # noqa: E402
+    EVENT_LOG,
+    RECORD_ONLY,
+    blind_predict,
+    compare,
+    execute,
+    observe,
+    reflect,
+    run_event_loop,
+)
 from test_evolution.readiness import learning_allowed  # noqa: E402
 from test_evolution.replay import POLICY_HISTORY, current_behaviour, replay  # noqa: E402
 from test_evolution.schema import (  # noqa: E402
@@ -125,7 +134,8 @@ CANDIDATE_PLAN = {
             "与 _extract_address 对「址」的处理保持一致。\n"
             "新增两条测试：`出1996年1月12日` → 1996-01-12（真实样本形状）；"
             "以及「出生地」「出生1996年」不得被吃进来（放宽标签不等于放宽值）。\n"
-            "**CTE-4 已落地该修复**，快照重录时确认只有这 1 处解析变化、"
+            "**CTE-4 的归因信号指出、修复在验证时落地**，"
+            "快照重录时确认只有这 1 处解析变化、"
             "0 处 OCR 文本变化 —— 精确隔离出这次改动的效果。"
         ),
     },
@@ -169,6 +179,12 @@ def cmd_run(args: argparse.Namespace) -> int:
         return 1
 
     plan = CANDIDATE_PLAN.get(args.event)
+
+    # 有意只记录的事件：落事件 + 执行 + 对比 + 复盘，**到复盘为止**。
+    # 不生成 Candidate 是刻意的判断，不是漏了一步。
+    if plan is None and args.event in RECORD_ONLY:
+        return _cmd_record_only(spec, args)
+
     if plan is None:
         # 区分两种情况：还没配方案，还是**有意不配**（surface 被数据缺口卡住）。
         from test_evolution.readiness import learning_allowed, surface
@@ -186,7 +202,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(
             f"事件 {args.event!r} 还没有配 Candidate 方案。\n"
             "Candidate 的类型是人对复盘的判断，不能在 CLI 里现推 —— "
-            "请在 scripts/run_cte.py 的 CANDIDATE_PLAN 里补上。",
+            "请在 scripts/run_cte.py 的 CANDIDATE_PLAN 里补上，"
+            "或（若判断是「现在不该产出候选」）加进 RECORD_ONLY。",
             file=sys.stderr,
         )
         return 2
@@ -220,6 +237,54 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"签名       {report['approver'] or '（未署名）'}")
     print("=" * 78)
 
+    return 0
+
+
+def _cmd_record_only(spec: dict, args: argparse.Namespace) -> int:
+    """只记录：事件 → 盲预测 → 执行 → 对比 → 复盘，**到此为止**。
+
+    与 ``run_event_loop`` 的区别是它不生成 Candidate —— 那是有意的判断
+    （见 :data:`RECORD_ONLY`），不是流程没跑完。
+    """
+    reason = RECORD_ONLY[spec["event_id"]]
+    event = observe(spec, root=args.root)
+    prediction = blind_predict(event, root=args.root)
+    execution = execute(event, system_version=event.system_version)
+    comparison = compare(
+        prediction, execution, expected=event.expected_result, known_patterns=()
+    )
+
+    if not prediction.is_resolved:
+        from test_evolution.schema import update_prediction
+
+        prediction.record_outcome(
+            execution.actual_result, comparison=comparison.classification
+        )
+        update_prediction(prediction, root=args.root)
+
+    retro = None
+    if comparison.classification in {
+        "known_failure_pattern",
+        "new_failure_pattern",
+        "unexpected_failure",
+        "missed_risk",
+    } or not comparison.prediction_hit:
+        retro = reflect(
+            event, comparison, root=args.root, executor=execution.executor
+        )
+
+    print("=" * 78)
+    print(f"事件       {event.event_id}  {event.title}")
+    print(f"系统版本   {event.system_version}")
+    print(f"盲预测     {prediction.predicted_result}"
+          f"  (命中：{'是' if prediction.hit else '否'})")
+    print(f"实际       {execution.actual_result}")
+    print(f"分类       {comparison.classification}")
+    print(f"复盘       {retro or '（未触发）'}")
+    print("-" * 78)
+    print("Candidate  （有意不产出）")
+    print(f"  原因：{reason}")
+    print("=" * 78)
     return 0
 
 
