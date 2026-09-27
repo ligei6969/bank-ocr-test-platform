@@ -177,3 +177,142 @@ def test_knowledge_endpoint_updates_its_own_surface_metrics() -> None:
     assert response.status_code == 200
     assert 'bank_ocr_agent_requests_total{surface="knowledge",result="success"} 1' in rendered
     assert 'bank_ocr_agent_degraded_total{surface="knowledge"} 1' in rendered
+
+
+# ── 双判改判率（P2.3 / P3）──────────────────────────────────────────────────
+
+def test_adjudication_counts_exclude_degraded_from_the_denominator() -> None:
+    """降级的复核没有「建议」可言，不能进改判率的分母。
+
+    回归：把降级算进分母会让改判率被故障稀释，而且方向是反的 ——
+    故障越多改判率越低，看起来像规则阈值的问题，实际是 AI 服务不可用。
+    """
+    metrics = AgentMetrics()
+    for _ in range(12):
+        metrics.observe("adjudicate", {"decision": "review", "degraded": False})
+    for _ in range(8):
+        metrics.observe("adjudicate", {"decision": "pass", "degraded": False})
+    for _ in range(10):
+        metrics.observe("adjudicate", {"decision": "review", "degraded": True})
+
+    total, overrides, answered = metrics.adjudication_counts()
+
+    assert total == 30          # 全部复核
+    assert overrides == 8
+    assert answered == 20       # 分母只算拿到模型结论的
+
+
+def test_override_rate_is_rendered_as_a_gauge() -> None:
+    metrics = AgentMetrics()
+    for _ in range(3):
+        metrics.observe("adjudicate", {"decision": "pass", "degraded": False})
+    for _ in range(1):
+        metrics.observe("adjudicate", {"decision": "review", "degraded": False})
+
+    output = metrics.render()
+
+    assert "bank_ocr_adjudication_override_rate 0.75" in output
+    assert 'bank_ocr_adjudications_total{decision="pass",result="answered"} 3' in output
+
+
+def test_override_rate_is_absent_when_nothing_was_reviewed() -> None:
+    """一次复核都没跑时不该暴露一个 0 —— 0 会被读成「AI 从不改判」。"""
+    output = AgentMetrics().render()
+
+    assert "bank_ocr_adjudication_override_rate" not in output
+
+
+# ── Z-score 异常检测 ────────────────────────────────────────────────────────
+
+def test_zscore_is_none_when_samples_are_too_few() -> None:
+    """样本不足返回 None（算不出来），而不是 0（正常）—— 两者必须区分。"""
+    from ai_service.metrics import override_rate_zscore
+
+    assert override_rate_zscore(2, 3, baseline_rate=0.2, baseline_samples=200) is None
+    assert override_rate_zscore(10, 50, baseline_rate=0.2, baseline_samples=5) is None
+
+
+def test_alert_fires_when_the_rate_spikes() -> None:
+    from ai_service.metrics import override_rate_alert
+
+    alert = override_rate_alert(20, 40, baseline_rate=0.2, baseline_samples=200)
+
+    assert alert is not None
+    assert "飙升" in alert
+    assert "Z=" in alert
+
+
+def test_alert_is_silent_at_the_baseline_rate() -> None:
+    from ai_service.metrics import override_rate_alert
+
+    assert override_rate_alert(8, 40, baseline_rate=0.2, baseline_samples=200) is None
+
+
+def test_a_drop_also_alerts_with_the_opposite_wording() -> None:
+    """改判率骤降同样要报 —— AI 可能已经不干活了。"""
+    from ai_service.metrics import override_rate_alert
+
+    alert = override_rate_alert(0, 200, baseline_rate=0.3, baseline_samples=200)
+
+    assert alert is not None
+    assert "骤降" in alert
+
+
+def test_zero_baseline_makes_any_override_anomalous() -> None:
+    """基线恒为 0 时标准差也是 0，除法无意义 —— 用哨兵值而不是崩掉。"""
+    from ai_service.metrics import override_rate_alert, override_rate_zscore
+
+    assert override_rate_zscore(0, 50, baseline_rate=0.0, baseline_samples=200) == 0.0
+    alert = override_rate_alert(1, 50, baseline_rate=0.0, baseline_samples=200)
+    assert alert is not None and "飙升" in alert
+
+
+# ── /metrics 端点上的改判率异常告警 ─────────────────────────────────────────
+
+def test_metrics_endpoint_omits_the_baseline_gauges_without_configuration(monkeypatch) -> None:
+    """没配基线就不输出该 gauge —— 拿当前值当基线会让它永远显示「正常」。"""
+    monkeypatch.delenv("AI_OVERRIDE_BASELINE_RATE", raising=False)
+    client = TestClient(create_app())
+
+    body = client.get("/metrics").text
+
+    assert "bank_ocr_adjudication_anomaly" not in body
+
+
+def test_metrics_endpoint_flags_an_anomalous_override_rate(monkeypatch) -> None:
+    monkeypatch.setenv("AI_OVERRIDE_BASELINE_RATE", "0.05")
+    monkeypatch.setenv("AI_OVERRIDE_BASELINE_SAMPLES", "200")
+    app = create_app()
+    metrics = app.state.agent_metrics
+    for _ in range(30):
+        metrics.observe("adjudicate", {"decision": "pass", "degraded": False})
+
+    body = TestClient(app).get("/metrics").text
+
+    assert "bank_ocr_adjudication_anomaly 1" in body
+    assert "bank_ocr_adjudication_override_rate_zscore" in body
+
+
+def test_metrics_endpoint_does_not_flag_a_normal_rate(monkeypatch) -> None:
+    monkeypatch.setenv("AI_OVERRIDE_BASELINE_RATE", "0.5")
+    monkeypatch.setenv("AI_OVERRIDE_BASELINE_SAMPLES", "200")
+    app = create_app()
+    metrics = app.state.agent_metrics
+    for _ in range(15):
+        metrics.observe("adjudicate", {"decision": "pass", "degraded": False})
+    for _ in range(15):
+        metrics.observe("adjudicate", {"decision": "review", "degraded": False})
+
+    body = TestClient(app).get("/metrics").text
+
+    assert "bank_ocr_adjudication_anomaly 0" in body
+
+
+def test_metrics_endpoint_ignores_a_non_numeric_baseline(monkeypatch) -> None:
+    """配错格式时忽略并继续，而不是 500 —— 指标端点不该因配置错误挂掉。"""
+    monkeypatch.setenv("AI_OVERRIDE_BASELINE_RATE", "二十个点")
+
+    response = TestClient(create_app()).get("/metrics")
+
+    assert response.status_code == 200
+    assert "bank_ocr_adjudication_anomaly" not in response.text

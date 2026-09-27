@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 import secrets
 import time
@@ -28,7 +29,7 @@ from ai_service.adjudication import adjudicate
 from ai_service.agent import run_agent_for_context
 from ai_service.explain import ReviewContext, ReviewExplainer, build_explainer
 from ai_service.llm import build_llm_client
-from ai_service.metrics import AgentMetrics
+from ai_service.metrics import AgentMetrics, override_rate_alert, override_rate_zscore
 from ai_service.knowledge.agent import KnowledgeAgent
 from ai_service.knowledge.api import create_knowledge_router
 from ai_service.tools import TOOL_WHITELIST
@@ -79,6 +80,62 @@ class SearchRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=MAX_TOP_K)
     reason_codes: List[str] = Field(default_factory=list)
     doc_type: Optional[str] = None
+
+
+def _render_metrics(metrics: AgentMetrics) -> str:
+    """渲染 Prometheus 文本，并附上改判率异常状态。
+
+    异常以 **gauge** 形式暴露而不是只写日志：融合方案第 202 行要求「改判率
+    飙升要报警」，而报警要能接进既有的抓取链路（Prometheus 规则 / Grafana），
+    写日志等于让人去翻日志 —— 那就不叫告警了。
+
+    ``AI_OVERRIDE_BASELINE_RATE`` 是基线的唯一来源。没配时**不输出该 gauge**，
+    而不是拿当前值当基线 —— 那会让它永远显示「正常」，比没有更糟。
+    """
+    output = metrics.render()
+    baseline_raw = os.getenv("AI_OVERRIDE_BASELINE_RATE", "").strip()
+    if not baseline_raw:
+        return output
+    try:
+        baseline_rate = float(baseline_raw)
+    except ValueError:
+        logger.warning("AI_OVERRIDE_BASELINE_RATE 不是数字，已忽略：%r", baseline_raw)
+        return output
+
+    try:
+        baseline_samples = max(1, int(os.getenv("AI_OVERRIDE_BASELINE_SAMPLES", "200") or 200))
+    except ValueError:
+        baseline_samples = 200
+
+    _total, overrides, answered = metrics.adjudication_counts()
+    zscore = override_rate_zscore(
+        overrides,
+        answered,
+        baseline_rate=baseline_rate,
+        baseline_samples=baseline_samples,
+    )
+    alert = override_rate_alert(
+        overrides,
+        answered,
+        baseline_rate=baseline_rate,
+        baseline_samples=baseline_samples,
+    )
+    if alert:
+        logger.warning("改判率异常：%s", alert)
+
+    lines = [
+        "# HELP bank_ocr_adjudication_anomaly 1 表示改判率相对基线异常（|Z| 超阈值）；样本不足时恒为 0。",
+        "# TYPE bank_ocr_adjudication_anomaly gauge",
+        f"bank_ocr_adjudication_anomaly {1 if alert else 0}",
+    ]
+    if zscore is not None and math.isfinite(zscore):
+        lines.insert(
+            0,
+            "# HELP bank_ocr_adjudication_override_rate_zscore AI 改判率相对基线的 Z 值。",
+        )
+        lines.insert(1, "# TYPE bank_ocr_adjudication_override_rate_zscore gauge")
+        lines.insert(2, f"bank_ocr_adjudication_override_rate_zscore {zscore:.4f}")
+    return output + "\n".join(lines) + "\n"
 
 
 def create_app(
@@ -132,7 +189,7 @@ def create_app(
             if not configured_token or not secrets.compare_digest(supplied, expected):
                 raise HTTPException(status_code=403, detail="Metrics access denied.")
         return Response(
-            content=metrics.render(),
+            content=_render_metrics(metrics),
             media_type="text/plain; version=0.0.4; charset=utf-8",
         )
 

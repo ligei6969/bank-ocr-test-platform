@@ -68,7 +68,7 @@ python -m ai_service --ask "那需要什么材料" --history session.json
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | GET | `/health` | 探活，报告 LLM 是否可用、索引规模 |
-| GET | `/metrics` | Prometheus 文本指标（进程内聚合，重启清零） |
+| GET | `/metrics` | Prometheus 文本指标（进程内聚合，重启清零；含双判改判率与异常告警） |
 | GET | `/tools/stats` | 工具的成功率、平均延迟、熔断状态 |
 | POST | `/explain` | 固定流水线：传入脱敏后的审核上下文，返回解释 |
 | POST | `/agent/explain` | **P1 Agent 路径**：多步决策，返回 trace / 预算 / token 用量 |
@@ -110,6 +110,8 @@ python -m ai_service --ask "那需要什么材料" --history session.json
 | `LLM_MODEL` | `gpt-4o-mini` | 模型名 |
 | `LLM_TIMEOUT_S` | `20` | 单次模型调用超时 |
 | `LLM_MAX_RETRIES` | `0` | 重试次数，保持测试确定性所以默认 0 |
+| `AI_OVERRIDE_BASELINE_RATE` | 空 | 改判率基线（0~1）。配置后才输出异常告警 gauge |
+| `AI_OVERRIDE_BASELINE_SAMPLES` | `200` | 基线的样本量，用于估计标准差；双方样本不足时不告警 |
 
 **没配 key 会发生什么**：不是在报错，而是自动切换到确定性策略 ——
 查询改写用规则同义词扩展、重排用共识度排序、措辞用模板拼装。
