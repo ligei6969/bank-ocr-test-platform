@@ -175,6 +175,24 @@ def test_truncated_address_label_is_tolerated() -> None:
     assert parsed["address"] == "东湖省丹江市城东区样本街284号"
 
 
+def test_truncated_birth_label_is_tolerated() -> None:
+    """``出生`` 被认成 ``出`` —— 与 ``住址``→``址`` 同类退化，判据应当一致。
+
+    真实样本 ``front/blur/id_front_0002.jpg`` 是 ``出1996年1月12日``。
+    这个缺陷是 CTE-4 的归因信号**自动**指出来的：它把该样本的 birth
+    判为「文本里有证据但解析器没取到」，一查果然是标签被截断。
+    """
+    parsed = parse_id_card_front_fields("出1996年1月12日")
+
+    assert parsed["birth"] == "1996-01-12"
+
+
+def test_the_birth_label_relaxation_still_requires_a_full_date() -> None:
+    """放宽标签不等于放宽值 —— 没有完整日期的行不该被吃进来。"""
+    assert parse_id_card_front_fields("出生地")["birth"] is None
+    assert parse_id_card_front_fields("出生1996年")["birth"] is None
+
+
 # ── 身份证号：前导零 ─────────────────────────────────────────────────────────
 
 def test_id_number_with_leading_zeros_is_parsed() -> None:

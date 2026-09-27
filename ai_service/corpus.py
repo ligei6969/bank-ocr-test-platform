@@ -369,6 +369,126 @@ REASON_CODE_DOCS: tuple[KnowledgeDoc, ...] = (
         ),
     ),
     KnowledgeDoc(
+        doc_id="rc.evidence_missing_card_number",
+        title="evidence_missing_card_number 卡号缺失且 OCR 文本中无证据",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("evidence_missing_card_number",),
+        doc_types=(DOC_TYPE_BANK_CARD,),
+        tags=("归因", "卡号", "OCR"),
+        content=(
+            "原因码 evidence_missing_card_number，含义是卡号**既没解析出来、"
+            "OCR 文本里也找不到 16–19 位数字的证据**。"
+            "触发条件：card_number 解析为空，且 OCR 原始文本里匹配不到"
+            "连续的 16–19 位数字。"
+            "实现位置：app/ocr_evidence.py 的 attribution_reasons()，"
+            "由 app/rule_check.py 在字段缺失时附加。"
+            "业务含义：这是**归因信息**，不是独立的审核结论 —— 它总是与"
+            "missing_card_number 同时出现，用来区分两种完全不同的故障："
+            "出现本码 = OCR 没认出卡号（要动图像侧）；"
+            "只有 missing_card_number 而没有本码 = 文本里有数字但解析规则没取到"
+            "（要动 app/field_parser.py）。缺了这层区分，改进方向会被指错。"
+            "处置建议：先看有没有 image_blur、image_dark、glare_detected，"
+            "以及是否 severe_* —— 严重退化说明重拍是唯一出路；"
+            "若影像质量正常而本码仍出现，说明卡号可能被遮挡、裁切或印在反光面上。"
+            "用户话术：没有识别到银行卡号，请确认卡号完整、清晰地出现在画面中。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.evidence_missing_valid_date",
+        title="evidence_missing_valid_date 有效期缺失且 OCR 文本中无证据",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("evidence_missing_valid_date",),
+        doc_types=(DOC_TYPE_BANK_CARD,),
+        tags=("归因", "有效期", "OCR"),
+        content=(
+            "原因码 evidence_missing_valid_date，含义是有效期**既没解析出来、"
+            "OCR 文本里也找不到 MM/YY 形态的证据**。"
+            "触发条件：valid_date 解析为空，且 OCR 原始文本里匹配不到"
+            "「两位月 / 两位年」这种字面形态。"
+            "实现位置：app/ocr_evidence.py 的 attribution_reasons()，"
+            "由 app/rule_check.py 在字段缺失时附加。"
+            "业务含义：这是**归因信息**，与 missing_valid_date 同时出现。"
+            "出现本码说明 OCR 没认出有效期；只有 missing_valid_date 说明"
+            "文本里有日期形态但解析规则没取到。"
+            "银行卡的有效期字号通常最小、多与 VALID THRU 同排，"
+            "是最容易在模糊或缺光下先丢的字段。"
+            "处置建议：优先确认影像清晰度；若卡面有效期为凸印且反光，"
+            "建议调整拍摄角度。"
+            "用户话术：没有识别到卡片有效期，请确保有效期数字清晰可见。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.evidence_missing_id_number",
+        title="evidence_missing_id_number 身份证号缺失且 OCR 文本中无证据",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("evidence_missing_id_number",),
+        doc_types=(DOC_TYPE_ID_CARD,),
+        tags=("归因", "身份证号", "OCR"),
+        content=(
+            "原因码 evidence_missing_id_number，含义是身份证号**既没解析出来、"
+            "OCR 文本里也找不到 18 位号码的证据**。"
+            "触发条件：id_number 解析为空，且 OCR 原始文本里匹配不到"
+            "连续 17 位数字加一位数字或 X。"
+            "实现位置：app/ocr_evidence.py 的 attribution_reasons()，"
+            "由 app/main.py 的 review_id_card_with_reasons() 附加。"
+            "业务含义：这是**归因信息**，与 missing_id_number 同时出现。"
+            "实测数据：在 10 张真实 OCR 的身份证正面样本里，"
+            "8 张的文本中根本没有这串号码 —— 说明号码区域（证件底部）"
+            "在退化影像上最先丢失。这正是需要区分两种故障的原因："
+            "把这类缺失当成解析缺陷去修解析器，是修错了地方。"
+            "处置建议：本码高发通常指向图像侧问题 —— 确认证件底部号码区域"
+            "是否完整入画、是否被指纹或反光遮挡。"
+            "用户话术：没有识别到证件号码，请确保证件完整入画、号码区域清晰。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.evidence_missing_birth",
+        title="evidence_missing_birth 出生日期缺失且 OCR 文本中无证据",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("evidence_missing_birth",),
+        doc_types=(DOC_TYPE_ID_CARD,),
+        tags=("归因", "出生日期", "OCR"),
+        content=(
+            "原因码 evidence_missing_birth，含义是出生日期**既没解析出来、"
+            "OCR 文本里也找不到日期证据**。"
+            "触发条件：birth 解析为空，且 OCR 原始文本里匹配不到"
+            "「四位年 + 月 + 日」的日期形态。"
+            "实现位置：app/ocr_evidence.py 的 attribution_reasons()，"
+            "由 app/main.py 的 review_id_card_with_reasons() 附加。"
+            "业务含义：这是**归因信息**，与 missing_birth 同时出现。"
+            "出现本码 = OCR 没认出日期；只有 missing_birth 而没有本码 ="
+            "文本里有日期但解析规则没取到。"
+            "注意：解析器的出生日期规则允许标签被截断（「出生」认成「出」），"
+            "但要求完整日期；若标签与日期都残缺，会同时出现两种缺失。"
+            "处置建议：出生日期与身份证号同在证件下半部，"
+            "两者同时缺失时优先怀疑拍摄区域不完整。"
+            "用户话术：没有识别到出生日期，请确保证件下半部分完整入画。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.evidence_missing_valid_period",
+        title="evidence_missing_valid_period 有效期限缺失且 OCR 文本中无证据",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("evidence_missing_valid_period",),
+        doc_types=(DOC_TYPE_ID_CARD,),
+        tags=("归因", "有效期限", "OCR"),
+        content=(
+            "原因码 evidence_missing_valid_period，含义是有效期限**既没解析出来、"
+            "OCR 文本里也找不到日期区间证据**。"
+            "触发条件：valid_period 解析为空，且 OCR 原始文本里匹配不到"
+            "两个日期之间的连字符或「至/到」。"
+            "实现位置：app/ocr_evidence.py 的 attribution_reasons()，"
+            "由 app/main.py 的 review_id_card_with_reasons() 附加。"
+            "业务含义：这是**归因信息**，与 missing_valid_period 同时出现。"
+            "实测数据：在 15 张真实 OCR 的身份证国徽面样本里，"
+            "12 张的文本中根本没有日期区间 —— 国徽面字号小、"
+            "且在过亮或反光条件下最容易整行丢失。"
+            "处置建议：本码高发说明国徽面拍摄质量不足，"
+            "与 image_bright、glare_detected 常同时出现。"
+            "用户话术：没有识别到证件有效期限，请在光线均匀处重拍国徽面。"
+        ),
+    ),
+    KnowledgeDoc(
         doc_id="rc.invalid_file_type",
         title="invalid_file_type 上传文件类型不受支持",
         category=CATEGORY_REASON_CODE,

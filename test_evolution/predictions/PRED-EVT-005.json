@@ -1,7 +1,7 @@
 {
-  "prediction_id": "PRED-EVT-004",
-  "event_id": "EVT-004",
-  "predicted_result": "reject ['severe_image_blur', ...]（人工结论为 reject）",
+  "prediction_id": "PRED-EVT-005",
+  "event_id": "EVT-005",
+  "predicted_result": "1996-01-12",
   "likely_failure": [
     "pii_keyword_table_too_narrow"
   ],
@@ -10,8 +10,8 @@
     "paraphrase_evasion"
   ],
   "confidence": 0.8,
-  "recorded_at": "2026-09-27T10:29:07+00:00",
-  "actual_result": "knowledge",
+  "recorded_at": "2026-09-27T10:29:28+00:00",
+  "actual_result": "3 个字段解析成功：['address', 'birth', 'id_number']",
   "comparison": "new_failure_pattern",
   "is_resolved": true,
   "hit": false

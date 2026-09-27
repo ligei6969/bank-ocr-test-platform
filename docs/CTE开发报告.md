@@ -1,9 +1,9 @@
-# CTE 开发报告（CTE-0 骨架 · CTE-1 首个闭环 · CTE-2 OCR 快照 · CTE-3 缺陷修复）
+# CTE 开发报告（CTE-0 骨架 · CTE-1 首个闭环 · CTE-2 OCR 快照 · CTE-3 缺陷修复 · CTE-4 归因信号）
 
-> 阶段：P5 Continuous Test Evolution（CTE-0 · CTE-1 · CTE-2 · CTE-3）
+> 阶段：P5 Continuous Test Evolution（CTE-0 · CTE-1 · CTE-2 · CTE-3 · CTE-4）
 > 日期：2026-09-27
 > 前置文档：[`p5计划.md`](p5计划.md)（初版方案）、[`p5修订md`](p5修订md)（吸收审计后的修订版）
-> 测试基线：**1052 → 1185 passed / 0 failed**（新增 133 项，零回归）
+> 测试基线：**1052 → 1225 passed / 0 failed**（新增 173 项，零回归）
 
 ---
 
@@ -49,6 +49,8 @@ scripts/run_cte.py                               CTE 闭环 CLI 入口
 scripts/record_ocr_snapshot.py                   OCR 快照录制/校验（不进 CI）
 ai_service/tests/test_cte_regressions.py         晋级出的回归资产（14 项）
 tests/test_id_card_parser_real_ocr.py            用真实 OCR 形状的解析测试（CTE-3）
+tests/test_ocr_evidence.py                       归因信号测试（CTE-4）
+app/ocr_evidence.py                              字段缺失归因（CTE-4）
 data/annotations/ocr_outputs.json                真实 PaddleOCR 快照（50 条观测）
 docs/baseline_migrations/001_real_ocr_fields.md  基线口径变更：字段改为真实 OCR 观测
 docs/baseline_migrations/002_severity_outranks_missing.md  基线口径变更：严重度优先
@@ -57,7 +59,7 @@ docs/baseline_migrations/002_severity_outranks_missing.md  基线口径变更：
 ### 生成的过程证据（已入库，是审计轨迹）
 
 ```
-test_evolution/events/EVT-001..004.json          四个事件
+test_evolution/events/EVT-001..005.json          五个事件
 test_evolution/predictions/PRED-EVT-00*.json     盲预测（执行前落盘）
 test_evolution/retros/EVT-00*.md                 复盘
 test_evolution/candidates/CTE-00*.json           候选
@@ -321,6 +323,42 @@ def test_missing_fields_still_outrank_severity() -> None:
 
 ---
 
+## 四之四、CTE-4：让归因信号自动指出问题
+
+`EVT-003` 记录的度量缺口（`missing_*` 把两种故障塌缩成一个信号）
+在这里落地成新原因码 `evidence_missing_*`：
+
+```
+missing_card_number + evidence_missing_card_number  →  OCR 没认出来（动图像侧）
+只有 missing_card_number                            →  解析器没取到（动解析代码）
+```
+
+判据在 `app/ocr_evidence.py`，**刻意宽于解析器**：回答「值在不在文本里」，
+不是「值合不合法」。姓名/住址/机关这类无字面模式的字段一律归因给解析器
+（方向取舍的代价不对称，理由写在 `TEXT_FIELD_ASSUMPTION`）。
+
+### 信号立刻抓到了下一个缺陷
+
+分完类后 `birth` 有 2 例落在「解析器责任」侧 —— 一查是**标签被截断**：
+`_extract_birth` 要求完整的「出生」，而模糊图上被认成 `出1996年1月12日`。
+同一个工程里 `住址`→`址` 已经容忍（CTE-3 修的），`出生`→`出` 却没有。
+
+这是 `EVT-005`，**由信号自动指出，不是人工翻样本发现的**。
+修好后快照重录只产生 **1 处解析变化、0 处 OCR 文本变化**，精确隔离。
+
+### 顺带暴露的跨组件契约
+
+加上归因码后 AI 侧 `escalation_accuracy` 从 1.000 掉到 0.525 ——
+`ai_service` 的知识库不认识新码，`_needs_human` 见未知码就转人工。
+
+**这是真实发现，不是该放宽的指标**：原因码是平台与 AI 服务之间的契约，
+加码必须补语料。补完后所有指标**原值恢复**（没有重新标基线）—— 证明修对了地方。
+
+同时发现 `tests/test_ai_corpus_consistency.py` 看不见新码：
+它驱动规则函数时没传 `ocr_text`。已补上驱动路径，现在新增码会让它失败。
+
+---
+
 ## 五、Surface Readiness（方案第九节的落地）
 
 | Surface | 就绪度 | 为什么 |
@@ -348,27 +386,28 @@ CTE-2 之后就过期了 —— 一份过期的常量比没有常量更糟
 | --- | --- | --- |
 | 1 | **反光严重度阈值仍然停用** | 剩下 7 条「该拒却转人工」全是反光样本（比值 0.0232–0.0881）。CTE-3 记录了新证据，但启用需产品口径决策 |
 | 2 | **`id_number` 在真实 OCR 下上限是 2/10** | 另外 8 张的文本里根本没这串数字 —— OCR 局限，要提升得从图像侧入手 |
-| 2b | **4 条 `pass→review`** | 平台偏保守，与人工结论（该放行）不一致，属阈值标定 |
-| 2c | **OCR 快照只有 50 条观测** | 覆盖 golden 用到的全部图（含降质样本，每桶 5 张），但降质样本的字段错误率还没有系统化基线 |
+| 3 | **4 条 `pass→review`** | 平台偏保守，与人工结论（该放行）不一致，属阈值标定 |
+| 4 | **归因信号只对「有字面模式」的字段生效** | 姓名/住址/机关一律归因给解析器，那类字段的归因信息量有限（刻意取舍） |
+| 5 | **OCR 快照只有 50 条观测** | 覆盖 golden 用到的全部图（含降质样本，每桶 5 张），但降质样本的字段错误率还没有系统化基线 |
+| 6 | **`FIX_LANDED` / `OCR_EVENT_TARGET_FIELDS` 手工维护** | 「修好没有」「修的是哪个字段」读不出来，只能写下来 —— 代价是可能忘记更新 |
 | 3 | **快照只录了 golden 用到的图** | `--all` 能录全量 2100 张，但很慢，且那部分观测目前没有消费者 |
 | 4 | **历史重演只到规则层** | 不含当时的 prompt 与模型版本差异 |
 | 5 | **只实现了 2 类 Candidate 的自动验证** | `NEW_TEST` 与 `THREAT_CASE`；其余六类有 schema 与验证矩阵，但检查器要手工填 `checks` |
 | 6 | **`validated/` 还没被 RAG 消费** | 它是为将来准备的索引源，当前没有检索代码读它 |
 | 7 | **KPI 只留了三个** | Candidate Count / Validated Count / Executable Test Yield。1 个 Candidate 算出来的「接受率 100%」没有信息量 |
 
-### 下一步（CTE-4）
+### 下一步（CTE-5）
 
-CTE-3 修掉了两条明确的生产缺陷，也把剩余问题**精确地**收敛到了阈值标定上：
+CTE-4 补齐了归因信号，剩余问题**精确地**收敛到两处，且都不是技术问题：
 
-- 反光严重度阈值（7 条）—— 需要产品口径决策，不是技术问题
-- 4 条过度保守的 `pass→review` —— 同上
+- **反光严重度阈值**（7 条「该拒却转人工」）—— 需要产品口径决策
+- **4 条过度保守的 `pass→review`** —— 阈值标定，同上
 
-这两项都不该靠调参解决，应该先补的是一件别的事：
-**把「evidence 在不在 OCR 文本里」变成明确信号**（`EVT-003` 的方法），
-否则下一次归因仍会把 OCR 的局限算到解析器账上。
+两处都需要有人回答「什么样的反光算不可用」。在那之前：
 
-双判改判正确性的标定仍建议**暂缓** —— 反光阈值未定，
-标定会把阈值问题混进双判指标。
+- 双判改判正确性的标定仍建议**暂缓**（阈值未定会把问题混进双判指标）
+- 可以做的是**扩大快照覆盖**（`--all` 录全量 2100 张），
+  把降质样本的字段错误率变成系统化基线 —— 那是纯工程，不需要产品决策
 
 ---
 
@@ -376,8 +415,8 @@ CTE-3 修掉了两条明确的生产缺陷，也把剩余问题**精确地**收�
 
 | 项 | 基线 | 当前 |
 | --- | --- | --- |
-| 全量测试 | 1052 passed | **1185 passed** |
-| CTE 自身测试 | — | 103 |
+| 全量测试 | 1052 passed | **1225 passed** |
+| CTE 自身测试 | — | 106 |
 | 晋级回归资产 | — | 14 |
 | `task.verdict_accuracy` | 0.775（标注真值） | **0.725**（真实 OCR + CTE-3 修复） |
 | 破坏既有接口 | — | 无（`app/` 一行未动） |

@@ -30,6 +30,11 @@ from app.csrf import validate_csrf_request
 from app.field_parser import parse_bank_card_fields
 from app.id_card_parser import parse_id_card_fields
 from app.logging_utils import mask_sensitive_data, sanitize_for_log
+from app.ocr_evidence import (
+    ID_CARD_BACK_EVIDENCE_FIELDS,
+    ID_CARD_FRONT_EVIDENCE_FIELDS,
+    attribution_reasons,
+)
 from app.ocr_service import recognize_text
 from app.page_routes import router as page_router
 from app.quality_check import check_image_quality, get_quality_reasons
@@ -377,7 +382,9 @@ def review_bank_card_image(
             logger.info("ocr request_id=%s mode=%s line_count=%s", request_id, ocr_mode, len(ocr_text))
             fields = parse_bank_card_fields("\n".join(ocr_text))
             logger.info("field parse request_id=%s fields=%s", request_id, sanitize_for_log(fields))
-            review_result, review_reasons = review_bank_card_with_reasons(fields, quality)
+            review_result, review_reasons = review_bank_card_with_reasons(
+                fields, quality, ocr_text="\n".join(ocr_text)
+            )
             logger.info(
                 "rule check request_id=%s result=%s reasons=%s",
                 request_id,
@@ -439,18 +446,33 @@ def review_bank_card_image(
             image_path.unlink(missing_ok=True)
 
 
-def review_id_card_with_reasons(side: str, fields: dict, quality: dict) -> tuple[str, list[str]]:
+def review_id_card_with_reasons(
+    side: str, fields: dict, quality: dict, *, ocr_text: str = ""
+) -> tuple[str, list[str]]:
+    """规则审核。``ocr_text`` 给出时，字段缺失会附带归因码。
+
+    与 ``review_bank_card_with_reasons`` 同口径 —— 两条链路的原因码语义
+    必须一致，否则下游按原因码做的统计会把两条路径的数据混成两套含义。
+    """
     reasons: list[str] = []
     if side == "unknown":
         reasons.append("unknown_id_card_side")
     if side == "front":
         required = ("name", "gender", "nation", "birth", "address", "id_number")
+        evidence_fields = ID_CARD_FRONT_EVIDENCE_FIELDS
     elif side == "back":
         required = ("issue_authority", "valid_period")
+        evidence_fields = ID_CARD_BACK_EVIDENCE_FIELDS
     else:
         required = ()
+        evidence_fields = ()
 
-    reasons.extend(f"missing_{field}" for field in required if not fields.get(field))
+    missing = [f"missing_{field}" for field in required if not fields.get(field)]
+    reasons.extend(missing)
+    if ocr_text and missing:
+        reasons.extend(
+            attribution_reasons(fields, ocr_text, required=evidence_fields)
+        )
     reasons.extend(reason for reason in _quality_reasons(quality) if reason not in reasons)
 
     severe_reasons = quality.get("severe_reasons") or []
@@ -509,7 +531,9 @@ def review_id_card_image(
             parsed_fields = parsed["fields"]
             fields = parsed_fields if isinstance(parsed_fields, dict) else {}
             logger.info("field parse request_id=%s fields=%s", request_id, sanitize_for_log(fields))
-            review_result, review_reasons = review_id_card_with_reasons(side, fields, quality)
+            review_result, review_reasons = review_id_card_with_reasons(
+                side, fields, quality, ocr_text="\n".join(ocr_text)
+            )
             logger.info(
                 "rule check request_id=%s result=%s reasons=%s",
                 request_id,

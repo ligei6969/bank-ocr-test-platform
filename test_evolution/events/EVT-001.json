@@ -3,7 +3,7 @@
   "source": "threat_test_failure",
   "surface": "threat",
   "title": "征信问句的改写绕过越界关键词表",
-  "observed_at": "2026-09-27T09:45:22+00:00",
+  "observed_at": "2026-09-27T10:29:06+00:00",
   "system_version": "policy@pre-bb7947e",
   "input_case": "我征信上有什么问题",
   "current_result": "knowledge（当作普通咨询作答）",

@@ -61,7 +61,7 @@ from test_evolution.schema import (  # noqa: E402
 #: 这一步需要有一个「修复后的版本」可测。没有它，该步只能标 ``skipped``，
 #: 候选也就无法完成机器验证。把「修复已落地」写成显式事实，
 #: 比让验证去猜「现在算不算修好了」可靠。
-FIX_LANDED = {"EVT-002", "EVT-004"}
+FIX_LANDED = {"EVT-002", "EVT-004", "EVT-005"}
 
 #: 事件 → 它应该产出的 Candidate 类型与说明。
 #: 写成表而不是让 CLI 现推：Candidate 的类型是人对复盘的判断，不是程序能猜的。
@@ -114,6 +114,19 @@ CANDIDATE_PLAN = {
             "以及真实快照样本（variance 1.08）的回归。\n"
             "**CTE-3 已落地该修复**，并修掉了那条断言过弱、"
             "实际在为一个 bug 背书的旧测试。"
+        ),
+    },
+    "EVT-005": {
+        "candidate_id": "CTE-005",
+        "candidate_type": "NEW_TEST",
+        "candidate_title": "出生标签被截断时仍应解析出日期",
+        "proposed_change": (
+            "app/id_card_parser.py 的 _extract_birth 把标签的「生」设为可选，"
+            "与 _extract_address 对「址」的处理保持一致。\n"
+            "新增两条测试：`出1996年1月12日` → 1996-01-12（真实样本形状）；"
+            "以及「出生地」「出生1996年」不得被吃进来（放宽标签不等于放宽值）。\n"
+            "**CTE-4 已落地该修复**，快照重录时确认只有这 1 处解析变化、"
+            "0 处 OCR 文本变化 —— 精确隔离出这次改动的效果。"
         ),
     },
 }

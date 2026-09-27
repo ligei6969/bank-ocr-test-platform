@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 
+from app.ocr_evidence import BANK_CARD_EVIDENCE_FIELDS, attribution_reasons
 from app.quality_check import get_quality_reasons
 
 
@@ -18,12 +19,28 @@ def is_valid_expiry(valid_date: str) -> bool:
     return bool(re.fullmatch(r"(0[1-9]|1[0-2])/\d{2}", valid_date or ""))
 
 
-def review_bank_card_with_reasons(fields: dict, quality: dict) -> tuple[str, list[str]]:
+def review_bank_card_with_reasons(
+    fields: dict, quality: dict, *, ocr_text: str = ""
+) -> tuple[str, list[str]]:
+    """规则审核。``ocr_text`` 给出时，字段缺失会附带归因码。
+
+    ``ocr_text`` 默认空串 —— 不传时行为与以前完全一致（不加归因码），
+    这样既有调用方与测试不受影响。传了才能区分
+    「OCR 没认出来」与「解析器没取到」（见 :mod:`app.ocr_evidence`）。
+    """
     missing_reasons = [
         f"missing_{field}"
         for field in REQUIRED_BANK_CARD_FIELDS
         if not fields.get(field)
     ]
+    # 归因：这些字段**既没解析出来、文本里也没有证据** —— 是 OCR 的限制，
+    # 不是解析规则的问题。分开之后改进方向才不会指错。
+    if ocr_text and missing_reasons:
+        missing_reasons.extend(
+            attribution_reasons(
+                fields, ocr_text, required=BANK_CARD_EVIDENCE_FIELDS
+            )
+        )
     quality_reasons = get_quality_reasons(quality)
 
     # 严重退化**先判**，而且必须压过字段缺失。

@@ -367,7 +367,17 @@ def test_bank_card_review_handles_partial_ocr_fields(monkeypatch) -> None:
         "valid_date": None,
         "name": None,
     }
-    assert data["review_reasons"] == ["missing_valid_date", "missing_name"]
+    # OCR 只认出了卡号。有效期有字面模式（MM/YY），文本里找不到 → 判为
+    # 「OCR 没认出来」，附带归因码。
+    #
+    # 姓名**没有**归因码：文本字段无法用正则判定「证据在不在」，
+    # 按 app/ocr_evidence.TEXT_FIELD_ASSUMPTION 默认归因给解析器
+    # （默认取「更可能被复查」的那一侧，理由见该常量注释）。
+    assert data["review_reasons"] == [
+        "missing_valid_date",
+        "missing_name",
+        "evidence_missing_valid_date",
+    ]
 
 
 @allure.description("模糊图片人工复核：真实 blur 样本应被检测为模糊，并返回 review。")

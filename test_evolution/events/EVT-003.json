@@ -3,7 +3,7 @@
   "source": "manual_review",
   "surface": "ocr",
   "title": "字段为空时无法区分「OCR 没认出来」与「解析器没取到」",
-  "observed_at": "2026-09-27T09:45:23+00:00",
+  "observed_at": "2026-09-27T10:29:07+00:00",
   "system_version": "HEAD",
   "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
   "current_result": "missing_id_number（不区分是识别失败还是解析失败）",

@@ -127,11 +127,33 @@ GET /review-records?doc_type=bank_card&review_result=review
 | `severe_image_bright` | 严重过亮（灰度 > 215），直接拒绝 |
 | `missing_card_number` | 未解析到银行卡号 |
 | `missing_valid_date` | 未解析到银行卡有效期 |
+| `evidence_missing_<字段>` | 该字段缺失**且 OCR 文本里也没有证据** —— 归因信息，见下 |
 | `invalid_card_number` | 银行卡号未通过规则校验 |
 | `unknown_id_card_side` | 无法判断身份证正反面 |
 | `invalid_file_type` | 上传文件类型不受支持 |
 | `unreadable_image` | 文件为空、损坏或不是可读取图片 |
 | `invalid_ocr_mode` | 服务端 `OCR_MODE` 配置非法 |
+
+### 字段缺失的归因：`evidence_missing_*`
+
+`missing_card_number` 这类原因码把两种**完全不同的故障**塌缩成了一个信号：
+
+| 原因码组合 | 含义 | 该改哪里 |
+| --- | --- | --- |
+| `missing_x` + `evidence_missing_x` | OCR 文本里**根本没有** x 的证据 | 图像侧（采集/模型） |
+| 只有 `missing_x` | 文本里有 x，但解析规则没取到 | 解析代码 |
+
+判据见 [`app/ocr_evidence.py`](app/ocr_evidence.py)。它**刻意宽于解析器** ——
+回答的是「值在不在文本里」，不是「值合不合法」：`13/45` 这种非法月份
+也算有证据，否则解析器的责任又会被推给采集。
+
+姓名、住址、签发机关这类文本字段没有可靠的字面模式，**一律按解析器责任处理**
+（不产出归因码）。这个方向是刻意选的：归错给解析器的代价是一次排查，
+归错给采集的代价是**改错地方**。
+
+> 这个信号是 CTE 演进出来的：CTE-3 曾把 `id_number 0/10` 整个归因给解析器，
+> 修完解析器数字没变 —— 才发现 8/10 的样本里 OCR 压根没产出那串数字。
+> 有了归因码，CTE-4 立刻**自动**指出了下一个同类缺陷（`出生` 标签被截断）。
 
 ### 严重退化 → 直接拒绝
 
@@ -187,8 +209,9 @@ test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，�
   replay.py        历史重演：在已修复的系统上把旧行为跑出来
   ocr_snapshot.py  真实 OCR 的录制/回放（CTE-2：让评测用上真实字段）
   pipeline.py      闭环编排
+app/ocr_evidence.py  字段缺失归因（CTE-4：区分「OCR 没认出来」与「解析器没取到」）
   README.md        CTE 的设计、边界与诚实清单
-docs/baseline_migrations/  基线口径变更的记录（001：字段改为真实 OCR 观测）
+docs/baseline_migrations/  基线口径变更的记录（001 真实 OCR 字段 / 002 严重度优先）
 
 tests/              pytest 测试（平台侧 492 项）
 data/               测试数据、标注数据、生成数据
@@ -534,7 +557,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1185 passed / 0 failed / 0 errors**。
+当前全量测试结果为 **1225 passed / 0 failed / 0 errors**。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
@@ -795,7 +818,8 @@ rmdir /s /q reports\ocr-temp
 | --- | --- | --- |
 | `EVT-002` | 身份证解析要求标签与值同行 | `name`/`address` **0/10 → 9/10**；另修 `id_number` 前导零、`valid_period` 跨行 |
 | `EVT-004` | 严重退化被字段缺失降级成转人工 | 判定顺序调整；`verdict_accuracy` **0.675 → 0.725** |
-| `EVT-003` | 分不清「OCR 没认出来」与「解析器没取到」 | 只产出方法（`CTE-003` DOCUMENTATION） |
+| `EVT-003` | 分不清「OCR 没认出来」与「解析器没取到」 | CTE-4 落地为 `evidence_missing_*` 归因码 |
+| `EVT-005` | 出生标签被截断（`出1996年1月12日`） | 判据与住址统一；**由归因信号自动指出** |
 
 两处修复都不是「顺手改的」，而是各自被 CTE 事件记录、验证、再落地。
 `EVT-004` 尤其值得看：**一条自称「严重度优先」的测试，断言却在为一个

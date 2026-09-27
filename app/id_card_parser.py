@@ -133,8 +133,18 @@ def _extract_labeled_value(lines: list[str], label: str, stop_labels: tuple[str,
 
 
 def _extract_birth(ocr_text: str) -> str | None:
+    """抽取出生日期。
+
+    ``出`` 是可选的：模糊图上 ``出生`` 会被认成 ``出``
+    （真实样本 ``front/blur/id_front_0002.jpg`` 就是 ``出1996年1月12日``）。
+    这类「标签被截断」在 ``住址``（→ ``址``）上已经遇到过，
+    同一类 OCR 退化，判据应当一致。
+
+    标签放宽之后仍要求完整日期 —— 只认 ``出`` 不认日期会误吃
+    「出生地」这类无关文本。
+    """
     normalized = _clean_text(ocr_text)
-    match = re.search(r"出生((?:19|20)\d{2})年?(\d{1,2})月?(\d{1,2})日?", normalized)
+    match = re.search(r"出(?:生)?((?:19|20)\d{2})年?(\d{1,2})月?(\d{1,2})日?", normalized)
     if not match:
         return None
     year, month, day = match.groups()

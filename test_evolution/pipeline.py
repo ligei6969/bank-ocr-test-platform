@@ -116,6 +116,24 @@ EVENT_LOG: Tuple[Dict[str, str], ...] = (
             "所以这个缺陷一直是绿的。"
         ),
     },
+    {
+        "event_id": "EVT-005",
+        "source": "manual_review",
+        "surface": "ocr",
+        "title": "出生标签被截断（出1996年1月12日）导致出生日期解析失败",
+        "system_version": "HEAD",
+        "input_case": "data/processed/id_card/front/blur/id_front_0002.jpg",
+        "current_result": "birth=None（文本里是「出1996年1月12日」）",
+        "expected_result": "1996-01-12",
+        "notes": (
+            "**由 CTE-4 的归因信号自动指出**，不是人工翻样本发现的。"
+            "该信号把这批解析失败分成「文本里有证据」（解析器责任）与"
+            "「文本里没证据」（OCR 限制）两类，其中 birth 有 2 例被判为前者 ——"
+            "一查正是标签被截断：_extract_birth 的正则要求完整的「出生」，"
+            "而模糊图上被认成「出」。与住址的「住址」→「址」是同一类退化，"
+            "但两处的容忍度不一致 —— 这次把判据统一了。"
+        ),
+    },
 )
 
 
@@ -585,6 +603,42 @@ RETRO_SECTIONS: Dict[str, Dict[str, str]] = {
             "反光严重度阈值上（标定间隙只有 9%）—— 那是另一个事件。"
         ),
     },
+    "EVT-005": {
+        "why_missed": (
+            "**没有人翻过这批样本** —— 这个缺陷是被归因信号**自动**指出来的。\n\n"
+            "CTE-4 加的 `evidence_missing_*` 把 50 张图的解析失败分成两类：\n"
+            "「文本里有证据」（解析器责任）与「文本里没证据」（OCR 限制）。\n"
+            "分完之后 birth 字段有 2 例落在「解析器责任」一侧 —— 一查就是标签截断。\n\n"
+            "在此之前，这类缺陷混在 `missing_birth` 里，和 OCR 没认出来\n"
+            "长得一模一样，没有线索指向它。"
+        ),
+        "attribution": (
+            "**解析层的判据不一致。**\n\n"
+            "同一类 OCR 退化 —— 标签首字丢失 —— 在两处的处理不同：\n\n"
+            "* `住址` → `址`：`_extract_address` **已经**容忍（CTE-3 修的）\n"
+            "* `出生` → `出`：`_extract_birth` 的正则**要求**完整「出生」\n\n"
+            "同一个工程里对同一种退化有两种判据，本身就是线索。\n"
+            "修法是把 `生` 也变成可选，与住址的处理一致。\n\n"
+            "严格性没有丢：放宽标签之后仍要求完整日期，\n"
+            "「出生地」这类无关文本仍不会被吃进来（有测试守着）。"
+        ),
+        "gap": (
+            "缺的是**跨字段的一致性检查**。\n\n"
+            "每个字段的抽取函数各写各的容忍度，没有一处规定\n"
+            "「标签被截断该怎么办」。CTE-3 修住址时若顺手问一句\n"
+            "「还有哪些字段有同样的形状」，这个缺陷当时就会被发现 ——\n"
+            "而不是等到归因信号把它指出来。\n\n"
+            "这也说明归因信号的价值不只是「分对类」：\n"
+            "**它把「值得看一眼」的样本拣了出来**，而人不会去逐条翻 50 张图。"
+        ),
+        "history": (
+            "与 `EVT-002` 同源：都是「解析器对真实 OCR 的输出形状假设过强」。\n"
+            "`EVT-002` 是**结构假设**（标签与值同行），\n"
+            "`EVT-005` 是**字面假设**（标签完整）。\n\n"
+            "两者的共同点是：mock OCR 从不产生这些形状，\n"
+            "所以实现与测试共享同一个假设。"
+        ),
+    },
 }
 
 
@@ -769,15 +823,20 @@ def validate_new_test(
     return candidate
 
 
-#: 修复前 ``_value_after_label`` 的行为特征：它取不到跨行的值。
-#:
-#: 与 ``replay.POLICY_HISTORY`` 同一个思路 —— 把「当时系统长什么样」固化成
-#: 数据，让「修复前会 FAIL」这句话可证伪。
+#: 每个 OCR 事件「修复后应当能取到哪些字段」。
 #:
 #: **不能用快照里的 ``parsed_fields`` 来判断「修复前是否失败」**：
-#: 快照在 CTE-3 用修复后的解析器重录过，那份字段已经不再代表旧行为。
-#: 这正是需要固化这个常量的原因。
-_PRE_FIX_TAKES_CROSS_LINE_VALUES = False
+#: 快照在每次修复后都会用新解析器重录，那份字段已经不代表旧行为。
+#: 所以「该事件修的是哪个字段」必须单独声明 —— 它是人对这个事件的理解，
+#: 不是能从数据里读出来的东西。
+#:
+#: 写成表而不是让验证器去猜（比如「找所有为空的字段」）：
+#: 那样会把 OCR 本来就认不出的字段也算进去，验收标准就定错了 ——
+#: 这正是 `EVT-003` 记录的教训。
+OCR_EVENT_TARGET_FIELDS: Dict[str, tuple] = {
+    "EVT-002": ("name", "address"),
+    "EVT-005": ("birth",),
+}
 
 
 def _validate_ocr_regression(
@@ -789,7 +848,7 @@ def _validate_ocr_regression(
 
     * ``False`` —— 缺陷仍在（提案阶段）。标 ``skipped``：没有修复版本可测，
       不假称 pass。这让 ``is_machine_validated`` 为假，提案不能自己晋级。
-    * ``True`` —— 修复已落地。去跑当前解析器，断言它能取到跨行的值。
+    * ``True`` —— 修复已落地。去跑当前解析器，断言目标字段都取到了。
     """
     from test_evolution.ocr_snapshot import load
 
@@ -802,10 +861,20 @@ def _validate_ocr_regression(
             "passes_after_fix": "skipped",
         }
 
+    targets = OCR_EVENT_TARGET_FIELDS.get(candidate.candidate_id.replace("CTE-", "EVT-"), ())
+    if not targets:
+        return {
+            "executable": "fail",
+            "reproduces_before_fix": "fail",
+            "passes_after_fix": "skipped",
+            "note": "该事件的 OCR 目标字段未在 OCR_EVENT_TARGET_FIELDS 里声明",
+        }
+
     texts = "\n".join(observed.ocr_texts)
-    # 这张图里 OCR 确实给出了姓名与地址的文本（跨行），所以「取不到」
-    # 一定是解析器的责任 —— 判据先立住，否则复现与修复都无从谈起。
-    reproduced = not _PRE_FIX_TAKES_CROSS_LINE_VALUES
+    # 文本里有证据却没解析出来 —— 这就是「未修复版本上会 FAIL」的依据。
+    from app.ocr_evidence import has_evidence
+
+    reproduced = all(has_evidence(field, texts) for field in targets)
 
     if not fix_landed:
         return {
@@ -817,12 +886,12 @@ def _validate_ocr_regression(
     from app.id_card_parser import parse_id_card_front_fields
 
     now = parse_id_card_front_fields(texts)
-    fixed = bool(now.get("name")) and bool(now.get("address"))
+    # 修复前取不到、现在取得到 —— 这才是「修复后通过」
+    fixed = all(now.get(field) for field in targets)
 
     return {
         "executable": "pass",
         "reproduces_before_fix": "pass" if reproduced else "fail",
-        # 修复前取不到、现在取得到 —— 这才是「修复后通过」
         "passes_after_fix": "pass" if fixed else "fail",
     }
 

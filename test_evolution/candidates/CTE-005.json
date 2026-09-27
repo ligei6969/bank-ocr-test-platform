@@ -1,0 +1,33 @@
+{
+  "candidate_id": "CTE-005",
+  "type": "NEW_TEST",
+  "title": "出生标签被截断时仍应解析出日期",
+  "evidence": [
+    "EVT-005"
+  ],
+  "surface": "ocr",
+  "proposed_change": "app/id_card_parser.py 的 _extract_birth 把标签的「生」设为可选，与 _extract_address 对「址」的处理保持一致。\n新增两条测试：`出1996年1月12日` → 1996-01-12（真实样本形状）；以及「出生地」「出生1996年」不得被吃进来（放宽标签不等于放宽值）。\n**CTE-4 已落地该修复**，快照重录时确认只有这 1 处解析变化、0 处 OCR 文本变化 —— 精确隔离出这次改动的效果。",
+  "created_at": "2026-09-27T10:29:28+00:00",
+  "status": "machine_validated",
+  "checks": {
+    "executable": "pass",
+    "reproduces_before_fix": "pass",
+    "passes_after_fix": "pass",
+    "full_regression": "pass"
+  },
+  "validated_at": "",
+  "rejected_reason": "",
+  "approver": "",
+  "produced_asset": "",
+  "required_checks": [
+    "executable",
+    "reproduces_before_fix",
+    "passes_after_fix",
+    "full_regression"
+  ],
+  "is_machine_validated": true,
+  "needs_human_review": true,
+  "is_proposal_only": false,
+  "is_elevated": false,
+  "can_promote": false
+}

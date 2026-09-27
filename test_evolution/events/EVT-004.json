@@ -3,7 +3,7 @@
   "source": "manual_review",
   "surface": "adjudication",
   "title": "严重退化被字段缺失降级：9 条该拒的样本被判成转人工",
-  "observed_at": "2026-09-27T09:45:23+00:00",
+  "observed_at": "2026-09-27T10:29:07+00:00",
   "system_version": "HEAD",
   "input_case": "data/processed/bank_card/blur/bank_card_0001.png",
   "current_result": "review ['missing_valid_date', 'missing_name', 'image_blur']（severe_image_blur 被丢弃）",

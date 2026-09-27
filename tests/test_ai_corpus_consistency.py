@@ -89,6 +89,25 @@ def emitted_reason_codes() -> set[str]:
         _result, reasons = rule_check.review_bank_card_with_reasons(fields, quality)
         codes.update(reasons)
 
+    # 归因码：传了 ocr_text 且字段缺失、文本里又没证据时才会产出
+    # （见 app/ocr_evidence.py）。**必须单独驱动** —— 不带 ocr_text 的调用
+    # 产不出这些码，覆盖不到就等于这条一致性检查对它们无效。
+    for fields, quality, ocr_text in (
+        ({}, {}, ""),
+        ({}, {}, "TEST BANK 6222 0202 0202 0001"),
+        ({}, {}, "姓名 沈梓欣 住址 某省某市"),
+        ({"card_number": "6222021234567890"}, {"quality_result": "review"}, "6222 0202 0202 0001"),
+    ):
+        _result, reasons = rule_check.review_bank_card_with_reasons(
+            fields, quality, ocr_text=ocr_text
+        )
+        codes.update(reasons)
+        for side in ("front", "back"):
+            _result, id_reasons = review_id_card_with_reasons(
+                side, fields, quality, ocr_text=ocr_text
+            )
+            codes.update(id_reasons)
+
     for side in ("unknown", "front", "back"):
         _result, reasons = review_id_card_with_reasons(side, {}, {})
         codes.update(reasons)
@@ -127,9 +146,11 @@ def _source_number(function: Callable[..., Any], pattern: str) -> str:
 # ── 覆盖率 ────────────────────────────────────────────────────────────────────
 
 def test_platform_emits_at_least_the_expected_number_of_reason_codes() -> None:
-    # 30 是当前实现的完整集合（26 个原有码 + 4 个严重退化码）；
-    # 数量变化时本测试会失败，提醒同步语料与文档
-    assert len(emitted_reason_codes()) == 30
+    # 35 是当前实现的完整集合：
+    #   26 个原有码 + 4 个严重退化码 + 5 个字段缺失归因码（CTE-4）
+    # 数量变化时本测试会失败，提醒同步语料与文档 —— 这是有意的摩擦点：
+    # 新增原因码必须同时回答「语料收了吗、文档写了吗」。
+    assert len(emitted_reason_codes()) == 35
 
 
 def test_every_emitted_reason_code_is_described_in_the_corpus() -> None:

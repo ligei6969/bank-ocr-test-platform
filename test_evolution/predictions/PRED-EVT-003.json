@@ -10,7 +10,7 @@
     "paraphrase_evasion"
   ],
   "confidence": 0.8,
-  "recorded_at": "2026-09-27T09:45:23+00:00",
+  "recorded_at": "2026-09-27T10:29:07+00:00",
   "actual_result": "5 个字段解析成功：['address', 'birth', 'gender', 'name', 'nation']",
   "comparison": "new_failure_pattern",
   "is_resolved": true,

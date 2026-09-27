@@ -123,16 +123,35 @@ def platform_verdict(
     if not quality:
         return "review", ["quality_check_unavailable"], quality
 
+    # 快照给了原始文本行时一并传下去 —— 规则层据此区分
+    # 「OCR 没认出来」与「解析器没取到」（见 app/ocr_evidence.py）。
+    # 没有快照（本地无图路径）时传空串，规则层行为与以前一致。
+    ocr_text = _ocr_text_for(sample, snapshot=snapshot)
+
     if sample.doc_type == "bank_card":
-        verdict, reasons = review_bank_card_with_reasons(resolved, quality)
+        verdict, reasons = review_bank_card_with_reasons(
+            resolved, quality, ocr_text=ocr_text
+        )
         return verdict, reasons, quality
 
     # id_card 的规则在 app.main 里，按面别要求不同字段
     from app.main import review_id_card_with_reasons
 
     side = sample.id_card_side or resolved.get("_side") or _side_from_fields(resolved)
-    verdict, reasons = review_id_card_with_reasons(side, resolved, quality)
+    verdict, reasons = review_id_card_with_reasons(
+        side, resolved, quality, ocr_text=ocr_text
+    )
     return verdict, reasons, quality
+
+
+def _ocr_text_for(sample: GoldenSample, *, snapshot: Any = None) -> str:
+    """取这条样本的原始 OCR 文本，供规则层做归因。取不到返回空串。"""
+    if snapshot is None:
+        return ""
+    observed = snapshot.snapshot.get(sample.image_path)
+    if observed is None:
+        return ""
+    return "\n".join(observed.ocr_texts)
 
 
 def platform_dual_judge(

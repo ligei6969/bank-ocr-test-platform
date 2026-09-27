@@ -3,7 +3,7 @@
   "source": "ocr_error",
   "surface": "ocr",
   "title": "身份证字段解析要求标签与值同行，真实 OCR 下 100% 失败",
-  "observed_at": "2026-09-27T09:45:22+00:00",
+  "observed_at": "2026-09-27T10:29:28+00:00",
   "system_version": "HEAD",
   "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
   "current_result": "name=None address=None id_number=None（正面 10/10 全部解析不出）",

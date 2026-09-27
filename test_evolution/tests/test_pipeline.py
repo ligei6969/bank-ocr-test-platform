@@ -454,6 +454,71 @@ def test_cte3_lands_the_parser_fix_and_completes_cte_002(root):
     assert outcome["candidate"]["is_machine_validated"] is True
 
 
+def test_each_ocr_new_test_event_declares_which_fields_it_fixes(root):
+    """会产出 ``NEW_TEST`` 的 OCR 事件必须声明验收字段，不能写死在验证器里。
+
+    初版把 ``name``/``address`` 写死在 ``_validate_ocr_regression`` 里 ——
+    那是 EVT-002 的内容。EVT-005（修 ``birth``）进来时，同一个验证器
+    去查 name/address，自然是 fail。
+
+    「这个事件修的是哪个字段」是**人对事件的理解**，读不出来；
+    但也正因为如此它必须显式写下来，否则验收标准会被悄悄定错。
+
+    只约束 ``NEW_TEST``：``EVT-003`` 落在 ocr 面但产出的是
+    ``DOCUMENTATION`` 候选（记录方法，不改代码），它没有「要修哪个字段」。
+    """
+    from scripts.run_cte import CANDIDATE_PLAN
+    from test_evolution.pipeline import EVENT_LOG, OCR_EVENT_TARGET_FIELDS
+
+    new_test_ocr_events = [
+        event_id
+        for event_id, plan in CANDIDATE_PLAN.items()
+        if plan["candidate_type"] == "NEW_TEST"
+        and next(s for s in EVENT_LOG if s["event_id"] == event_id)["surface"] == "ocr"
+    ]
+    assert new_test_ocr_events, "至少该有一个走 NEW_TEST 的 OCR 事件"
+
+    for event_id in new_test_ocr_events:
+        assert event_id in OCR_EVENT_TARGET_FIELDS, f"{event_id} 未声明目标字段"
+        assert OCR_EVENT_TARGET_FIELDS[event_id], f"{event_id} 的目标字段为空"
+
+
+def test_an_ocr_event_without_declared_targets_fails_loudly(root):
+    """没声明目标字段时不能默默判过 —— 那等于没有验收标准。"""
+    from test_evolution.pipeline import _validate_ocr_regression
+    from test_evolution.schema import Candidate
+
+    candidate = Candidate(
+        candidate_id="CTE-999", type="NEW_TEST", title="t", evidence=("EVT-999",),
+        surface="ocr", proposed_change="p", created_at="",
+    )
+    results = _validate_ocr_regression(
+        candidate, "data/processed/id_card/front/normal/id_front_0001.jpg",
+        fix_landed=True,
+    )
+
+    assert results["executable"] == "fail"
+    assert "note" in results, "应当说明为什么判不了"
+
+
+def test_cte5_birth_regression_validates_through_the_loop(root):
+    """EVT-005 的闭环：目标字段是 ``birth``，不是 name/address。"""
+    from test_evolution.pipeline import EVENT_LOG
+
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-005")
+    outcome = run_event_loop(
+        spec, root=root, candidate_id="CTE-005", candidate_type="NEW_TEST",
+        candidate_title="出生标签被截断时仍应解析出日期",
+        proposed_change="把 _extract_birth 的「生」设为可选",
+        full_regression={"outcome": "pass"}, fix_landed=True,
+    )
+
+    checks = outcome["candidate"]["checks"]
+    assert checks["reproduces_before_fix"] == "pass", "文本里有完整日期，旧正则却取不到"
+    assert checks["passes_after_fix"] == "pass"
+    assert outcome["candidate"]["is_machine_validated"] is True
+
+
 def test_ocr_execution_uses_the_snapshot_texts_not_a_fresh_ocr_run(root):
     """OCR 面执行读快照录到的文本 —— 重跑 PaddleOCR 只会引入「两次识别不同」的噪音。"""
     from test_evolution.pipeline import EVENT_LOG, execute, observe

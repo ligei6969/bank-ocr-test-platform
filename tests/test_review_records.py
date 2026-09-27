@@ -208,7 +208,9 @@ def test_bank_card_and_id_card_records_share_table_but_keep_distinct_payloads(
     id_reasons = json.loads(id_record[3])
     id_fields = json.loads(id_record[4])
     assert id_record[1:3] == ("id_card", "review")
-    assert id_reasons == ["missing_id_number"]
+    # id_number 缺失且 mock OCR 文本里没有号码证据 → 附带归因码。
+    # 见 app/ocr_evidence.py：这是「OCR 没认出来」，不是「解析器没取到」。
+    assert id_reasons == ["missing_id_number", "evidence_missing_id_number"]
     assert "id_number" in id_fields
     assert "card_number" not in id_fields
 
@@ -485,9 +487,11 @@ def test_non_boundary_review_does_not_touch_the_ai_service(review_db, monkeypatc
     """
     configure_bank_card_review(monkeypatch, quality_result="review")
     # 两个原因码 → C2 不成立（有交叉证据），且无 quality_metrics → C1 不成立
+    # 替身要接受 ocr_text —— 真实函数现在带这个关键字参数（用于字段缺失归因），
+    # 替身签名落后会让测试报 TypeError 而不是测它本来要测的东西。
     monkeypatch.setattr(
         "app.main.review_bank_card_with_reasons",
-        lambda fields, quality: ("review", ["image_blur", "glare_detected"]),
+        lambda fields, quality, **kwargs: ("review", ["image_blur", "glare_detected"]),
     )
 
     def _explode():

@@ -7,7 +7,7 @@
   ],
   "surface": "adjudication",
   "proposed_change": "调整 app/rule_check.py 的判定顺序：severe_reasons 先判，且不受 missing_reasons 影响；字段缺失项仍保留在原因码里。\n新增两条测试：严重度 + 字段全缺 → reject 且 severe 排在原因码最前；以及真实快照样本（variance 1.08）的回归。\n**CTE-3 已落地该修复**，并修掉了那条断言过弱、实际在为一个 bug 背书的旧测试。",
-  "created_at": "2026-09-27T09:45:23+00:00",
+  "created_at": "2026-09-27T10:29:07+00:00",
   "status": "machine_validated",
   "checks": {
     "executable": "pass",

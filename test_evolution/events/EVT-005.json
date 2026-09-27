@@ -1,0 +1,13 @@
+{
+  "event_id": "EVT-005",
+  "source": "manual_review",
+  "surface": "ocr",
+  "title": "出生标签被截断（出1996年1月12日）导致出生日期解析失败",
+  "observed_at": "2026-09-27T10:29:28+00:00",
+  "system_version": "HEAD",
+  "input_case": "data/processed/id_card/front/blur/id_front_0002.jpg",
+  "current_result": "birth=None（文本里是「出1996年1月12日」）",
+  "expected_result": "1996-01-12",
+  "notes": "**由 CTE-4 的归因信号自动指出**，不是人工翻样本发现的。该信号把这批解析失败分成「文本里有证据」（解析器责任）与「文本里没证据」（OCR 限制）两类，其中 birth 有 2 例被判为前者 ——一查正是标签被截断：_extract_birth 的正则要求完整的「出生」，而模糊图上被认成「出」。与住址的「住址」→「址」是同一类退化，但两处的容忍度不一致 —— 这次把判据统一了。",
+  "learning_blocked": false
+}
