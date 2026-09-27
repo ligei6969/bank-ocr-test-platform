@@ -54,3 +54,43 @@ jobs:
           name: allure-results
           path: reports/allure-results/
           if-no-files-found: ignore
+
+  # 真实 PaddleOCR 的 live 校验。**不参与 push 门禁**，理由有两个：
+  #
+  # 1. 它会下载模型权重、跑 50 张图，比 pytest 慢一个量级；
+  # 2. 更要紧的是，如果 push 门禁依赖现场跑 OCR，那么引擎升版或
+  #    Linux/Windows 的浮点差异会让阈值边界样本（blur/glare 附近）
+  #    随机翻转，门禁就会随机打红 —— 一个会误报的门禁很快会被无视。
+  #
+  # 所以门禁走快照回放（上面的 pytest 步骤已经覆盖），真实引擎的差异
+  # 由一个独立 job 负责**报警**：它有差异就红，但绝不自动改快照。
+  ocr-snapshot-verify:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ocr-verify]')
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Cache PaddleOCR models
+        uses: actions/cache@v4
+        with:
+          path: reports/paddlex-runtime-cache
+          key: paddlex-${{ runner.os }}-${{ hashFiles('requirements-paddle.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Verify the OCR snapshot against a real PaddleOCR run
+        run: |
+          mkdir -p reports
+          # 退出码 1 = 快照与真实行为有差异；快照**不会被覆盖**
+          python -m scripts.record_ocr_snapshot --verify

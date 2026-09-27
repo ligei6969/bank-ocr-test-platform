@@ -1,0 +1,2272 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-27T09:12:33+00:00",
+  "notes": [
+    "由 scripts/record_ocr_snapshot.py 录制。",
+    "这是**系统观测**（引擎实际看到了什么），不是 Ground Truth —— Ground Truth 在 labels.json。",
+    "覆盖 50 张图，OCR 模式 paddle。"
+  ],
+  "observations": {
+    "data/processed/bank_card/blur/bank_card_0001.png": {
+      "image_path": "data/processed/bank_card/blur/bank_card_0001.png",
+      "image_sha256": "247cf97b803a8823ba105c94233d08895b3783ece67fb1cdeb38fcb2b25632c2",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5415 9827 3869 1093",
+        "CARD HOLDEN",
+        "VALID THIRU",
+        "ZHU BIN",
+        "04/36",
+        "SYNTHETIC DEBNT CARO",
+        "TEST DATA- NOT AREAL PAYMENT CARO"
+      ],
+      "parsed_fields": {
+        "card_number": "5415982738691093",
+        "valid_date": "04/36",
+        "name": "VALID THIRU"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.219024588341236,
+          "brightness_mean": 94.15882151029749,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/blur/bank_card_0002.png": {
+      "image_path": "data/processed/bank_card/blur/bank_card_0002.png",
+      "image_sha256": "365aa25ef2d2b48a34b5c1ea7aee1c9903df78d4db18c711f4ce5364fba0e593",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "6291 3430 7557 1223",
+        "1"
+      ],
+      "parsed_fields": {
+        "card_number": "6291343075571223",
+        "valid_date": null,
+        "name": null
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.079076906592169,
+          "brightness_mean": 80.65304633867277,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/blur/bank_card_0003.png": {
+      "image_path": "data/processed/bank_card/blur/bank_card_0003.png",
+      "image_sha256": "b1a975454aa28295de2a43dfd5cb60a4df1807cf92c376f0274ac2041fd26fe7",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "BYNTHETIC CARD",
+        "6802 6379 80025163",
+        "CARD HOLDER",
+        "WANG NING",
+        "08/36",
+        "TEST DATA - NOT AREAL PAYMENT CARO"
+      ],
+      "parsed_fields": {
+        "card_number": "6802637980025163",
+        "valid_date": "08/36",
+        "name": "WANG NING"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.3571181847495533,
+          "brightness_mean": 77.32440503432494,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/blur/bank_card_0004.png": {
+      "image_path": "data/processed/bank_card/blur/bank_card_0004.png",
+      "image_sha256": "3997cc28b3500ea85d9e0599f5f32d08d3ab3782093132ee399043f317b07e5f",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "BYNTHETIC CARD",
+        "4787 4206 1179 8639",
+        "LARI HOLIN",
+        "GUO PENG",
+        "INHETC OKNT CARI",
+        "DATA-NOTAREALPAMENT CM"
+      ],
+      "parsed_fields": {
+        "card_number": "4787420611798639",
+        "valid_date": null,
+        "name": "LARI HOLIN"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.1347028948333893,
+          "brightness_mean": 82.47647597254004,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/blur/bank_card_0005.png": {
+      "image_path": "data/processed/bank_card/blur/bank_card_0005.png",
+      "image_sha256": "78b195600941565f36d98321c2814b6d5e5893be0504f750d9386f9f44b67253",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5282 4483 7846 3573",
+        "CARD HOLDER",
+        "VALD THIRU",
+        "HE FENG",
+        "06/35",
+        "TEST DATA-NOT AREALPAYMENT CARO"
+      ],
+      "parsed_fields": {
+        "card_number": "5282448378463573",
+        "valid_date": "06/35",
+        "name": "VALD THIRU"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.1486396221376247,
+          "brightness_mean": 84.26693935926774,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/bright/bank_card_0001.png": {
+      "image_path": "data/processed/bank_card/bright/bank_card_0001.png",
+      "image_sha256": "56020edbe83fede9a5861e27533b9aee7b88582dd278c1ed2fc3fcb21996e97a",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5415 9827 3869 1093",
+        "CARD HOLDER",
+        "VALID THRU",
+        "ZHU BIN",
+        "04/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5415982738691093",
+        "valid_date": "04/36",
+        "name": "ZHU BIN"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 54.18923864331381,
+          "brightness_mean": 235.13174771167047,
+          "glare_component_ratio": 0.4389016018306636
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/bright/bank_card_0002.png": {
+      "image_path": "data/processed/bank_card/bright/bank_card_0002.png",
+      "image_sha256": "038b4846bfdcd16b93e73f01e1d9e42120b17ceaec25b308321afeea462b0b87",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST-ONLY",
+        "SYNTHETIC CARD",
+        "6291 3430 7557 1223",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG TAO",
+        "03/34",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6291343075571223",
+        "valid_date": "03/34",
+        "name": "FOR TEST-ONLY"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 102.69154175604906,
+          "brightness_mean": 228.77647883295194,
+          "glare_component_ratio": 0.3703146453089245
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/bright/bank_card_0003.png": {
+      "image_path": "data/processed/bank_card/bright/bank_card_0003.png",
+      "image_sha256": "dacc309af8cca42263e0865b78a38c8e08155d1226743868e7ef10fac07261c4",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FORTESTONLY",
+        "SYNTHETIC CARD",
+        "6802 6379 8002 5163",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG NING",
+        "08/36",
+        "SYNTHETIC DEBIT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6802637980025163",
+        "valid_date": "08/36",
+        "name": "WANG NING"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 163.14204230058274,
+          "brightness_mean": 222.0070938215103,
+          "glare_component_ratio": 0.25781178489702516
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/bright/bank_card_0004.png": {
+      "image_path": "data/processed/bank_card/bright/bank_card_0004.png",
+      "image_sha256": "0d1e75a2d2a1ecf671d4951681eb73fc5445d42c8545ffe2bd7cf974f1b9f5a5",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TESTBANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "4787 4206 1179 8639",
+        "CARD HOLDER",
+        "VALID THRU",
+        "GUO PENG",
+        "12/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "4787420611798639",
+        "valid_date": "12/36",
+        "name": "GUO PENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 324.3671729221758,
+          "brightness_mean": 199.71609839816935,
+          "glare_component_ratio": 0.030085812356979404
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/bright/bank_card_0005.png": {
+      "image_path": "data/processed/bank_card/bright/bank_card_0005.png",
+      "image_sha256": "37f451ead91b04107a08130509e5e79f11cf9d5ac7726b6006dce8d3b70bfd4a",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5282 4483 7846 3573",
+        "CARD HOLDER",
+        "VALID THRU",
+        "HE FENG",
+        "06/35",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5282448378463573",
+        "valid_date": "06/35",
+        "name": "HE FENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 297.07109966433524,
+          "brightness_mean": 199.28254862700229,
+          "glare_component_ratio": 0.06094965675057208
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/dark/bank_card_0001.png": {
+      "image_path": "data/processed/bank_card/dark/bank_card_0001.png",
+      "image_sha256": "509c7ef3823f87e05ad49f6df988b3967b515213e33865e275f6a748543a6b00",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5415 9827 3869 1093",
+        "CARD HOLDER",
+        "VALID THRU",
+        "ZHU BIN",
+        "04/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5415982738691093",
+        "valid_date": "04/36",
+        "name": "ZHU BIN"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 100.64352974710556,
+          "brightness_mean": 31.10191647597254,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/dark/bank_card_0002.png": {
+      "image_path": "data/processed/bank_card/dark/bank_card_0002.png",
+      "image_sha256": "d63a52b23573ba3419d48cdf984245c020f99007d62fe3397200f6c77022ab88",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6291 3430 7557 1223",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG TAO",
+        "03/34",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6291343075571223",
+        "valid_date": "03/34",
+        "name": "WANG TAO"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 66.0911641872421,
+          "brightness_mean": 18.45662185354691,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/dark/bank_card_0003.png": {
+      "image_path": "data/processed/bank_card/dark/bank_card_0003.png",
+      "image_sha256": "fef5e096f3fc33d6310acca981212a81134da65aa7b1ae1aec13e196018812ff",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6802 6379 8002 5163",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG NING",
+        "08/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6802637980025163",
+        "valid_date": "08/36",
+        "name": "WANG NING"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 47.5128432447151,
+          "brightness_mean": 14.79537471395881,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/dark/bank_card_0004.png": {
+      "image_path": "data/processed/bank_card/dark/bank_card_0004.png",
+      "image_sha256": "b8d4fbe9686a5d3476b6b63dca84322a07ea6df198cc173f82f586a9ef126268",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "4787 4206 1179 8639",
+        "CARD HOLDER",
+        "VALID THRU",
+        "GUO PENG",
+        "12/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "4787420611798639",
+        "valid_date": "12/36",
+        "name": "GUO PENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 104.7383037297202,
+          "brightness_mean": 23.567685926773457,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/dark/bank_card_0005.png": {
+      "image_path": "data/processed/bank_card/dark/bank_card_0005.png",
+      "image_sha256": "3bceccba3abd3c394201a3b0b568eaf84e090eebc99c8d0e55fb13dcb0567c0d",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5282 4483 7846 3573",
+        "CARD HOLDER",
+        "VALID THRU",
+        "HE FENG",
+        "06/35",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5282448378463573",
+        "valid_date": "06/35",
+        "name": "HE FENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 349.08701873851254,
+          "brightness_mean": 46.84563501144165,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/glare/bank_card_0001.png": {
+      "image_path": "data/processed/bank_card/glare/bank_card_0001.png",
+      "image_sha256": "12db44fbc965f84fd800ced5506fc909c1d93f695db910e220e99e30a2e126a7",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5415 9827 3869 1093",
+        "CARD HOLDER",
+        "VALID THRU",
+        "ZHU BIN",
+        "04/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5415982738691093",
+        "valid_date": "04/36",
+        "name": "ZHU BIN"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 927.3226029684135,
+          "brightness_mean": 95.28589244851258,
+          "glare_component_ratio": 0.006578947368421052
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/glare/bank_card_0002.png": {
+      "image_path": "data/processed/bank_card/glare/bank_card_0002.png",
+      "image_sha256": "9a7a747f2030e2c812619ac82dd73dd83846f6d27a376cc15b8978a0d8d77be4",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6291 3430 7557 1223",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG TAO",
+        "03/34",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6291343075571223",
+        "valid_date": "03/34",
+        "name": "WANG TAO"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1252.3214358662597,
+          "brightness_mean": 84.96600972540045,
+          "glare_component_ratio": 0.021295766590389016
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/glare/bank_card_0003.png": {
+      "image_path": "data/processed/bank_card/glare/bank_card_0003.png",
+      "image_sha256": "97a94a5ab43aed298605f293122bd8242d98764ff49575710a5df4aa368d0919",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6802 6379 8002 5163",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG NING",
+        "08/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6802637980025163",
+        "valid_date": "08/36",
+        "name": "WANG NING"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1261.719968113861,
+          "brightness_mean": 81.88990846681922,
+          "glare_component_ratio": 0.023429633867276888
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/glare/bank_card_0004.png": {
+      "image_path": "data/processed/bank_card/glare/bank_card_0004.png",
+      "image_sha256": "5d5eabdf4f45045f5c2b8a369c856c74de639a20c054edceeddffaf5e06a9bc3",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "4787 4206",
+        "8639",
+        "CARD HOLDER",
+        "VALID THRU",
+        "GUO PENG",
+        "12/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": null,
+        "valid_date": "12/36",
+        "name": "GUO PENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1227.6097331490894,
+          "brightness_mean": 86.28712242562929,
+          "glare_component_ratio": 0.02319508009153318
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/glare/bank_card_0005.png": {
+      "image_path": "data/processed/bank_card/glare/bank_card_0005.png",
+      "image_sha256": "ce0fc660ff14d5f551f4efacac6a47a1f03450c4d37d34643a3b10bb8958f3c9",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5282 4483 7846 3572",
+        "CARD HOLDER",
+        "VALID THRU",
+        "HE FENG",
+        "06/35",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5282448378463572",
+        "valid_date": "06/35",
+        "name": "HE FENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1125.6326073523712,
+          "brightness_mean": 85.73050915331808,
+          "glare_component_ratio": 0.008893020594965675
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/normal/bank_card_0001.png": {
+      "image_path": "data/processed/bank_card/normal/bank_card_0001.png",
+      "image_sha256": "508f963af78657cf5846bf5fab711da12dda04a992f24f976d455087051a20d1",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5415 9827 3869 1093",
+        "CARD HOLDER",
+        "VALID THRU",
+        "ZHU BIN",
+        "04/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5415982738691093",
+        "valid_date": "04/36",
+        "name": "ZHU BIN"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 898.7095995359192,
+          "brightness_mean": 94.15854691075515,
+          "glare_component_ratio": 0.0008381006864988559
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/normal/bank_card_0002.png": {
+      "image_path": "data/processed/bank_card/normal/bank_card_0002.png",
+      "image_sha256": "fe4fcd799096a31b2a09dc0c8e3eef736b78137aa54af9b0e5e8505a98af2b88",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6291 3430 7557 1223",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG TAO",
+        "03/34",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6291343075571223",
+        "valid_date": "03/34",
+        "name": "WANG TAO"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1190.1270308319347,
+          "brightness_mean": 80.6403918764302,
+          "glare_component_ratio": 0.0008323798627002288
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/normal/bank_card_0003.png": {
+      "image_path": "data/processed/bank_card/normal/bank_card_0003.png",
+      "image_sha256": "1580f40cc09825ee66eeaeb707af197daee618d78dda611201c4eaa63994b66f",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "6802 6379 8002 5163",
+        "CARD HOLDER",
+        "VALID THRU",
+        "WANG NING",
+        "08/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "6802637980025163",
+        "valid_date": "08/36",
+        "name": "WANG NING"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1201.0900310429226,
+          "brightness_mean": 77.30802345537758,
+          "glare_component_ratio": 0.0008381006864988559
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/normal/bank_card_0004.png": {
+      "image_path": "data/processed/bank_card/normal/bank_card_0004.png",
+      "image_sha256": "fbd0830c7a77ad1740df4d9853beef7445d53f7a5fd2fad1fc3c5cc7508d8624",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "4787 4206 1179 8639",
+        "CARD HOLDER",
+        "VALID THRU",
+        "GUO PENG",
+        "12/36",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "4787420611798639",
+        "valid_date": "12/36",
+        "name": "GUO PENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1228.3084459637348,
+          "brightness_mean": 82.50169908466819,
+          "glare_component_ratio": 0.0008381006864988559
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/bank_card/normal/bank_card_0005.png": {
+      "image_path": "data/processed/bank_card/normal/bank_card_0005.png",
+      "image_sha256": "03d1c61706026b542d7c4e615a7fbb67cebe0d9518e68b2f3190fbc6bcb0cd93",
+      "doc_type": "bank_card",
+      "ocr_texts": [
+        "TEST BANK",
+        "FOR TEST ONLY",
+        "SYNTHETIC CARD",
+        "5282 4483 7846 3573",
+        "CARD HOLDER",
+        "VALID THRU",
+        "HE FENG",
+        "06/35",
+        "SYNTHETIC DEBIT CARD",
+        "TEST DATA - NOT A REAL PAYMENT CARD"
+      ],
+      "parsed_fields": {
+        "card_number": "5282448378463573",
+        "valid_date": "06/35",
+        "name": "HE FENG"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1106.746028405003,
+          "brightness_mean": 84.32047768878718,
+          "glare_component_ratio": 0.0008381006864988559
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/blur/id_back_0001.jpg": {
+      "image_path": "data/processed/id_card/back/blur/id_back_0001.jpg",
+      "image_sha256": "6a496a94fe84d7fb6d460904ec860b1efbe59377fb469f499178d2de4f277010",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "签发机关测试公安局城东分局",
+        "有效期限2008.07.27-2018.07.27"
+      ],
+      "parsed_fields": {
+        "issue_authority": "测试公安局城东分局",
+        "valid_period": "2008.07.27-2018.07.27",
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 0.9485728089747503,
+          "brightness_mean": 155.27346863476643,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/blur/id_back_0002.jpg": {
+      "image_path": "data/processed/id_card/back/blur/id_back_0002.jpg",
+      "image_sha256": "1d75d4381eb7b81e68dff16794def6f5d9a1ec08105f38bdd72df47f66b5eb67",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "仅供OCR",
+        "签发机关测试公安局",
+        "有效期限2014.10.27-2024.10.27"
+      ],
+      "parsed_fields": {
+        "issue_authority": "测试公安局",
+        "valid_period": "2014.10.27-2024.10.27",
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1.0041870385694214,
+          "brightness_mean": 155.57639191837637,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/blur/id_back_0003.jpg": {
+      "image_path": "data/processed/id_card/back/blur/id_back_0003.jpg",
+      "image_sha256": "901340fe475447effaed8b9299d896f9a1627954bc88981f62ef591e2854dd10",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "仅供OCR",
+        "签发机关测试公安局",
+        "有效期限1991.06.23-2001.06.23"
+      ],
+      "parsed_fields": {
+        "issue_authority": "测试公安局",
+        "valid_period": "1991.06.23-2001.06.23",
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 0.962581299572679,
+          "brightness_mean": 155.5333697957022,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/bright/id_back_0001.jpg": {
+      "image_path": "data/processed/id_card/back/bright/id_back_0001.jpg",
+      "image_sha256": "8b01cc7d51d8c7a9537b314c55810a4e381cf4dbee580b6f4d76f466e4cc7a82",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局城东分局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1350.2146463243926,
+          "brightness_mean": 227.19679608637242,
+          "glare_component_ratio": 0.8442930966751963
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/bright/id_back_0002.jpg": {
+      "image_path": "data/processed/id_card/back/bright/id_back_0002.jpg",
+      "image_sha256": "65aa53e27aac6b78aa5a3f8b62eb540f8e10be7102124e8db847ddf2c50bf633",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1019.276743714446,
+          "brightness_mean": 199.16019958806206,
+          "glare_component_ratio": 7.813364760422704e-06
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/bright/id_back_0003.jpg": {
+      "image_path": "data/processed/id_card/back/bright/id_back_0003.jpg",
+      "image_sha256": "494ae3819dd851bd866cd131b635e0a00bfafd21c23d8bbb42ececea11e9f3a3",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 1209.9433581402172,
+          "brightness_mean": 222.7282576847698,
+          "glare_component_ratio": 0.8043650664461561
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/dark/id_back_0001.jpg": {
+      "image_path": "data/processed/id_card/back/dark/id_back_0001.jpg",
+      "image_sha256": "8feb60903966b9f52328d7f793b87423000a82ed9b63c6c5c2e31e3753d78ea3",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "仅供OCR测试",
+        "签发机关",
+        "测试公安局城东分局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 45.47803247533063,
+          "brightness_mean": 38.46983368384956,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/dark/id_back_0002.jpg": {
+      "image_path": "data/processed/id_card/back/dark/id_back_0002.jpg",
+      "image_sha256": "b53b29fe450a482aaff1aaa7f94c5dfee9b24e9b91099b00e42a547c60410501",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "仅供0CR测试",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 50.64504791804773,
+          "brightness_mean": 41.00357504845371,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/dark/id_back_0003.jpg": {
+      "image_path": "data/processed/id_card/back/dark/id_back_0003.jpg",
+      "image_sha256": "46b0c1f6086d63e28aed8858b9ce4431acb4a4d4c431244bbedf11801094997c",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居民身份证",
+        "仅供0CR测试",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 63.834012831924056,
+          "brightness_mean": 46.80080911732853,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/glare/id_back_0001.jpg": {
+      "image_path": "data/processed/id_card/back/glare/id_back_0001.jpg",
+      "image_sha256": "c67e2fc6eb02908357682feccd12eb704ee69df223f72e48c80bc4c8c6c84606",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "证",
+        "签发机关",
+        "测试公安局城东分局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 637.8355542120322,
+          "brightness_mean": 162.31171375304123,
+          "glare_component_ratio": 0.07200276072221536
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/glare/id_back_0002.jpg": {
+      "image_path": "data/processed/id_card/back/glare/id_back_0002.jpg",
+      "image_sha256": "7cb0fd0bc24912e6f8daa49daa456de3d2c757471f72c107d0bad0b0f7ea5467",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "共和国",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 566.7090840514893,
+          "brightness_mean": 164.92824639879848,
+          "glare_component_ratio": 0.08809829212868611
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/glare/id_back_0003.jpg": {
+      "image_path": "data/processed/id_card/back/glare/id_back_0003.jpg",
+      "image_sha256": "31c52f7c55589b0a8104441081170781539fe8ab9794db96323c713f6c744764",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "人民共和国",
+        "居",
+        "民",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 632.1890177308468,
+          "brightness_mean": 159.0713433995516,
+          "glare_component_ratio": 0.03895656854382755
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/normal/id_back_0001.jpg": {
+      "image_path": "data/processed/id_card/back/normal/id_back_0001.jpg",
+      "image_sha256": "986221bbda711afc5125565190b0dfc3a9609e6e5a7207f6b2c1a8d0a710a75c",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局城东分局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 668.6425714705804,
+          "brightness_mean": 155.22510000021703,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/normal/id_back_0002.jpg": {
+      "image_path": "data/processed/id_card/back/normal/id_back_0002.jpg",
+      "image_sha256": "1f952b0a71c9b86e0d00fdf81ab668c517ac0d5292b84bbcf88467a543c720ef",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 639.2062128458192,
+          "brightness_mean": 155.5243666291191,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/back/normal/id_back_0003.jpg": {
+      "image_path": "data/processed/id_card/back/normal/id_back_0003.jpg",
+      "image_sha256": "bfbc88377393b8823f050122081dc79f6f9a4b03459850f17180e015d5c77829",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ],
+      "parsed_fields": {
+        "issue_authority": null,
+        "valid_period": null,
+        "_side": "back"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 640.2417319679444,
+          "brightness_mean": 155.4874311175933,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/blur/id_front_0001.jpg": {
+      "image_path": "data/processed/id_card/front/blur/id_front_0001.jpg",
+      "image_sha256": "c5017a884ba32c54f10492e4df6d9634842593f5e891e20e510a4b4cf5ca56a4",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名沈梓欣",
+        "性女",
+        "民联目",
+        "出生1990年8月31日",
+        "址东湖省丹江市城东区样本",
+        "街284号",
+        "公民身份号码",
+        "00000019900831001X"
+      ],
+      "parsed_fields": {
+        "name": "沈梓欣",
+        "gender": null,
+        "nation": null,
+        "birth": "1990-08-31",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 0.8386958361194274,
+          "brightness_mean": 159.00718624636804,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/blur/id_front_0002.jpg": {
+      "image_path": "data/processed/id_card/front/blur/id_front_0002.jpg",
+      "image_sha256": "b1331af26f26c5f7a041b9824734a3aae76c50fc4eb77d545768dfaa6a818573",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓张怡",
+        "性男",
+        "R联目",
+        "出1996年1月12日",
+        "址安北省明港市城东区样本",
+        "例57号",
+        "公民身份号码",
+        "00000019960112002X"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": null,
+        "nation": null,
+        "birth": null,
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 0.8415440712332174,
+          "brightness_mean": 156.9337191337705,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/bright/id_front_0001.jpg": {
+      "image_path": "data/processed/id_card/front/bright/id_front_0001.jpg",
+      "image_sha256": "e5f447e048542493e653241f36ffef80b331f8327573ffde4556a521b901efd0",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名沈梓欣",
+        "性别女",
+        "民族回",
+        "出生1990",
+        "0 年 8 月 31 日",
+        "住址",
+        "东湖省丹江市城东区样本",
+        "Tip bag",
+        "街284号",
+        "ChS",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": "沈梓欣",
+        "gender": "女",
+        "nation": "回",
+        "birth": null,
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "bright",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_bright",
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 592.7813916492241,
+          "brightness_mean": 234.99363275660775,
+          "glare_component_ratio": 0.7932776797549136
+        },
+        "severe_reasons": [
+          "severe_image_bright"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/bright/id_front_0002.jpg": {
+      "image_path": "data/processed/id_card/front/bright/id_front_0002.jpg",
+      "image_sha256": "0c3e3f59e169e049da9a95d63dd102065ca86a1eb41eff1c25ce59e05cf5f541",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "试",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "男",
+        "nation": "回",
+        "birth": "1996-01-12",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 410.85622692611685,
+          "brightness_mean": 195.93788525180173,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/dark/id_front_0001.jpg": {
+      "image_path": "data/processed/id_card/front/dark/id_front_0001.jpg",
+      "image_sha256": "1277edaf88c1023a1c7b4eec0312e003b5c341213683c92b6cee6d6ee65e07ba",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "沈梓欣",
+        "性别女",
+        "民族回",
+        "出生1990年8月31日",
+        "住址",
+        "东湖省丹江市城东区样本",
+        "街284号",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "女",
+        "nation": "回",
+        "birth": "1990-08-31",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 2.837624974583192,
+          "brightness_mean": 14.410476742246685,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur",
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/dark/id_front_0002.jpg": {
+      "image_path": "data/processed/id_card/front/dark/id_front_0002.jpg",
+      "image_sha256": "72b9b7ef973f9c6504e3a5752342a2fb5c1733fd15b91d43748e71e0805a4739",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名张怡",
+        "性别男",
+        "民族回",
+        "出生1996年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": "张怡",
+        "gender": "男",
+        "nation": "回",
+        "birth": "1996-01-12",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": true,
+        "brightness": "dark",
+        "has_glare": false,
+        "quality_result": "review",
+        "quality_reasons": [
+          "image_blur",
+          "image_dark"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 2.851972878345894,
+          "brightness_mean": 15.401709109103837,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": [
+          "severe_image_blur",
+          "severe_image_dark"
+        ]
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/glare/id_front_0001.jpg": {
+      "image_path": "data/processed/id_card/front/glare/id_front_0001.jpg",
+      "image_sha256": "023ec60078ea42261ec655cc08242bbc67af28ec1d85946614330679c9e1d0c7",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "沈梓欣",
+        "性别女",
+        "民族",
+        "出生1990",
+        "年8",
+        "住址",
+        "东湖省丹江市城东区样本",
+        "Tip bag",
+        "街284号",
+        "Chs",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "女",
+        "nation": null,
+        "birth": null,
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 285.61305881007877,
+          "brightness_mean": 163.0909053801385,
+          "glare_component_ratio": 0.048948375600207164
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/glare/id_front_0002.jpg": {
+      "image_path": "data/processed/id_card/front/glare/id_front_0002.jpg",
+      "image_sha256": "fef8ad35a0f115158086a175c3fedb783e9790d4537c4915ae2c535519584c87",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "男",
+        "nation": "回",
+        "birth": "1996-01-12",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": true,
+        "quality_result": "review",
+        "quality_reasons": [
+          "glare_detected"
+        ],
+        "quality_metrics": {
+          "blur_laplacian_variance": 298.25927761466806,
+          "brightness_mean": 164.9419354980293,
+          "glare_component_ratio": 0.0617473819117092
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/normal/id_front_0001.jpg": {
+      "image_path": "data/processed/id_card/front/normal/id_front_0001.jpg",
+      "image_sha256": "b7d563b9b50a6b45689ce7e8fa54d67af4ed15f3790a3e1142b252fb6474b5dc",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "沈梓欣",
+        "性别女",
+        "民族回",
+        "出生1990",
+        "年8月31日",
+        "住址",
+        "东湖省丹江市城东区样本",
+        "Tip bng",
+        "街284号",
+        "Chis",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "女",
+        "nation": "回",
+        "birth": "1990-08-31",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 275.97183700438615,
+          "brightness_mean": 158.955100114994,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    },
+    "data/processed/id_card/front/normal/id_front_0002.jpg": {
+      "image_path": "data/processed/id_card/front/normal/id_front_0002.jpg",
+      "image_sha256": "b9cc897b22df3bf6e9898b339e1f103e2474795caceebb5b5dec46fda95c5567",
+      "doc_type": "id_card",
+      "ocr_texts": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ],
+      "parsed_fields": {
+        "name": null,
+        "gender": "男",
+        "nation": "回",
+        "birth": "1996-01-12",
+        "address": null,
+        "id_number": null,
+        "_side": "front"
+      },
+      "quality": {
+        "is_blur": false,
+        "brightness": "normal",
+        "has_glare": false,
+        "quality_result": "pass",
+        "quality_reasons": [],
+        "quality_metrics": {
+          "blur_laplacian_variance": 265.24703078242135,
+          "brightness_mean": 156.88429366479693,
+          "glare_component_ratio": 0.0
+        },
+        "severe_reasons": []
+      },
+      "parse_error": "",
+      "ocr_runtime": {
+        "engine": "paddleocr",
+        "engine_version": "paddleocr=3.7.0;paddle=3.3.0",
+        "python": "3.10.20",
+        "platform": "win32",
+        "recorded_at": "2026-09-27T09:12:33+00:00"
+      }
+    }
+  }
+}

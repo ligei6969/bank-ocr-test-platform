@@ -50,8 +50,8 @@ EVENT_SOURCES: Tuple[str, ...] = (
 )
 
 #: 事件落在哪个产品面。**这个是 CTE Readiness 的判据** ——
-#: OCR / adjudication 两个面在数据真实化（CTE-2）完成前不允许产出学习结论，
-#: 见 :data:`BLOCKED_SURFACES`。
+#: 被数据缺口卡住的面只能记录事件、不能产出学习结论，
+#: 名单由 :func:`_blocked_surfaces` 从就绪度表推导。
 EVENT_SURFACES: Tuple[str, ...] = (
     "knowledge",
     "threat",
@@ -60,11 +60,23 @@ EVENT_SURFACES: Tuple[str, ...] = (
     "adjudication",
 )
 
-#: 数据真实性未解决前，这两个面只能记录事件，不能据此产出 Candidate。
-#: 理由不是「不能测」——安全不变式照跑 —— 而是**不能从当前数据得出
-#: 「双判行为应该怎么改」的学习结论**：fields 是标注真值而非 OCR 实际输出，
-#: 「字段全部解析成功」恒成立，信号没有区分度。
-BLOCKED_SURFACES: frozenset[str] = frozenset({"ocr", "adjudication"})
+def _blocked_surfaces() -> frozenset:
+    """当前被数据缺口卡住、只能记录事件不能产出学习结论的面。
+
+    **从 :mod:`test_evolution.readiness` 推导，不在这里另存一份名单。**
+    早先这里硬编码过 ``{"ocr", "adjudication"}``；CTE-2 交付 OCR 快照、
+    解除阻塞之后，那份常量就与就绪度表对不上了 —— 一份过期的常量比
+    没有常量更糟，因为它会让 ``Event.learning_blocked`` 给出一个
+    没人能解释的答案。
+    """
+    from test_evolution.readiness import BLOCKED, SURFACES
+
+    return frozenset(item.name for item in SURFACES if item.level == BLOCKED)
+
+
+#: 供 import 方使用的快照式常量，值在模块加载时从就绪度表算出。
+#: **不要在别处再写一份名单** —— 要改就改 ``readiness.SURFACES``。
+BLOCKED_SURFACES: frozenset = _blocked_surfaces()
 
 #: Candidate 类型。方案第十一节。
 CANDIDATE_TYPES: Tuple[str, ...] = (

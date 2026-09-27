@@ -1,9 +1,9 @@
-# CTE 开发报告（CTE-0 骨架 + CTE-1 第一个闭环）
+# CTE 开发报告（CTE-0 骨架 + CTE-1 首个闭环 + CTE-2 OCR 快照）
 
-> 阶段：P5 Continuous Test Evolution
+> 阶段：P5 Continuous Test Evolution（CTE-0 骨架 + CTE-1 首个闭环 + CTE-2 OCR 快照）
 > 日期：2026-09-27
 > 前置文档：[`p5计划.md`](p5计划.md)（初版方案）、[`p5修订md`](p5修订md)（吸收审计后的修订版）
-> 测试基线：**1052 → 1134 passed / 0 failed**（新增 82 项，零回归）
+> 测试基线：**1052 → 1164 passed / 0 failed**（新增 112 项，零回归）
 
 ---
 
@@ -31,30 +31,36 @@ CTE-0 与 CTE-1 合并交付 —— 因为骨架的每一部分都由第一个�
 ```
 test_evolution/
 ├── __init__.py
-├── schema.py       数据契约：Event / Prediction / Candidate + 验证矩阵 + 读写
-├── readiness.py    Surface 就绪度（唯一事实来源）
-├── replay.py       历史重演（固定化规则快照）
-├── pipeline.py     闭环编排
-├── README.md       设计说明与诚实清单
+├── schema.py        数据契约：Event / Prediction / Candidate + 验证矩阵 + 读写
+├── readiness.py     Surface 就绪度（唯一事实来源）
+├── replay.py        历史重演（固定化规则快照）
+├── ocr_snapshot.py  真实 OCR 的录制/回放（CTE-2）
+├── pipeline.py      闭环编排
+├── README.md        设计说明与诚实清单
 └── tests/
-    ├── test_schema.py      契约测试（23 项）
-    ├── test_replay.py      重演测试（13 项）
-    ├── test_pipeline.py    闭环测试（22 项）
-    └── test_readiness.py   就绪度测试（10 项）
+    ├── test_schema.py        契约测试
+    ├── test_replay.py        重演测试
+    ├── test_pipeline.py      闭环测试
+    ├── test_readiness.py     就绪度测试
+    └── test_ocr_snapshot.py  快照/回放测试
 
 .claude/skills/bankocr-test-evolution/SKILL.md   流程控制器
-scripts/run_cte.py                               CLI 入口
+scripts/run_cte.py                               CTE 闭环 CLI 入口
+scripts/record_ocr_snapshot.py                   OCR 快照录制/校验（不进 CI）
 ai_service/tests/test_cte_regressions.py         晋级出的回归资产（14 项）
+data/annotations/ocr_outputs.json                真实 PaddleOCR 快照（50 条观测）
+docs/baseline_migrations/001_real_ocr_fields.md  基线口径变更记录
 ```
 
 ### 生成的过程证据（已入库，是审计轨迹）
 
 ```
-test_evolution/events/EVT-001.json          事件
-test_evolution/predictions/PRED-EVT-001.json 盲预测（执行前落盘）
-test_evolution/retros/EVT-001.md            复盘
-test_evolution/candidates/CTE-001.json      候选
-test_evolution/validated/CTE-001.md         晋级后的知识
+test_evolution/events/EVT-001.json           事件（征信漏拒）
+test_evolution/events/EVT-002.json           事件（身份证跨行解析）
+test_evolution/predictions/PRED-EVT-00*.json 盲预测（执行前落盘）
+test_evolution/retros/EVT-00*.md             复盘
+test_evolution/candidates/CTE-00*.json       候选
+test_evolution/validated/CTE-001.md          晋级后的知识
 ```
 
 ---
@@ -155,6 +161,78 @@ Candidate  CTE-001  [NEW_TEST]  validated
 
 ---
 
+## 四之二、CTE-2：OCR 快照（同批交付）
+
+与 CTE-1 并行的那条主线。目标：**让评测的 `fields` 来自真实 OCR 输出**，
+从而解除 OCR / 双判两个面的数据缺口。
+
+### 做法
+
+和 LLM cassette 同构的录制回放：
+
+```
+真实 PaddleOCR → 录制 → data/annotations/ocr_outputs.json → CI 回放
+```
+
+快照存三样：原始文本行、解析后的字段、**图像质量指标**。
+质量指标必须存是因为 CI 会删图，而质量检测（`platform_rules.compute_quality`）
+是现读图的。
+
+### 顺带修掉的 CI 暗坑
+
+审计时发现 `tests.yml` 的清理步骤删掉每类第 4 张及之后的图，
+而 golden 的 `_balanced_take` 每桶取 4 张 —— 于是 CI 里那 5 条 `*-03`
+样本的质量检测走 `path.is_file()` 失败，返回 `quality_check_unavailable`。
+门禁当时没红只是被容忍度吃掉了。
+
+**实测验证**：把 `bank_card_*_0004/0005.png` 移走后，
+不用快照 5/40 条拿不到质量数据，用快照 **0/40**。
+（`test_snapshot_survives_the_ci_image_cleanup` 固化这个场景。）
+
+### 录制脚本踩的坑（值得记下来）
+
+初版录制脚本自己按桶排序取前 N 张，取到 `back/blur/0001..0004`；
+而 golden 的 `_balanced_take` 是**按面轮转**的，要的是
+`back/blur/0001` 与 `front/blur/0001`。两套选取策略 → 40 条里 10 条未命中。
+
+修法是让录制直接复用 `build_golden_set`：**「录什么」由「评测用什么」决定**，
+不该各写一份。`test_recorder_targets_cover_every_golden_image` 守住这个耦合。
+
+### 一录就暴露的三类真实缺陷
+
+| # | 现象 | 样本 |
+| --- | --- | --- |
+| 1 | 模糊图上 `name` 被识别成 `VALIDTHIRU`（有效期那行串进姓名） | `blur/bank_card_0001.png` |
+| 2 | 反光图上卡号**单字符**误识（`...572` vs `...573`）—— 正是双判该抓的那类 | `glare/bank_card_0005.png` |
+| 3 | **身份证字段解析 100% 失败**：正面 `id_number` 0/10，反面全字段 3/15 | 全部 id_card |
+
+第 3 条的根因：`app/id_card_parser.py` 的 `_value_after_label` 要求
+「标签 值」同行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立
+文本框（`['姓名', '沈梓欣', '性别女', ...]`）。mock 把整段拼成一行，
+所以这个假设从未被检验 —— **此前所有身份证正面的字段结论都建立在
+mock 的拼接行为上**。
+
+### Baseline Migration
+
+| 指标 | 口径 A（标注真值） | 口径 B（真实 OCR） | 变化 |
+| --- | --- | --- | --- |
+| `task.verdict_accuracy` | 0.775 | **0.675** | −12.90% |
+| `tools.sequence_accuracy` | 0.950 | 0.900 | −5.26% |
+| `tools.avg_steps` | 2.750 | 2.900 | +5.45% |
+
+这是**测量口径变真实**，不是回归。记录见
+[`baseline_migrations/001_real_ocr_fields.md`](baseline_migrations/001_real_ocr_fields.md)，
+并已按流程显式重置基线（不是自动更新）。
+
+### 产出的事件
+
+`EVT-002` 走完整闭环 → 提案 `CTE-002`（`NEW_TEST`）。
+关键设计：它的 `passes_after_fix` 是 **`skipped`** —— 缺陷还没修，
+没有「修复后」可测。这让 `is_machine_validated` 为假、`can_promote` 为假，
+**即便有人签名也晋级不了**。CTE 只提交提案，改 parser 由人决定。
+
+---
+
 ## 五、Surface Readiness（方案第九节的落地）
 
 | Surface | 就绪度 | 为什么 |
@@ -162,11 +240,17 @@ Candidate  CTE-001  [NEW_TEST]  validated
 | `knowledge` | ✅ ready | 纯规则判定，人工可复核，不碰 OCR |
 | `threat` | ✅ ready | 45 条假想敌用例 + 明确 pass/fail，且已抓到真实漏判 |
 | `agent` | 🟡 partial | 有白名单与轨迹断言；但「工具序列完全匹配」已被证明不是有效信号 |
-| `ocr` | ⛔ blocked | 评测集没有 OCR 实际输出，「字段解析成功」恒成立 |
-| `adjudication` | ⛔ blocked | 双判正确性需要「图像还能不能读」，当前评测集答不了 |
+| `ocr` | 🟡 partial | CTE-2 已交付快照；但降质样本错误率还没有系统化基线 |
+| `adjudication` | 🟡 partial | 快照已能给出「图像还能不能读」的部分信号；样本量不足以标定改判正确性 |
 
-`learning_allowed()` 是 `Event.learning_blocked` 的唯一依据 ——
-就绪度只有一份事实来源，不会各说各话。
+CTE-2 之后没有 `blocked` 的面了。但**解除阻塞 ≠ 可以放心下结论**，
+所以两个面标 `partial` 而非 `ready` —— 升成 ready 会让它们在报告里
+显得和 knowledge 面一样可靠，那是不实的。
+
+`learning_allowed()` 是 `Event.learning_blocked` 与 `BLOCKED_SURFACES`
+的唯一依据。此前 `BLOCKED_SURFACES` 是硬编码的 `{"ocr", "adjudication"}`，
+CTE-2 之后就过期了 —— 一份过期的常量比没有常量更糟
+（它会让事件被无理由地拒绝），已改为从就绪度表推导。
 
 ---
 
@@ -174,31 +258,19 @@ Candidate  CTE-001  [NEW_TEST]  validated
 
 | # | 遗留 | 说明 |
 | --- | --- | --- |
-| 1 | **CTE-1 只覆盖了 Knowledge / Threat 面** | OCR 与双判面被数据缺口卡住，不是没做，是做了也不可信 |
-| 2 | **历史重演只到规则层** | 不含当时的 prompt 与模型版本差异 |
-| 3 | **只实现了 2 类 Candidate 的自动验证** | `NEW_TEST` 与 `THREAT_CASE`；其余六类有 schema 与验证矩阵，但检查器要手工填 `checks` |
-| 4 | **`validated/` 还没被 RAG 消费** | 它是为将来准备的索引源，当前没有检索代码读它 |
-| 5 | **单一事件** | 一个闭环跑通不等于机制在大样本上成立 |
-| 6 | **KPI 只留了三个** | Candidate Count / Validated Count / Executable Test Yield。1 个 Candidate 算出来的「接受率 100%」没有信息量 |
+| 1 | **EVT-002 暴露的解析缺陷没有修** | 身份证跨行取值。改 `app/id_card_parser.py` 是生产代码变更，按 CTE 边界须由人决定后另开 commit；CTE 只提交了提案 `CTE-002` |
+| 2 | **OCR 快照只有 50 条观测** | 覆盖 golden 用到的全部图（含降质样本，每桶 5 张），但降质样本的字段错误率还没有系统化基线 |
+| 3 | **快照只录了 golden 用到的图** | `--all` 能录全量 2100 张，但很慢，且那部分观测目前没有消费者 |
+| 4 | **历史重演只到规则层** | 不含当时的 prompt 与模型版本差异 |
+| 5 | **只实现了 2 类 Candidate 的自动验证** | `NEW_TEST` 与 `THREAT_CASE`；其余六类有 schema 与验证矩阵，但检查器要手工填 `checks` |
+| 6 | **`validated/` 还没被 RAG 消费** | 它是为将来准备的索引源，当前没有检索代码读它 |
+| 7 | **KPI 只留了三个** | Candidate Count / Validated Count / Executable Test Yield。1 个 Candidate 算出来的「接受率 100%」没有信息量 |
 
-### 下一步（CTE-2，与本文并行）
+### 下一步（CTE-3）
 
-按修订版方案第二十一条，CTE-2 是另一条独立的主线：
-**为现有 Golden 数据建立 PaddleOCR record/replay 快照**，让 CI 消费
-真实 OCR 派生字段而不实时依赖 PaddleOCR。
-
-审计时确认的具体问题（写在这里备查）：
-
-- 快照 schema 必须同时存 `quality` 指标 —— 否则 CI 里图片不在，
-  质量检测拿不到输入；
-- **当前 CI 已有一个暗坑**：`tests.yml` 的清理步骤删掉每类 0004 及之后的图，
-  而 golden 集的 `*-03` 五条样本正好落在 `bank_card_0004.png` 上，
-  于是 CI 里这五条的 `compute_quality` 走 `path.is_file()` 失败。
-  门禁没红只是被容忍度吃掉了（`golden.py:104` 的 `fields` 现在不读图，
-  但 `platform_rules.py:79` 的 `compute_quality` 读）；
-- 字段名用平台的 `valid_date`，不要发明 `expiry`；
-- 快照**不要**脱敏卡号 —— 脱敏策略管日志与 LLM 载荷，不管仓内评测数据，
-  存脱敏值会让规则引擎拿不到卡号，`invalid_card_number` 永远触发。
+把 CTE-2 暴露的三条缺陷（尤其身份证解析）转成事件走完闭环，
+并在修复后重录快照、再走一次 Baseline Migration。
+在此之前**不应继续调双判参数** —— 输入本身还有已知缺陷，调了也无法归因。
 
 ---
 
@@ -206,8 +278,14 @@ Candidate  CTE-001  [NEW_TEST]  validated
 
 | 项 | 基线 | 当前 |
 | --- | --- | --- |
-| 全量测试 | 1052 passed | **1134 passed** |
-| CTE 自身测试 | — | 68 |
+| 全量测试 | 1052 passed | **1164 passed** |
+| CTE 自身测试 | — | 98 |
 | 晋级回归资产 | — | 14 |
+| `task.verdict_accuracy` | 0.775（标注真值口径） | **0.675**（真实 OCR 口径，见迁移记录） |
 | 破坏既有接口 | — | 无（`app/` 一行未动） |
-| CI 离线可跑 | 是 | 是（新增测试全部离线） |
+| CI 离线可跑 | 是 | 是（新增测试全部离线；真实 OCR 只在独立 job） |
+
+### 提交
+
+`467098a` — CTE-0 + CTE-1
+（CTE-2 见同批后续 commit）

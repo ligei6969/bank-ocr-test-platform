@@ -24,6 +24,9 @@ from dataclasses import dataclass
 from typing import Dict, Tuple
 
 #: 就绪级别。
+#:
+#: ``ready`` 与 ``partial`` 都允许学习（partial 的结论要写明前提），
+#: 只有 ``blocked`` 会挡住 ``Event.learning_blocked``。
 READY = "ready"
 PARTIAL = "partial"
 BLOCKED = "blocked"
@@ -85,26 +88,30 @@ SURFACES: Tuple[Surface, ...] = (
     ),
     Surface(
         name="ocr",
-        level=BLOCKED,
-        ground_truth="**缺失** —— 评测集里没有 OCR 实际输出",
+        level="partial",
+        ground_truth="OCR 快照（`data/annotations/ocr_outputs.json`，50 条观测）",
         why=(
-            "``fields`` 来自 labels.json 的标注真值而非 OCR 实际输出，"
-            "所以「字段全部解析成功」恒成立，这个信号没有区分度。"
-            "不是不能测 —— 是**不能据此得出「识别率该怎么改」的结论**。"
+            "CTE-2 已交付真实 PaddleOCR 的 record/replay 快照，"
+            "「字段全部解析成功」不再恒成立 —— 一录就暴露了三类真实缺陷"
+            "（见 EVT-002 与 `docs/baseline_migrations/001_real_ocr_fields.md`）。"
+            "但仍只标 partial 而非 ready：快照只覆盖 golden 用到的 50 张图，"
+            "**降质样本（blur/glare 等）的字段错误率还没有系统化的基线**，"
+            "而且刚暴露的解析缺陷尚未修复。"
         ),
-        exit_condition="CTE-2：真实 PaddleOCR 的 record/replay 快照（含降质样本）",
+        exit_condition="把 EVT-002 三条缺陷转成 CTE 事件走完闭环（CTE-3）",
     ),
     Surface(
         name="adjudication",
-        level=BLOCKED,
-        ground_truth="**受限** —— 结论受 fields 真实性制约",
+        level="partial",
+        ground_truth="**受限** —— 结论受 fields 真实性制约，现已部分解除",
         why=(
-            "安全不变式（规则能否被 LLM 推翻）照跑，这部分是所有面里最扎实的。"
-            "但「双判改判正确性」需要一个信息：**图像究竟还能不能读**。"
-            "当前评测集答不了这个问题，于是模型据此放行反光样本时，"
-            "看起来像判断失误，实际是**评测集的产物**。"
+            "安全不变式（规则能否被 LLM 推翻）一直照跑，是所有面里最扎实的部分。"
+            "双判所缺的那个信号 ——「图像究竟还能不能读」—— CTE-2 的快照"
+            "现在能给出一部分：反光样本里已经出现**单字符误识**"
+            "（`5282448378463572` vs `...573`），正是双判该抓的那类错误。"
+            "但快照样本量（50 张）还不足以标定改判正确性，所以标 partial。"
         ),
-        exit_condition="CTE-2 完成。在此之前不应继续调参 —— 调了也无法验证对错",
+        exit_condition="扩大快照覆盖到降质样本全量，再标定双判改判正确性",
     ),
 )
 

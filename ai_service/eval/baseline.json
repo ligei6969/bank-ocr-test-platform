@@ -11,13 +11,17 @@
     "task.degraded_rate": "lower",
     "task.escalation_accuracy": "higher",
     "task.evidence_rate": "higher",
+    "task.harmful_override_rate": "lower",
+    "task.llm_adjudication_accuracy": "higher",
+    "task.llm_failure_rate": "lower",
     "task.reason_code_match_rate": "higher",
     "task.truncated_rate": "lower",
     "task.verdict_accuracy": "higher",
     "tools.avg_steps": "lower",
     "tools.parameter_accuracy": "higher",
     "tools.sequence_accuracy": "higher",
-    "tools.sequence_subsequence_accuracy": "higher"
+    "tools.sequence_subsequence_accuracy": "higher",
+    "tools.tool_set_accuracy": "higher"
   },
   "golden": {
     "balance": {
@@ -51,17 +55,20 @@
     "explain.accuracy": 5.0,
     "explain.completeness": 5.0,
     "explain.relevance": 5.0,
-    "explain.usefulness": 4.5,
+    "explain.usefulness": 4.8,
     "task.action_rate": 1.0,
     "task.degraded_rate": 1.0,
     "task.escalation_accuracy": 1.0,
-    "task.evidence_rate": 0.9375,
+    "task.evidence_rate": 1.0,
+    "task.llm_failure_rate": 1.0,
+    "task.llm_override_rate": 0.0,
     "task.reason_code_match_rate": 0.925,
     "task.truncated_rate": 0.0,
-    "task.verdict_accuracy": 0.775,
-    "tools.avg_steps": 2.75,
+    "task.verdict_accuracy": 0.675,
+    "tools.avg_steps": 2.9,
     "tools.parameter_accuracy": 1.0,
-    "tools.sequence_accuracy": 0.95,
-    "tools.sequence_subsequence_accuracy": 0.95
+    "tools.sequence_accuracy": 0.9,
+    "tools.sequence_subsequence_accuracy": 1.0,
+    "tools.tool_set_accuracy": 0.9
   }
 }

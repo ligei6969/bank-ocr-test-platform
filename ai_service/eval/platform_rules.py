@@ -27,11 +27,24 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 from ai_service.eval.golden import GoldenSample
 
 
-def compute_quality(image_path: str) -> Dict[str, Any]:
-    """跑平台的质量检测。
+def compute_quality(image_path: str, *, snapshot: Any = None) -> Dict[str, Any]:
+    """取这条样本的图像质量结果。
 
+    ``snapshot`` 给出时**优先走快照**（``test_evolution.ocr_snapshot``）：
+    这样 CI 完全不必读图，也就不再依赖「图片恰好还在检出里」。
+    这不是可有可无的优化 —— ``.github/workflows/tests.yml`` 会删掉每类
+    第 4 张及之后的图，而 golden 集的 ``*-03`` 五条样本恰好落在
+    ``bank_card_0004.png`` 上：没有快照时，那五条在 CI 里的质量检测
+    必然失败（``path.is_file()`` 不过），返回 ``quality_check_unavailable``。
+
+    没有快照时回退到现读图片，保持本地开发的便利。
     图片缺失或不可读时返回空 dict —— 评测应当降级而不是崩掉。
     """
+    if snapshot is not None:
+        observed = snapshot.quality_for(image_path)
+        if observed:
+            return observed
+
     from app.quality_check import check_image_quality
 
     path = Path(image_path)
@@ -44,11 +57,14 @@ def compute_quality(image_path: str) -> Dict[str, Any]:
 
 
 def normalize_fields(doc_type: str, fields: Mapping[str, Any]) -> Dict[str, Any]:
-    """把 labels.json 的字段真值转成规则引擎能吃的形状。
+    """把字段转成规则引擎能吃的形状。
 
     ``labels.json`` 的卡号是 ``"5415 9827 3869 1093"`` 带空格，
     而 ``app.rule_check.is_valid_card_number`` 要求纯数字 —— 不归一的话
     每张银行卡都会被误判成 ``invalid_card_number``。
+
+    OCR 快照里的 ``parsed_fields`` 已经过 ``app.field_parser``，
+    卡号本来就是纯数字，走这里是无害的幂等操作。
     """
     normalized = dict(fields)
     if doc_type == "bank_card":
@@ -60,23 +76,50 @@ def normalize_fields(doc_type: str, fields: Mapping[str, Any]) -> Dict[str, Any]
     return normalized
 
 
+def fields_for(
+    sample: GoldenSample, *, snapshot: Any = None
+) -> Tuple[Dict[str, Any], str]:
+    """取这条样本的字段输入，返回 ``(字段, 来源)``。
+
+    来源是 ``"ocr_snapshot"`` 或 ``"labels"`` —— 这个标记要进报告：
+    「结论正确率 0.775」在两种输入下的含义完全不同，不写明来源的数字
+    会被后来者当成同一件事比较。
+
+    **快照未命中时不在本函数里抛错。** 快照的 strict 策略由
+    ``SnapshotReplay`` 决定（它在未命中时已经抛了），这里再抛一次
+    只会让错误信息重复。拿不到就用标注真值，并在返回值里如实标出来。
+    """
+    if snapshot is not None:
+        observed = snapshot.fields_for(sample.image_path)
+        if observed:
+            return observed, "ocr_snapshot"
+    return dict(sample.fields), "labels"
+
+
 def platform_verdict(
     sample: GoldenSample,
     fields: Optional[Mapping[str, Any]] = None,
+    *,
+    snapshot: Any = None,
 ) -> Tuple[str, List[str], Dict[str, Any]]:
     """算出平台对这条样本会给出的结论。
 
     返回 ``(review_result, review_reasons, quality)``。质量检测结果一并带回，
     供调用方填进 AI 上下文（带上原始指标即可让 AI 服务从 ``flags`` 模式切到
     ``metrics`` 模式做真重算）。
+
+    ``fields`` 显式给出时优先使用（评测编排层可能已经从快照取过）；
+    否则按 ``snapshot`` 与否决定从快照还是标注取。
     """
     from app.rule_check import review_bank_card_with_reasons
 
-    resolved = normalize_fields(
-        sample.doc_type,
-        sample.fields if fields is None else fields,
-    )
-    quality = compute_quality(sample.image_path)
+    if fields is None:
+        resolved_fields, _source = fields_for(sample, snapshot=snapshot)
+    else:
+        resolved_fields = fields
+
+    resolved = normalize_fields(sample.doc_type, resolved_fields)
+    quality = compute_quality(sample.image_path, snapshot=snapshot)
     if not quality:
         return "review", ["quality_check_unavailable"], quality
 
@@ -87,7 +130,7 @@ def platform_verdict(
     # id_card 的规则在 app.main 里，按面别要求不同字段
     from app.main import review_id_card_with_reasons
 
-    side = sample.id_card_side or _side_from_fields(resolved)
+    side = sample.id_card_side or resolved.get("_side") or _side_from_fields(resolved)
     verdict, reasons = review_id_card_with_reasons(side, resolved, quality)
     return verdict, reasons, quality
 
@@ -130,3 +173,15 @@ def _side_from_fields(fields: Mapping[str, Any]) -> str:
     if "id_number" in fields or "address" in fields:
         return "front"
     return "unknown"
+
+
+def findings_summary(sample: GoldenSample, verdict: str, reasons: Sequence[str]) -> str:
+    """一句话说明这条样本「平台看到了什么 vs 标注说是什么」。
+
+    用于 OCR 快照的 diff 报告 —— 快照的真实价值不是「OCR 准确率」，
+    而是「哪几条样本的**结论**因为输入真实化而变了」。
+    """
+    return (
+        f"{sample.sample_id}: 标注 {','.join(sample.expected_reason_codes) or '正常'}"
+        f" / 平台实测 {','.join(reasons) or '正常'} => {verdict}"
+    )

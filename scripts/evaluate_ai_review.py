@@ -147,6 +147,18 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
         help="真实调用模型（Agent 决策 + LLM judge）。默认离线，只加这个开关才出网",
     )
     parser.add_argument("--max-steps", type=int, default=6, help="Agent 步数预算")
+    parser.add_argument(
+        "--ocr-snapshot",
+        type=Path,
+        default=None,
+        help="OCR 快照路径（默认 data/annotations/ocr_outputs.json）。"
+             "字段输入优先取自快照，这是 OCR/双判面可信的前提",
+    )
+    parser.add_argument(
+        "--no-ocr-snapshot",
+        action="store_true",
+        help="强制用 labels.json 标注真值当字段输入（旧口径，仅用于对照）",
+    )
     parser.add_argument("--json", dest="json_path", type=Path, help="把完整报告写成 JSON")
     parser.add_argument("--allure", action="store_true", help="写 Allure 结果到 reports/allure-results/")
     parser.add_argument(
@@ -322,18 +334,52 @@ def write_allure(report: EvaluationReport, directory: Path) -> int:
 
 # ── 入口 ──────────────────────────────────────────────────────────────────────
 
-def _platform_verdict_fn():
+def _platform_verdict_fn(snapshot_path=None, *, use_snapshot: bool = True):
     """真实平台规则引擎的结论函数；拿不到平台依赖时返回 None（退回占位推定）。
 
     惰性 import：``ai_service`` 平时不依赖 ``app`` 的 FastAPI / OpenCV，
     只有真正要跑平台口径时才引进来。
+
+    **字段输入优先走 OCR 快照**（CTE-2）。这是本阶段的核心改动：
+    此前 ``fields`` 一律来自 ``labels.json`` 的标注真值，
+    于是「字段全部解析成功」恒成立、这个信号没有区分度；
+    改用真实 PaddleOCR 的观测之后，``missing_*`` 与误识别才会真的出现。
+    快照缺失或未命中时回退标注真值，并在报告里如实标注来源。
     """
     try:
         from ai_service.eval.platform_rules import platform_verdict
+        from test_evolution.ocr_snapshot import SnapshotReplay, load
     except ImportError as exc:  # pragma: no cover - 取决于运行环境
         print(f"[评测] 平台规则引擎不可用（{exc}），结论层退回占位推定。", file=sys.stderr)
         return None
-    return platform_verdict
+
+    replay = None
+    if use_snapshot:
+        snapshot = load(snapshot_path)
+        if snapshot is None:
+            print(
+                "[评测] 没有 OCR 快照，字段回退到 labels.json 标注真值。\n"
+                "       注意：此时「字段解析成功」恒成立，OCR/双判面的结论不可信。\n"
+                "       录制：python -m scripts.record_ocr_snapshot",
+                file=sys.stderr,
+            )
+        else:
+            # strict=False：未命中不抛错，让评测跑完并在报告里报出未命中数。
+            # 为什么不像 cassette 那样硬失败 —— cassette 未命中意味着「这条
+            # 测试没真跑」，而快照未命中仍有标注真值这条退路，把它标出来
+            # 比整轮崩掉更有用。未命中数会进报告。
+            replay = SnapshotReplay(snapshot, strict=False)
+            print(f"[评测] 字段来自 OCR 快照（{len(snapshot.observations)} 条观测，"
+                  f"录制于 {snapshot.recorded_at}）")
+
+    if replay is None:
+        return platform_verdict
+
+    def verdict_with_snapshot(sample):
+        return platform_verdict(sample, snapshot=replay)
+
+    verdict_with_snapshot.replay = replay  # 供调用方读未命中数
+    return verdict_with_snapshot
 
 
 def _platform_dual_judge_fn():
@@ -358,6 +404,11 @@ def main(argv: List[str] | None = None) -> int:
     if args.live and llm is not None and not llm.available:
         print("[--live] 没有可用的模型，已退回离线评测。", file=sys.stderr)
 
+    verdict_fn = _platform_verdict_fn(
+        getattr(args, "ocr_snapshot", None),
+        use_snapshot=not getattr(args, "no_ocr_snapshot", False),
+    )
+
     report = asyncio.run(
         evaluate(
             golden,
@@ -366,7 +417,7 @@ def main(argv: List[str] | None = None) -> int:
             prefer_llm_judge=args.live,
             baseline_path=None if args.no_baseline else args.baseline,
             tolerance=args.tolerance,
-            verdict_fn=_platform_verdict_fn(),
+            verdict_fn=verdict_fn,
             dual_judge_fn=_platform_dual_judge_fn(),
         )
     )

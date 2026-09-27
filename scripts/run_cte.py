@@ -46,9 +46,14 @@ def _make_stdout_utf8() -> None:
 
 _make_stdout_utf8()
 
-from test_evolution.pipeline import EVENT_LOG, run_event_loop  # noqa: E402
+from test_evolution.pipeline import EVENT_LOG, observe, run_event_loop  # noqa: E402
+from test_evolution.readiness import learning_allowed  # noqa: E402
 from test_evolution.replay import POLICY_HISTORY, current_behaviour, replay  # noqa: E402
-from test_evolution.schema import DEFAULT_EVOLUTION_DIR, load_events  # noqa: E402
+from test_evolution.schema import (  # noqa: E402
+    DEFAULT_EVOLUTION_DIR,
+    EVENT_SURFACES,
+    load_events,
+)
 
 #: 事件 → 它应该产出的 Candidate 类型与说明。
 #: 写成表而不是让 CLI 现推：Candidate 的类型是人对复盘的判断，不是程序能猜的。
@@ -61,6 +66,19 @@ CANDIDATE_PLAN = {
             "新增回归测试，覆盖裸词「征信」族的改写写法"
             "（「我征信上有什么问题」「查一下征信」「征信哪里异常」），"
             "并断言这些写法在修复前版本上会被漏判。"
+        ),
+    },
+    "EVT-002": {
+        "candidate_id": "CTE-002",
+        "candidate_type": "NEW_TEST",
+        "candidate_title": "身份证字段解析必须容忍「标签与值分行」",
+        "proposed_change": (
+            "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与"
+            "「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。"
+            "新增测试用真实 OCR 的分行序列做输入（快照里就有），"
+            "断言 name / address / id_number 能解析出来。\n"
+            "**这是提案，不是已完成的修复** —— 改 parser 属于生产代码，"
+            "按 CTE 边界必须由人决定后另开 commit，CTE 不自行 merge。"
         ),
     },
 }
@@ -104,6 +122,19 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     plan = CANDIDATE_PLAN.get(args.event)
     if plan is None:
+        # 区分两种情况：还没配方案，还是**有意不配**（surface 被数据缺口卡住）。
+        from test_evolution.readiness import learning_allowed, surface
+
+        if spec["surface"] in EVENT_SURFACES and not learning_allowed(spec["surface"]):
+            item = surface(spec["surface"])
+            print(
+                f"事件 {args.event!r} 落在 {spec['surface']} 面，该面当前 "
+                f"**learning_blocked** —— 只登记事件，不产出 Candidate。\n"
+                f"原因：{item.why}\n"
+                f"解除条件：{item.exit_condition}",
+                file=sys.stderr,
+            )
+            return 1
         print(
             f"事件 {args.event!r} 还没有配 Candidate 方案。\n"
             "Candidate 的类型是人对复盘的判断，不能在 CLI 里现推 —— "

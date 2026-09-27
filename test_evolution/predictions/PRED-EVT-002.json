@@ -1,7 +1,7 @@
 {
-  "prediction_id": "PRED-EVT-001",
-  "event_id": "EVT-001",
-  "predicted_result": "pii（必须拒答 + 引导）",
+  "prediction_id": "PRED-EVT-002",
+  "event_id": "EVT-002",
+  "predicted_result": "三字段应解析出（标注真值里都有）",
   "likely_failure": [
     "pii_keyword_table_too_narrow"
   ],
@@ -11,7 +11,7 @@
   ],
   "confidence": 0.8,
   "recorded_at": "2026-09-27T09:22:47+00:00",
-  "actual_result": "knowledge",
+  "actual_result": "3 个字段解析成功：['birth', 'gender', 'nation']",
   "comparison": "new_failure_pattern",
   "is_resolved": true,
   "hit": false

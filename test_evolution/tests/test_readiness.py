@@ -21,11 +21,29 @@ def test_every_event_surface_has_a_readiness_entry():
 
 
 def test_data_gap_blocks_only_the_surfaces_it_actually_pollutes():
-    """缺口是「真实 OCR 字段」，它污染 OCR 与双判 —— 不该连知识面一起停。"""
+    """缺口是「真实 OCR 字段」，它污染 OCR 与双判 —— 不该连知识面一起停。
+
+    CTE-2 交付快照后 OCR / 双判从 ``blocked`` 升到 ``partial``，
+    但**没有**升到 ``ready``：降质样本的字段错误率还没有系统化基线，
+    而且刚暴露的解析缺陷尚未修复。升到 ready 会让它在报告里
+    显得和 knowledge 面一样可靠，那是不实的。
+    """
     assert learning_allowed("knowledge") is True
     assert learning_allowed("threat") is True
-    assert learning_allowed("ocr") is False
-    assert learning_allowed("adjudication") is False
+    assert learning_allowed("ocr") is True, "快照已交付，不再是 blocked"
+    assert learning_allowed("adjudication") is True
+
+    # 但它们仍不是 ready —— 这一条防止「解除了阻塞」被读成「可以放心下结论」
+    assert surface("ocr").level == PARTIAL
+    assert surface("adjudication").level == PARTIAL
+
+
+def test_cte2_delivery_is_reflected_in_readiness():
+    """CTE-2 的产出必须体现在就绪度里，否则这张表会停在旧状态骗人。"""
+    ocr = surface("ocr")
+
+    assert "ocr_outputs.json" in ocr.ground_truth, "Ground Truth 应指向快照文件"
+    assert "partial" in ocr.level
 
 
 def test_agent_is_partial_not_ready():
@@ -68,6 +86,15 @@ def test_blocked_surfaces_constant_agrees_with_the_table():
     assert BLOCKED_SURFACES == {s.name for s in readiness.SURFACES if s.level == BLOCKED}
 
 
+def test_no_surface_is_blocked_after_cte2():
+    """CTE-2 之后不该再有 blocked 的面 —— 有就说明快照没接上。
+
+    这条不是在庆祝进展，是在防「解除了障碍但表没更新」：
+    一个停留在 blocked 的表会让 EVT-002 这类事件被无理由地拒绝生成 Candidate。
+    """
+    assert BLOCKED_SURFACES == frozenset()
+
+
 def test_readiness_table_renders():
     table = readiness.readiness_table()
 
@@ -82,9 +109,10 @@ def test_unknown_surface_fails_loudly():
 
 
 @pytest.mark.parametrize("name", ["ocr", "adjudication"])
-def test_blocked_surfaces_explain_why_not_just_that(name: str) -> None:
-    """「blocked」必须带理由 —— 否则它会变成一个没人敢动的黑盒。"""
+def test_constrained_surfaces_explain_why_not_just_that(name: str) -> None:
+    """非同 ready 的面必须带理由 —— 否则它会变成一个没人知道边界的黑盒。"""
     item = surface(name)
 
-    assert item.level == BLOCKED
-    assert len(item.why) > 40, f"{name} 的 blocked 理由太短，说不清问题"
+    assert item.level in {PARTIAL, BLOCKED}
+    assert len(item.why) > 40, f"{name} 的理由太短，说不清问题"
+    assert item.exit_condition, f"{name} 非 ready 就必须写清怎么往前走"

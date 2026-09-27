@@ -183,10 +183,12 @@ ai_service/         AI 能力层（独立进程，HTTP 调用）
 
 test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，不持有测试数据主权）
   schema.py        Event / Prediction / Candidate 的契约 + 按类型的验证矩阵
-  readiness.py     哪些面现在就能做演进（OCR / 双判被数据缺口卡住）
+  readiness.py     哪些面现在就能做演进（唯一事实来源）
   replay.py        历史重演：在已修复的系统上把旧行为跑出来
+  ocr_snapshot.py  真实 OCR 的录制/回放（CTE-2：让评测用上真实字段）
   pipeline.py      闭环编排
   README.md        CTE 的设计、边界与诚实清单
+docs/baseline_migrations/  基线口径变更的记录（001：字段改为真实 OCR 观测）
 
 tests/              pytest 测试（平台侧 492 项）
 data/               测试数据、标注数据、生成数据
@@ -532,7 +534,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1132 passed / 0 failed / 0 errors**。
+当前全量测试结果为 **1164 passed / 0 failed / 0 errors**。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
@@ -559,6 +561,16 @@ python -m scripts.run_cte --event EVT-001            # 跑完整闭环（不晋�
 python -m scripts.run_cte --event EVT-001 --approve jb   # 带人工批准晋级
 python -m scripts.run_cte --replay "我征信上有什么问题"    # 只看历史重演对比
 ```
+
+录制 / 校验 OCR 快照（**需真实 PaddleOCR，不进 CI**）：
+
+```powershell
+python -m scripts.record_ocr_snapshot --dry-run      # 先看会录什么
+python -m scripts.record_ocr_snapshot                # 录制并写入快照
+python -m scripts.record_ocr_snapshot --verify       # 重跑并 diff，不覆盖
+```
+
+评测默认使用 OCR 快照作为字段输入（`--no-ocr-snapshot` 可切回标注真值做对照）。
 
 > Windows 上如果 teardown 报 `SHFileOperationW`，加环境变量
 > `CODEBUDDY_SAFE_DELETE_ENABLED=0` 再跑。
@@ -759,14 +771,26 @@ rmdir /s /q reports\ocr-temp
 
 **AI 能力层特有的边界**（这几条被刻意写在文档里而不是藏起来）：
 
-- **两件事被数据缺口卡住，不是代码没写完** ——
-  「反光严重度阈值启用」与「双判改判正确性的验证」都需要一个信息：
-  **图像究竟还能不能读**。而当前评测集里 `fields` 是 labels.json 的**标注真值**、
-  不是 OCR 实际输出，所以「字段全部解析成功」恒成立，这个信号没有区分度。
-  后果是：模型据此放行反光样本时，看起来像判断失误，实际是**评测集的产物**
-  （详见 [`ai_service/README.md`](ai_service/README.md) 第 8 节）。
-  **推进条件**：让 `fields` 来自真实 OCR 输出，或引入真实证件照片。
-  在此之前，这两项**不应继续调参** —— 调了也无法验证对错。
+- ~~**两件事被数据缺口卡住，不是代码没写完**~~ —— **已解除（CTE-2，2026-09-27）**。
+  此前 `fields` 是 labels.json 的**标注真值**、不是 OCR 实际输出，所以
+  「字段全部解析成功」恒成立、信号没有区分度。现在评测改用
+  `data/annotations/ocr_outputs.json`：50 张 golden 图过真实 PaddleOCR
+  录下的观测（含原始文本行、解析字段、质量指标），CI 离线回放。
+
+  **一录就暴露了三类此前完全不可见的缺陷**：模糊图上 `name` 被识别成
+  `VALIDTHIRU`（有效期那行串进姓名）；反光图上卡号**单字符**误识
+  （`5282448378463572` vs `...573`，正是双判该抓的那类错误）；
+  以及**身份证正反面字段解析 100% 失败** —— `id_card_parser` 要求
+  「标签 值」同行，而真实 PaddleOCR 把它们检测成两个独立文本框，
+  mock 把整段拼成一行所以这个假设从未被检验。
+  也就是说，此前所有身份证正面的字段结论都建立在 mock 的拼接行为上。
+
+  这三条已作为 CTE 事件登记（`EVT-002`，提案 `CTE-002`）；
+  修复 parser 属生产代码变更，留待人工决策。
+  完整记录见 [`docs/baseline_migrations/001_real_ocr_fields.md`](docs/baseline_migrations/001_real_ocr_fields.md)。
+
+  注意：`verdict_accuracy` 因此从 0.775 变成 **0.675** ——
+  这是**测量口径变真实**，不是模型变差。
 
 - ~~**真实 provider 未实测**~~ —— **已补**：2026-09-26 用 `deepseek-chat`
   跑了全量 40 条 `--live` 评测（含真实 judge）。结果与解读见
@@ -778,7 +802,9 @@ rmdir /s /q reports\ocr-temp
   也没有多模型对比。见 `ai_service/README.md` 第 9 节。
 - ~~**决策层指标缺人工标注**~~ —— **已补**：`data/annotations/review_verdicts.json`
   有 40 条人工结论标注（署名 `jb（开发）`），评测改为调用平台真实规则引擎，
-  `结论正确率` 已可用（离线 0.775）。样本量仍小，数字只作趋势参考。
+  `结论正确率` 已可用。CTE-2 之后字段输入改为真实 OCR 观测，
+  该指标为 **0.675**（此前用标注真值时是 0.775，口径不同不可直接比较）。
+  样本量仍小，数字只作趋势参考。
 - **judge 校准集是占位标注** —— 管线可用、能暴露 judge 的系统性偏差方向，
   但标注是项目作者自评的，**数字暂无统计意义**，替换成真实审核员标注后才有对外引用价值。
 - **越界判定是规则表不是分类器** —— 可解释、可复现，代价是新句式要补关键词。

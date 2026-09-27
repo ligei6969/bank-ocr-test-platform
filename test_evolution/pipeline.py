@@ -61,6 +61,25 @@ EVENT_LOG: Tuple[Dict[str, str], ...] = (
             "已由 bb7947e 修复。"
         ),
     },
+    {
+        "event_id": "EVT-002",
+        "source": "ocr_error",
+        "surface": "ocr",
+        "title": "身份证字段解析要求标签与值同行，真实 OCR 下 100% 失败",
+        "system_version": "HEAD",
+        "input_case": "data/processed/id_card/front/normal/id_front_0001.jpg",
+        "current_result": "name=None address=None id_number=None（正面 10/10 全部解析不出）",
+        "expected_result": "三字段应解析出（标注真值里都有）",
+        "notes": (
+            "CTE-2 录制真实 PaddleOCR 观测后立刻暴露。根因不在 OCR 也不在数据，"
+            "而在 app/id_card_parser.py 的 _value_after_label：它要求「标签 值」"
+            "同一行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框。"
+            "mock OCR 把整段拼成一行，所以这个假设从未被检验 —— 此前所有身份证"
+            "正面的字段结论都建立在 mock 的拼接行为上。"
+            "此事件落在 ocr surface，**learning_blocked**：可以记录，但按 readiness "
+            "表它不产出学习结论，归因留给 CTE-3。"
+        ),
+    },
 )
 
 
@@ -154,12 +173,15 @@ def execute(event: Event, *, system_version: Optional[str] = None) -> Execution:
     ``system_version`` 指向事件发生时的版本时，走历史重演（真的把旧行为跑出来）；
     指向 ``"HEAD"`` 时走当前代码。**两者走的都是项目的真实判定逻辑**，
     不是为 CTE 另写一套 —— 否则测的就不是系统了。
+
+    不同 surface 的执行器不同，所以按 surface 分派而不是硬编码一条路径。
     """
     target = system_version or event.system_version
-    if target == "HEAD":
-        result = replay_mod.current_behaviour(event.input_case)
-    else:
-        result = replay_mod.replay(event.input_case, target)
+
+    if event.surface == "ocr":
+        return _execute_ocr(event)
+
+    result = replay_mod.current_behaviour(event.input_case) if target == "HEAD" else replay_mod.replay(event.input_case, target)
 
     actual = "knowledge" if result.intent == "knowledge" else result.intent
     return Execution(
@@ -167,6 +189,43 @@ def execute(event: Event, *, system_version: Optional[str] = None) -> Execution:
         actual_result=actual,
         executor=f"knowledge.policy/detect_intent@{target}",
         detail=result.to_dict(),
+    )
+
+
+def _execute_ocr(event: Event) -> Execution:
+    """OCR 面的事件：读快照里那张图的**实际解析结果**。
+
+    不重新跑 PaddleOCR —— 事件已经录在快照里了，重跑只会引入
+    「同一张图两次识别结果不同」的噪音。CTE 要回答的是
+    「系统当时看到了什么、解析成了什么」，快照就是那个答案。
+    """
+    from test_evolution.ocr_snapshot import load
+
+    snapshot = load()
+    observed = snapshot.get(event.input_case) if snapshot else None
+    if observed is None:
+        return Execution(
+            event_id=event.event_id,
+            actual_result="未录制",
+            executor="ocr_snapshot",
+            detail={"reason": "该图不在快照里；先跑 scripts/record_ocr_snapshot"},
+        )
+
+    parsed = observed.parsed_fields
+    # 「实际结果」用解析出的字段里有多少个非空来表达 —— 这比一个布尔
+    # 更能反映「到底差多远」，也是本事件的核心观测。
+    populated = sorted(k for k, v in parsed.items() if v and not k.startswith("_"))
+    return Execution(
+        event_id=event.event_id,
+        actual_result=f"{len(populated)} 个字段解析成功：{populated}" if populated else "无字段解析成功",
+        executor=f"ocr_snapshot@{observed.engine_version}",
+        detail={
+            "ocr_texts": observed.ocr_texts,
+            "parsed_fields": parsed,
+            "quality_result": observed.quality.get("quality_result"),
+            "parse_error": observed.parse_error,
+            "populated_fields": populated,
+        },
     )
 
 
@@ -228,6 +287,11 @@ def compare(
             if set(prediction.likely_failure) & set(known_patterns)
             else "new_failure_pattern"
         )
+    elif execution.executor.startswith("ocr_snapshot"):
+        # OCR 面的 actual 是「解析出哪些字段」，与 knowledge 面的判定结果
+        # 不是同一个量纲 —— 不能用同一套分支去套。
+        # 字段不齐即为失败：对 OCR 面来说，「少解析出一个字段」就是缺陷本身。
+        classification = "new_failure_pattern"
     else:
         classification = "unexpected_failure"
         if predicted != actual and predicted != expected:
@@ -249,13 +313,16 @@ def reflect(
     *,
     root: Path,
     extra_sections: Optional[Mapping[str, str]] = None,
+    executor: str = "",
 ) -> Path:
     """Phase 5：复盘。**只在需要深挖时才触发**（方案 Phase 5 的触发条件）。
 
     不是每个事件都配得上一份 retro。本函数不自己判断该不该触发 ——
     调用方（这里是 :func:`run_event_loop`）按分类决定。
     """
-    body = render_retro(event, comparison, extra_sections=extra_sections)
+    body = render_retro(
+        event, comparison, extra_sections=extra_sections, executor=executor
+    )
     try:
         return write_retro(event.event_id, body, root=root)
     except FileExistsError:
@@ -304,13 +371,13 @@ RETRO_TEMPLATE = """# {event_id} {title}
 """
 
 
-def render_retro(
-    event: Event,
-    comparison: Comparison,
-    *,
-    extra_sections: Optional[Mapping[str, str]] = None,
-) -> str:
-    sections = {
+#: 复盘的六个问题，按事件写。
+#:
+#: **不能共用一段通用文案。** 初版这里写死了 EVT-001 的征信故事，
+#: 于是 EVT-002 的复盘也印着「关键词表漏了裸词征信」—— 一份描述错误事件的
+#: 复盘比没有复盘更糟，因为它看起来像分析过。六个问题必须逐事件回答。
+RETRO_SECTIONS: Dict[str, Dict[str, str]] = {
+    "EVT-001": {
         "why_missed": (
             "内部自检集（18 条）是按「已知越界写法」写的，覆盖不到关键词的"
             "**改写**。抓到它的是对外威胁集（45 条）—— 那份是假想敌视角，"
@@ -319,7 +386,7 @@ def render_retro(
         "attribution": (
             "**规则问题**，不是数据或模型问题。`detect_intent` 是纯规则表，"
             "关键词表漏了裸词「征信」，与 OCR 数据、模型输出都无关 —— "
-            "这也是为什么本事件落在 threat surface 上、不受 CTE-2 数据缺口阻塞。"
+            "这也是为什么本事件落在 threat surface 上、不受数据缺口阻塞。"
         ),
         "gap": (
             "缺的是「同一诉求的多种写法」这一维度，而不是某一条具体用例。"
@@ -329,9 +396,69 @@ def render_retro(
             "无。这是威胁集投入运行后抓到的第一例 —— 在此之前 18 条内部自检"
             "全绿，系统是「看起来没问题」的。"
         ),
-        "assets": "见同目录 Candidate。",
-    }
+    },
+    "EVT-002": {
+        "why_missed": (
+            "**没有任何测试见过真实 OCR 的文本行结构。** 全部 1052 个测试都用"
+            "mock OCR，而 `MOCK_OCR_TEXT` 是把「姓名 沈梓欣」拼成一行的；"
+            "单测里的用例也照抄这个形状。所以 `parser` 对「标签与值同行」的"
+            "假设既是实现也是测试的共识 —— 两边一起错，测不出差异。\n\n"
+            "抓出它的是 CTE-2 的 OCR 快照：它是项目里**第一次**把真实"
+            "PaddleOCR 的输出落成可断言的输入。"
+        ),
+        "attribution": (
+            "**解析层（规则）问题**，不是 OCR 问题、更不是数据问题。\n\n"
+            "真实 OCR 认出了「沈梓欣」（文本行里有），是 `id_card_parser` 没能"
+            "跨行把它取出来。归因可以精确到函数：`_value_after_label` 在单行内"
+            "匹配 `标签[:：]?\\s*值`，行与行的关系完全没被考虑。\n\n"
+            "对照证据（同一段文本、只有分行方式不同）：\n"
+            "- 分行（真实 OCR）：`name=None, address=None, id_number=None`\n"
+            "- 拼成一行（mock）：三字段全部解析成功"
+        ),
+        "gap": (
+            "缺的是**输入形状的多样性**，不是一个具体用例。\n\n"
+            "更具体地说：这个项目的测试资产一直建立在 mock OCR 的输出形状上，"
+            "而 mock 是「设计出来的」而非「观察到的」。这类缺口无法靠补用例填 —— "
+            "要补的是**输入来源**（快照）。"
+        ),
+        "history": (
+            "无直接先例，但**同类**问题值得警惕：CTE-1 的征信漏拒也是"
+            "「测试用了自己想象出来的输入」。两次都是同一个模式 —— "
+            "**被测样本来自己方设计，于是系统的假设从未被外部挑战**。\n\n"
+            "区别在于 CTE-1 是关键词覆盖不全（规则漏了写法），"
+            "本事件是结构假设不成立（规则假设了不存在的输出形状）。"
+        ),
+    },
+}
+
+
+def render_retro(
+    event: Event,
+    comparison: Comparison,
+    *,
+    extra_sections: Optional[Mapping[str, str]] = None,
+    executor: str = "",
+) -> str:
+    """渲染复盘正文。
+
+    ``RETRO_SECTIONS`` 里没有该事件时**不编一段通用文案** —— 那会让复盘
+    看起来完整而实际没回答任何问题。改为显式标注「尚未归因」，
+    让缺口暴露出来。
+    """
+    sections = dict(
+        RETRO_SECTIONS.get(
+            event.event_id,
+            {
+                "why_missed": "**尚未归因** —— 本事件还没有写复盘内容。",
+                "attribution": "**尚未归因。**",
+                "gap": "**尚未分析。**",
+                "history": "**尚未检索。**",
+            },
+        )
+    )
+    sections.setdefault("assets", "见同目录 Candidate。")
     sections.update(extra_sections or {})
+
     return RETRO_TEMPLATE.format(
         event_id=event.event_id,
         title=event.title,
@@ -344,9 +471,15 @@ def render_retro(
         predicted=comparison.predicted,
         hit="是" if comparison.prediction_hit else "否",
         classification=comparison.classification,
-        executor=f"knowledge.policy/detect_intent@{event.system_version}",
+        executor=executor or _default_executor(event),
         **sections,
     )
+
+
+def _default_executor(event: Event) -> str:
+    if event.surface == "ocr":
+        return f"ocr_snapshot@{event.system_version}"
+    return f"knowledge.policy/detect_intent@{event.system_version}"
 
 
 VALIDATED_TEMPLATE = """# {candidate_id} {title}
@@ -443,27 +576,65 @@ def validate_new_test(
     question: str,
     root: Path,
     full_regression: Optional[Mapping[str, str]] = None,
+    surface: str = "threat",
 ) -> Candidate:
     """``NEW_TEST`` 的验证：方案第十三节的四步，逐步落进 ``checks``。
 
     关键在第 2 步：**修复前必须 FAIL**。一个永远 ``assert True`` 的测试
-    同样能 pass，但它不是资产。``verify_bug_reproduction`` 就是这一步的判据。
+    同样能 pass，但它不是资产。判据随 surface 而不同：
+
+    * **knowledge / threat** —— 回放修复前的规则快照（``verify_bug_reproduction``）
+    * **ocr** —— 缺陷**当前仍然存在**（尚未修复），所以第 2、3 步的含义
+      与上面相反：能复现 = 现在就跑出错误结果；「修复后通过」此时
+      **无法验证**，如实标 ``skipped`` 而不是假称 pass。
+      这正是 CTE 不该假装的地方：提案还没被采纳，就没有「修复后」可测。
     """
     if candidate.type != "NEW_TEST":
         raise SchemaError(f"validate_new_test 只处理 NEW_TEST，收到 {candidate.type!r}")
 
-    proof = replay_mod.verify_bug_reproduction(question, system_version="policy@pre-bb7947e")
-    results: Dict[str, str] = {
-        "executable": "pass",
-        "reproduces_before_fix": "pass" if proof["reproduced_before"] else "fail",
-        "passes_after_fix": "pass" if proof["fixed_after"] else "fail",
-    }
+    if surface == "ocr":
+        results = _validate_ocr_regression(candidate, question)
+    else:
+        proof = replay_mod.verify_bug_reproduction(question, system_version="policy@pre-bb7947e")
+        results = {
+            "executable": "pass",
+            "reproduces_before_fix": "pass" if proof["reproduced_before"] else "fail",
+            "passes_after_fix": "pass" if proof["fixed_after"] else "fail",
+        }
+
     if full_regression is not None:
         results["full_regression"] = full_regression.get("outcome", "skipped")
 
     apply_checks(candidate, results)
     write_candidate(candidate, root=root)
     return candidate
+
+
+def _validate_ocr_regression(candidate: Candidate, image_path: str) -> Dict[str, str]:
+    """OCR 面 ``NEW_TEST`` 的检查结果。
+
+    与 knowledge 面的区别，诚实写在这里：**这个缺陷还没修**，
+    所以「修复后通过」这一步没有可测对象。标 ``skipped`` 会让
+    ``is_machine_validated`` 为假、``can_promote`` 为假 —— 这正是想要的结果：
+    提案在人工决定要不要动 parser 之前，不该自己晋级。
+    """
+    from test_evolution.ocr_snapshot import load
+
+    snapshot = load()
+    observed = snapshot.get(image_path) if snapshot else None
+    if observed is None:
+        return {"executable": "fail", "reproduces_before_fix": "fail", "passes_after_fix": "skipped"}
+
+    parsed = observed.parsed_fields
+    still_broken = not (parsed.get("name") and parsed.get("id_number"))
+
+    return {
+        "executable": "pass",
+        # 缺陷当前仍在 —— 这就是「未修复版本上会 FAIL」的等价证据
+        "reproduces_before_fix": "pass" if still_broken else "fail",
+        # 没有修复版本可测：如实标 skipped，不假称 pass
+        "passes_after_fix": "skipped",
+    }
 
 
 # ── 整条链 ────────────────────────────────────────────────────────────────────
@@ -519,7 +690,9 @@ def run_event_loop(
         "unexpected_failure",
         "missed_risk",
     } or not comparison.prediction_hit:
-        retro_path = reflect(event, comparison, root=root)
+        retro_path = reflect(
+            event, comparison, root=root, executor=execution.executor
+        )
 
     # ⑥ Candidate
     candidate = generate_candidate(
@@ -539,6 +712,7 @@ def run_event_loop(
             question=event.input_case,
             root=root,
             full_regression=full_regression,
+            surface=event.surface,
         )
     elif candidate.type == "THREAT_CASE":
         apply_checks(

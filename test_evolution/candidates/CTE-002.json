@@ -1,0 +1,33 @@
+{
+  "candidate_id": "CTE-002",
+  "type": "NEW_TEST",
+  "title": "身份证字段解析必须容忍「标签与值分行」",
+  "evidence": [
+    "EVT-002"
+  ],
+  "surface": "ocr",
+  "proposed_change": "为 app/id_card_parser.py 补跨行取值：真实 PaddleOCR 把「姓名」与「沈梓欣」检测成两个独立文本框，而 _value_after_label 要求同一行。新增测试用真实 OCR 的分行序列做输入（快照里就有），断言 name / address / id_number 能解析出来。\n**这是提案，不是已完成的修复** —— 改 parser 属于生产代码，按 CTE 边界必须由人决定后另开 commit，CTE 不自行 merge。",
+  "created_at": "2026-09-27T09:22:47+00:00",
+  "status": "candidate",
+  "checks": {
+    "executable": "pass",
+    "reproduces_before_fix": "pass",
+    "passes_after_fix": "skipped",
+    "full_regression": "pass"
+  },
+  "validated_at": "",
+  "rejected_reason": "",
+  "approver": "",
+  "produced_asset": "",
+  "required_checks": [
+    "executable",
+    "reproduces_before_fix",
+    "passes_after_fix",
+    "full_regression"
+  ],
+  "is_machine_validated": false,
+  "needs_human_review": true,
+  "is_proposal_only": false,
+  "is_elevated": false,
+  "can_promote": false
+}

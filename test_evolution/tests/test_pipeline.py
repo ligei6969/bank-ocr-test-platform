@@ -175,6 +175,65 @@ def test_retro_records_that_the_prediction_missed():
     assert "命中：否" in body
 
 
+def test_retro_content_matches_the_event_not_a_shared_template(root):
+    """复盘正文必须**逐事件**写，不能共用一段通用文案。
+
+    初版把 EVT-001 的征信故事写死在模板里，于是 EVT-002 的复盘也印着
+    「关键词表漏了裸词征信」—— 一份描述错误事件的复盘比没有复盘更糟，
+    因为它看起来像分析过。
+    """
+    from test_evolution.pipeline import EVENT_LOG
+
+    credit = render_retro(
+        _event(),
+        compare(_prediction(), _execution("knowledge"), expected="pii"),
+    )
+    assert "征信" in credit
+
+    # EVT-002 是 OCR 面的事件，正文里不该出现征信关键词的故事
+    from test_evolution.pipeline import run_event_loop
+
+    outcome = run_event_loop(
+        EVENT_LOG[1], root=root, candidate_id="CTE-002", candidate_type="NEW_TEST",
+        candidate_title="t", proposed_change="p", full_regression={"outcome": "pass"},
+    )
+    ocr_retro = (root / "retros" / "EVT-002.md").read_text(encoding="utf-8")
+
+    assert "关键词表漏了裸词" not in ocr_retro, "串了 EVT-001 的归因"
+    assert "_value_after_label" in ocr_retro, "应归因到真实的函数"
+    assert outcome["retro"] is not None
+
+
+def test_an_unattributed_event_says_so_instead_of_inventing_prose(root):
+    """没写复盘内容的事件要显式标「尚未归因」，不能编一段通用文案。"""
+    from test_evolution.schema import Event
+
+    unknown = Event(
+        event_id="EVT-999", source="new_bug", surface="agent", title="t",
+        observed_at="", system_version="HEAD", input_case="x",
+        current_result="a", expected_result="b",
+    )
+    body = render_retro(
+        unknown, compare(_prediction(), _execution("knowledge"), expected="pii")
+    )
+
+    assert "尚未归因" in body
+
+
+def test_retro_records_the_real_executor(root):
+    """复盘里写的执行器必须是真跑过的那个，不能是猜的。"""
+    from test_evolution.pipeline import EVENT_LOG
+
+    run_event_loop(
+        EVENT_LOG[1], root=root, candidate_id="CTE-002", candidate_type="NEW_TEST",
+        candidate_title="t", proposed_change="p", full_regression={"outcome": "pass"},
+    )
+    body = (root / "retros" / "EVT-002.md").read_text(encoding="utf-8")
+
+    assert "ocr_snapshot@" in body, "OCR 事件不该写成 knowledge.policy 的执行器"
+    assert "knowledge.policy" not in body
+
+
 def _event():
     from test_evolution.schema import Event
 
@@ -343,6 +402,45 @@ def test_loop_is_rerunnable(root):
 
     assert len(load_events(root=root)) == 1
     assert len(list((root / "predictions").glob("*.json"))) == 1
+
+
+def test_cte2_loop_stops_before_promotion_because_the_fix_is_not_made(root):
+    """EVT-002 的 ``passes_after_fix`` 必须是 ``skipped``，而不是 pass。
+
+    这是个具体的诚实性检查：EVT-002 暴露的解析缺陷**还没修**，
+    所以「修复后通过」这一步没有可测对象。如果它被标成 pass，
+    ``is_machine_validated`` 会变成真，这个提案就会显得「已验证」——
+    而实际上没人动过 parser。标 skipped 才能挡住晋级。
+    """
+    from test_evolution.pipeline import EVENT_LOG
+
+    spec = EVENT_LOG[1]
+    assert spec["event_id"] == "EVT-002"
+
+    outcome = run_event_loop(
+        spec, root=root, candidate_id="CTE-002", candidate_type="NEW_TEST",
+        candidate_title="身份证字段解析必须容忍标签与值分行",
+        proposed_change="提案：改 parser 支持跨行取值",
+        full_regression={"outcome": "pass"}, approver="jb",
+    )
+
+    checks = outcome["candidate"]["checks"]
+    assert checks["reproduces_before_fix"] == "pass", "缺陷当前仍在，应能复现"
+    assert checks["passes_after_fix"] == "skipped", "没有修复版本可测，不能假称 pass"
+    assert outcome["candidate"]["is_machine_validated"] is False
+    assert outcome["promoted"] is None, "未验证的提案不得晋级，即便有人签名"
+
+
+def test_ocr_execution_reads_the_snapshot_not_a_fresh_ocr_run(root):
+    """OCR 面执行读快照 —— 重跑 PaddleOCR 只会引入「两次识别不同」的噪音。"""
+    from test_evolution.pipeline import EVENT_LOG, execute, observe
+
+    spec = EVENT_LOG[1]
+    event = observe(spec, root=root)
+    execution = execute(event)
+
+    assert execution.executor.startswith("ocr_snapshot@")
+    assert "populated_fields" in execution.detail
 
 
 def test_loop_writes_nothing_outside_its_own_tree(root):

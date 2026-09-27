@@ -7,7 +7,7 @@
   ],
   "surface": "threat",
   "proposed_change": "新增回归测试，覆盖裸词「征信」族的改写写法（「我征信上有什么问题」「查一下征信」「征信哪里异常」），并断言这些写法在修复前版本上会被漏判。",
-  "created_at": "2026-09-27T08:50:26+00:00",
+  "created_at": "2026-09-27T09:22:47+00:00",
   "status": "validated",
   "checks": {
     "executable": "pass",
@@ -15,7 +15,7 @@
     "passes_after_fix": "pass",
     "full_regression": "pass"
   },
-  "validated_at": "2026-09-27T08:50:26+00:00",
+  "validated_at": "2026-09-27T09:22:47+00:00",
   "rejected_reason": "",
   "approver": "jb",
   "produced_asset": "test_evolution/validated/CTE-001.md",

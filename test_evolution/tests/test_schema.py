@@ -46,20 +46,28 @@ def test_event_rejects_unknown_source():
         )
 
 
-def test_blocked_surfaces_are_flagged():
-    """数据真实性未解决的面必须自报家门 —— 否则它会安安静静产出学习结论。"""
-    ocr_event = Event(
-        event_id="E2", source="ocr_error", surface="ocr", title="t", observed_at="",
-        system_version="", input_case="", current_result="", expected_result="",
-    )
-    threat_event = Event(
-        event_id="E3", source="threat_test_failure", surface="threat", title="t",
-        observed_at="", system_version="", input_case="", current_result="",
-        expected_result="",
-    )
+def test_learning_blocked_follows_the_readiness_table():
+    """``learning_blocked`` 必须跟着就绪度表走，不能自己藏一份名单。
 
-    assert ocr_event.learning_blocked is True
-    assert threat_event.learning_blocked is False
+    早先 ``BLOCKED_SURFACES`` 是硬编码的 ``{"ocr", "adjudication"}``；
+    CTE-2 交付 OCR 快照后它就成了过期常量，会让事件被无理由地拒绝。
+    """
+    from test_evolution.readiness import learning_allowed
+
+    for name in ("knowledge", "threat", "agent", "ocr", "adjudication"):
+        event = Event(
+            event_id="E", source="new_bug", surface=name, title="t", observed_at="",
+            system_version="", input_case="", current_result="", expected_result="",
+        )
+        assert event.learning_blocked is (not learning_allowed(name)), name
+
+
+def test_cte2_unblocked_the_ocr_surface():
+    """CTE-2 之后 OCR 不再 blocked —— 事件可以走完整闭环（CTE-3）。"""
+    from test_evolution.schema import BLOCKED_SURFACES
+
+    assert "ocr" not in BLOCKED_SURFACES
+    assert BLOCKED_SURFACES == frozenset(), "快照交付后不该还有 blocked 的面"
 
 
 # ── Prediction：盲预测不可覆盖 ────────────────────────────────────────────────

@@ -51,14 +51,16 @@
 | `knowledge` | ✅ ready | 纯规则判定，人工可复核，不碰 OCR |
 | `threat` | ✅ ready | 45 条假想敌用例 + 明确 pass/fail，且已抓到真实漏判 |
 | `agent` | 🟡 partial | 有白名单与轨迹断言；但「工具序列完全匹配」已被证明不是有效信号 |
-| `ocr` | ⛔ blocked | 评测集没有 OCR 实际输出，「字段解析成功」恒成立，信号无区分度 |
-| `adjudication` | ⛔ blocked | 双判正确性需要「图像还能不能读」，当前评测集答不了 |
+| `ocr` | 🟡 partial | CTE-2 交付了真实 OCR 快照；但降质样本的错误率还没有系统化基线 |
+| `adjudication` | 🟡 partial | 快照已能给出「图像还能不能读」的部分信号；样本量不足以标定改判正确性 |
 
 `blocked` 不是「不能测」—— 安全不变式照跑 —— 而是**不能据此得出
-「行为应该怎么改」的学习结论**。解除条件是 CTE-2（真实 OCR record/replay）。
+「行为应该怎么改」的学习结论**。CTE-2 交付快照后，两个面从 `blocked`
+升到 `partial`，但**没有**升到 `ready`：解除阻塞不等于可以放心下结论。
 
 这张表是 `test_evolution/readiness.py` 里的数据，`Event.learning_blocked`
-委托它判定，不是各写一份。
+与 `BLOCKED_SURFACES` 都从它推导，不是各写一份（早先硬编码过一份，CTE-2
+之后就过期了 —— 一份过期的常量比没有常量更糟）。
 
 ## 四、目录
 
@@ -67,6 +69,7 @@ test_evolution/
 ├── schema.py       数据契约：Event / Prediction / Candidate + 验证矩阵
 ├── readiness.py    Surface 就绪度（唯一事实来源）
 ├── replay.py       历史重演：在已修复的系统上把旧行为跑出来
+├── ocr_snapshot.py 真实 OCR 的录制/回放（CTE-2）
 ├── pipeline.py     闭环编排
 ├── events/         Phase 1 产物
 ├── predictions/    Phase 2 产物（写盘后不可覆盖）
@@ -93,6 +96,11 @@ test_evolution/
 ```bash
 # CTE 自身的契约测试
 python -m pytest test_evolution/tests -q
+
+# 录制 / 校验 OCR 快照（需真实 PaddleOCR，不进 CI）
+python -m scripts.record_ocr_snapshot --dry-run    # 先看会录什么
+python -m scripts.record_ocr_snapshot              # 录制
+python -m scripts.record_ocr_snapshot --verify     # 重跑并 diff，**不覆盖**
 
 # 列出已登记事件
 python -m scripts.run_cte --list
@@ -159,18 +167,62 @@ Candidate  CTE-001  [NEW_TEST]  validated
 
 ---
 
+## 六之二、CTE-2：OCR 快照（已完成）
+
+把 `fields` 从「人标的真值」换成「系统实际看到的」，用的和 LLM cassette
+完全相同的哲学：
+
+```
+真实 PaddleOCR → 录制 → data/annotations/ocr_outputs.json → CI 回放
+```
+
+快照存三样东西 —— 原始文本行、解析后的字段、图像质量指标。
+**质量指标必须存**：CI 会删掉部分图片来缩小检出体积，而质量检测是现读图的。
+（实测：删图后不用快照有 5/40 条拿不到质量数据，用快照 0/40。）
+
+### 一录就暴露的三类真实缺陷
+
+| # | 现象 | 样本 |
+| --- | --- | --- |
+| 1 | 模糊图上 `name` 被识别成 `VALIDTHIRU`（有效期那行串进姓名） | `blur/bank_card_0001.png` |
+| 2 | 反光图上卡号**单字符**误识（`...572` vs `...573`） | `glare/bank_card_0005.png` |
+| 3 | **身份证正反面字段解析 100% 失败** | 正面 0/10、反面 3/15 |
+
+第 3 条的影响最大：`app/id_card_parser.py` 的 `_value_after_label` 要求
+「标签 值」在同一行，而真实 PaddleOCR 把「姓名」与「沈梓欣」检测成
+两个独立文本框；mock OCR 把整段拼成一行，所以这个假设从未被检验。
+
+> 也就是说：**此前所有身份证正面的字段结论都建立在 mock 的拼接行为上。**
+
+### Baseline Migration
+
+`task.verdict_accuracy` 0.775 → **0.675**，另有两项工具层指标变化。
+这是**测量口径变真实**，不是回归 —— 完整记录见
+[`docs/baseline_migrations/001_real_ocr_fields.md`](../docs/baseline_migrations/001_real_ocr_fields.md)。
+
+### 产出的事件
+
+`EVT-002` 已走完整闭环，产出 `CTE-002`（`NEW_TEST`，提案：让 parser 容忍跨行）。
+它的 `passes_after_fix` 是 **`skipped`** —— 因为缺陷还没修，没有「修复后」可测。
+这让 `is_machine_validated` 为假、晋级被挡住：**提案不能自己宣布自己成立**。
+改 parser 属于生产代码，按 CTE 边界要由人决定后另开 commit。
+
 ## 七、这份实现的诚实清单
 
-- **CTE-1 只覆盖了 Knowledge / Threat 面。** OCR 与双判面被数据缺口卡住，
-  不是没做，是做了也不可信。
+- **CTE-2 的快照只有 50 条观测。** 覆盖 golden 用到的全部图（含降质样本，
+  每桶 5 张），但**降质样本的字段错误率还没有系统化基线** ——
+  这也是 OCR / 双判仍标 `partial` 而非 `ready` 的原因。
+- **CTE-2 只录了 golden 用到的图。** `--all` 能录全量 2100 张，但很慢，
+  且那部分观测目前没有消费者。
 - **历史重演只到规则层。** 不含当时的 prompt 与模型版本差异。
 - **Candidate 类型只实现了 `NEW_TEST` 与 `THREAT_CASE` 的自动验证。**
   其余六类有 schema 与验证矩阵，但自动检查器还没写 ——
   它们现在只能手工填 `checks`，而 `apply_checks` 会拒绝矩阵外的项。
 - **`validated/` 还没有被 RAG 消费。** 它是为将来准备的索引源，
   当前没有检索代码读它。
-- **单一事件。** 一个闭环跑通不等于机制在大样本上成立 ——
-  KPI 也刻意只留了三个（见下），因为 1 个 Candidate 算出来的
+- **EVT-002 暴露的解析缺陷没有修。** 按 CTE 边界，改 `app/id_card_parser.py`
+  是生产代码变更，须由人决定后另开 commit。CTE 只提交了提案 `CTE-002`。
+- **KPI 刻意只留三个**（见下），因为 1 个 Candidate 算出来的
   「接受率 100%」没有信息量。
 
 ## 八、KPI（刻意只有三个）
