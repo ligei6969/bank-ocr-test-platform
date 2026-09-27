@@ -304,6 +304,124 @@ def test_default_snapshot_path_sits_with_the_labels():
     assert DEFAULT_SNAPSHOT_PATH.suffix == ".json"
 
 
+# ── 断点续录 ──────────────────────────────────────────────────────────────────
+
+def test_recording_writes_checkpoints_as_it_goes(tmp_path, monkeypatch):
+    """边录边写 —— 全量 2100 张要跑近半小时，崩了不能全丢。
+
+    实测踩到过：PaddleOCR 在长循环里抛 ``CUDA error(700)``，进程整个挂掉。
+    没有断点时那半小时的成果全部丢失，只因为最后一张图失败。
+    """
+    from test_evolution import ocr_snapshot as mod
+
+    calls = []
+
+    def fake_observe(path, *, doc_type, ocr_mode, recorded_at):
+        calls.append(str(path))
+        return _observation(f"data/processed/{Path(path).name}")
+
+    monkeypatch.setattr(mod, "observe_image", fake_observe)
+
+    images = []
+    for index in range(5):
+        path = tmp_path / f"img{index}.png"
+        path.write_bytes(b"x")
+        images.append(path)
+
+    checkpoint = tmp_path / "snap.json"
+    mod.record(
+        images,
+        doc_type_of=lambda p: "bank_card",
+        checkpoint_path=checkpoint,
+        progress_every=2,
+    )
+
+    assert checkpoint.is_file()
+    assert len(calls) == 5
+
+
+def test_resume_skips_images_already_recorded(tmp_path, monkeypatch):
+    """续录要跳过已完成的 —— 那正是断点存在的意义。"""
+    from test_evolution import ocr_snapshot as mod
+
+    images = []
+    for index in range(4):
+        path = tmp_path / f"img{index}.png"
+        path.write_bytes(b"x")
+        images.append(path)
+
+    checkpoint = tmp_path / "snap.json"
+    seen: list = []
+
+    def fake_observe(path, *, doc_type, ocr_mode, recorded_at):
+        seen.append(Path(path).name)
+        return _observation(f"data/processed/{Path(path).name}")
+
+    monkeypatch.setattr(mod, "observe_image", fake_observe)
+
+    # 第一次只录前两张（模拟中断）
+    mod.record(images[:2], doc_type_of=lambda p: "bank_card", checkpoint_path=checkpoint)
+    first_round = list(seen)
+
+    # 第二次给全量：只该录后两张
+    seen.clear()
+    snapshot = mod.record(
+        images, doc_type_of=lambda p: "bank_card", checkpoint_path=checkpoint
+    )
+
+    assert first_round == ["img0.png", "img1.png"]
+    assert sorted(seen) == ["img2.png", "img3.png"], "已录的不该重复录"
+    assert len(snapshot.observations) == 4, "合并后应含全部四张"
+
+
+def test_restart_ignores_the_checkpoint(tmp_path, monkeypatch):
+    """``resume=False`` 时从头录 —— 引擎升级后需要整批重录。"""
+    from test_evolution import ocr_snapshot as mod
+
+    image = tmp_path / "img0.png"
+    image.write_bytes(b"x")
+    checkpoint = tmp_path / "snap.json"
+
+    seen: list = []
+
+    def fake_observe(path, *, doc_type, ocr_mode, recorded_at):
+        seen.append(Path(path).name)
+        return _observation(f"data/processed/{Path(path).name}")
+
+    monkeypatch.setattr(mod, "observe_image", fake_observe)
+
+    mod.record([image], doc_type_of=lambda p: "bank_card", checkpoint_path=checkpoint)
+    seen.clear()
+    mod.record(
+        [image],
+        doc_type_of=lambda p: "bank_card",
+        checkpoint_path=checkpoint,
+        resume=False,
+    )
+
+    assert seen == ["img0.png"], "resume=False 应重录"
+
+
+def test_no_checkpoint_leaves_no_file_until_the_end(tmp_path, monkeypatch):
+    """不给断点时行为与以前一致 —— 小批量录制不需要中间产物。"""
+    from test_evolution import ocr_snapshot as mod
+
+    image = tmp_path / "img0.png"
+    image.write_bytes(b"x")
+
+    monkeypatch.setattr(
+        mod,
+        "observe_image",
+        lambda path, *, doc_type, ocr_mode, recorded_at: _observation(
+            f"data/processed/{Path(path).name}"
+        ),
+    )
+
+    mod.record([image], doc_type_of=lambda p: "bank_card")
+
+    assert not list(tmp_path.glob("*.json"))
+
+
 def test_recorder_targets_cover_every_golden_image():
     """录制目标必须**完整覆盖** golden 集用到的每一张图。
 

@@ -252,15 +252,37 @@ def record(
     ocr_mode: str = "paddle",
     recorded_at: str = "",
     notes: Sequence[str] = (),
+    checkpoint_path: Optional[Path] = None,
+    resume: bool = True,
+    progress_every: int = 100,
 ) -> OcrSnapshot:
     """录制一批图。
 
     ``doc_type_of`` 是 ``(path) -> doc_type`` 的函数 —— 一张图属于银行卡
     还是身份证，只有调用方知道（快照不应该去猜目录结构）。
+
+    ``checkpoint_path`` 给出时**边录边写**，并支持断点续录。这不是可选优化：
+
+    全量 2100 张要跑近半小时，而 PaddleOCR 在长循环里真的会崩
+    （实测踩到过 ``CUDA error(700) illegal memory access``，跑到一半整个进程挂掉）。
+    没有断点时那半小时的成果**全部丢失** —— 只因为最后一张图失败。
+    有了断点，重跑会跳过已录的，接着往下走。
     """
-    observations: Dict[str, OcrObservation] = {}
-    for path in image_paths:
-        path = Path(path)
+    existing: Dict[str, OcrObservation] = {}
+    checkpoint = Path(checkpoint_path) if checkpoint_path is not None else None
+    if checkpoint is not None and resume and checkpoint.is_file():
+        loaded = load(checkpoint)
+        if loaded is not None:
+            existing = loaded.observations
+
+    observations: Dict[str, OcrObservation] = dict(existing)
+    pending = [Path(p) for p in image_paths]
+    todo = [p for p in pending if _key(str(p)) not in observations]
+
+    if existing:
+        print(f"[录制] 断点续录：已完成 {len(existing)} 张，待录 {len(todo)} 张")
+
+    for index, path in enumerate(todo, start=1):
         if not path.is_file():
             continue
         obs = observe_image(
@@ -271,11 +293,25 @@ def record(
         )
         observations[_key(str(path))] = obs
 
-    return OcrSnapshot(
+        if checkpoint is not None and index % progress_every == 0:
+            save(
+                OcrSnapshot(
+                    observations=observations,
+                    recorded_at=recorded_at,
+                    notes=list(notes),
+                ),
+                checkpoint,
+            )
+            print(f"[录制] 进度 {len(observations)}/{len(pending)}，已写断点")
+
+    snapshot = OcrSnapshot(
         observations=observations,
         recorded_at=recorded_at,
         notes=list(notes),
     )
+    if checkpoint is not None:
+        save(snapshot, checkpoint)
+    return snapshot
 
 
 # ── 读写 ──────────────────────────────────────────────────────────────────────

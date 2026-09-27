@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 from app.id_card_parser import (
+    ID_NUMBER_PATTERN,
     detect_id_card_side,
     parse_id_card_back_fields,
     parse_id_card_front_fields,
@@ -71,6 +72,49 @@ def test_label_and_value_on_separate_lines() -> None:
     assert parsed["nation"] == "回"
     assert parsed["address"] == "东湖省丹江市城东区样本街284号"
     assert parsed["id_number"] == "00000019900831001X"
+
+
+def test_value_before_the_label_is_found() -> None:
+    """**值在标签之前**的形状 —— 全量快照里这是多数（316/700）。
+
+    PaddleOCR 的文本框返回顺序与版面阅读顺序不完全一致，
+    姓名这种「标签一格、值一格」的排版特别容易调换：
+
+        ['施然', '姓名', '性别男', ...]     ← 值在前
+        ['姓名', '沈梓欣', '性别女', ...]   ← 值在后
+
+    只往下看会漏掉前者近一半。CTE-5 在全量 2100 张上做错误率基线时
+    才发现：``name`` 在 normal 桶只有 52/100，补上「往上看」之后 97/100。
+    """
+    text = "\n".join(["施然", "姓名", "性别男", "民族蒙古", "出生1988年1月18日"])
+
+    parsed = parse_id_card_front_fields(text)
+
+    assert parsed["name"] == "施然"
+
+
+def test_looking_backwards_does_not_steal_the_previous_field() -> None:
+    """往上看时，上一行若是**标签**就不能取 —— 否则会吃掉前一个字段。
+
+    ``['民族', '回', '姓名', ...]`` 里，姓名不该取到 ``回``。
+    """
+    text = "\n".join(["性别", "男", "民族", "回", "姓名", "出生1988年1月18日"])
+
+    parsed = parse_id_card_front_fields(text)
+
+    assert parsed["name"] is None, "上一行是「民族」，不该被当成姓名"
+
+
+def test_both_orderings_agree_on_the_same_person() -> None:
+    """两种顺序必须给出同一个答案 —— 判据是对称的。"""
+    forward = parse_id_card_front_fields(
+        "\n".join(["姓名", "沈梓欣", "性别女", "民族回"])
+    )
+    backward = parse_id_card_front_fields(
+        "\n".join(["沈梓欣", "姓名", "性别女", "民族回"])
+    )
+
+    assert forward["name"] == backward["name"] == "沈梓欣"
 
 
 def test_same_line_shape_still_works() -> None:
@@ -276,35 +320,66 @@ def test_real_snapshot_front_sample_parses_what_ocr_provided() -> None:
     assert parsed["address"] == "东湖省丹江市城东区样本街284号"
 
 
-def test_only_samples_whose_ocr_read_the_number_expose_it() -> None:
-    """把「OCR 没认出来」与「解析器没取到」分开，是这份测试最该守住的事。
+def test_the_parser_never_misses_a_number_that_ocr_actually_read() -> None:
+    """**性质断言**：OCR 文本里有号码的样本，解析器必须一个不漏地取到。
 
-    快照里只有 ``blur`` 那一桶的正面样本被 OCR 认出了身份证号；
-    其余 8 张的文本里根本没有这串数字。如果哪天有人「修好了」
-    id_number 的解析率，先看这个分布 —— 大概率是 OCR 变了而不是解析器变了。
+    这是「OCR 没认出来」与「解析器没取到」的分界线，也是这份测试最该守的事。
+
+    不写死具体条数 —— 快照会随样本量变化（CTE-2 的 50 张里只有 2 张有号码，
+    CTE-5 扩到 2100 张后有 31 张）。写死条数会让测试在快照扩展时失败，
+    而它想守的性质其实没变。
+
+    如果哪天解析率突然变了，先看这个分布：大概率是 OCR 变了，不是解析器变了。
     """
     import json as _json
     import re as _re
 
     payload = _json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
-    pattern = _re.compile(r"\d{6}(?:18|19|20)\d{2}\d{4}\d{3}[\dXx]")
 
-    with_number: list[str] = []
-    without: list[str] = []
+    checked = 0
     for key, observation in payload["observations"].items():
         if observation["doc_type"] != "id_card" or "/front/" not in key:
             continue
-        joined = "".join(observation["ocr_texts"])
-        (with_number if pattern.search(joined) else without).append(key)
-
-    assert len(with_number) == 2, f"OCR 认出号码的样本数变了：{with_number}"
-    assert len(without) == 8, f"OCR 没认出号码的样本数变了：{len(without)}"
-
-    # 认出号码的那两张，解析器必须取到
-    for key in with_number:
-        observation = payload["observations"][key]
-        parsed = parse_id_card_front_fields("\n".join(observation["ocr_texts"]))
+        texts = observation["ocr_texts"]
+        # 用**解析器自己的正则**去逐行问「这里有没有一个合法形态的号码」。
+        # 不用更宽松的「有没有一长串数字」—— 那会把 OCR 认多一位的
+        # （实测有 `000000020040520081X`，19 位）也算成「读到了」，
+        # 而 19 位本身就不是合法号码，解析器拒绝它是对的。
+        if not any(ID_NUMBER_PATTERN.search(line) for line in texts):
+            continue
+        checked += 1
+        parsed = parse_id_card_front_fields("\n".join(texts))
         assert parsed["id_number"], f"{key} 的 OCR 文本里有号码，解析器却没取到"
+
+    assert checked > 0, "快照里没有任何一张含号码的正面样本 —— 断言成了空转"
+
+
+def test_most_front_samples_genuinely_lack_the_number_in_their_text() -> None:
+    """把事实记下来：**绝大多数**正面样本的 OCR 文本里没有身份证号。
+
+    这不是解析器的问题，而是成像问题（号码区被水印覆盖）。
+    写下这条是为了防止后来者把它当成解析缺陷去修 ——
+    CTE-3 差点这么干过（`EVT-002`）。
+    """
+    import json as _json
+    import re as _re
+
+    payload = _json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+    pattern = _re.compile(r"\d{17}[\dXx]")
+
+    total = with_number = 0
+    for key, observation in payload["observations"].items():
+        if observation["doc_type"] != "id_card" or "/front/" not in key:
+            continue
+        total += 1
+        if pattern.search("".join(observation["ocr_texts"])):
+            with_number += 1
+
+    assert total >= 100, "样本太少，这条比例断言没有意义"
+    assert with_number / total < 0.2, (
+        f"含号码的比例是 {with_number}/{total} —— 明显偏高，"
+        "说明成像或 OCR 行为变了，值得重新检查归因"
+    )
 
 
 def test_real_snapshot_dark_sample_parses_what_ocr_provided() -> None:

@@ -76,24 +76,63 @@ def _looks_like_a_label(line: str) -> bool:
     return any(cleaned.startswith(label) for label in ALL_LABELS)
 
 
-def _value_for_label(lines: list[str], label: str) -> str | None:
-    """跨行取标签的值。**先看本行，本行没有就用下一行。**
+#: 往上看时，值前面不能紧跟着**另一个标签**。
+#:
+#: 这条约束是必需的，否则会吃掉前一个字段的值：
+#:
+#:     ['民族', '回', '姓名', '出生1988...']
+#:              ↑ 这个「回」是民族的值，不是姓名
+#:
+#: 判据是「上上行是不是标签」—— 若 ``回`` 前面是 ``民族``，说明 ``回``
+#: 已经有归属了。看起来绕，但这是区分「值在前」与「上一个字段的值」
+#: 的唯一线索：两者在文本里长得一模一样，只有上下文能分开。
+def _backwards_candidate(lines: list[str], position: int) -> str | None:
+    """标签在 ``position`` 时，往前一格找一个**尚无归属**的值。"""
+    if position == 0:
+        return None
+    preceding = _clean_line(lines[position - 1])
+    if not preceding or _looks_like_a_label(preceding):
+        return None
+    # 上上行若是一个标签，说明 preceding 已经是那个字段的值了
+    if position >= 2:
+        before_that = _clean_line(lines[position - 2])
+        if before_that and _looks_like_a_label(before_that):
+            return None
+    return preceding
 
-    为什么是「下一行」而不是「往后找第一段不含标签的文字」：
-    真实 OCR 的阅读顺序基本稳定（标签在上、值在下），只取紧邻的一行
-    已经够用，而且**不会跨越多个字段误取**。地址是例外 ——
-    它天然跨多行，所以走 :func:`_extract_address` 单独处理。
+
+def _value_for_label(lines: list[str], label: str) -> str | None:
+    """跨行取标签的值。**本行 → 下一行 → 上一行。**
+
+    三个方向都要看，理由是实测的：全量快照里身份证正面的「姓名」
+    有 316 张是**值在前**（``['施然', '姓名', ...]``）、230 张是**值在后**
+    （``['姓名', '沈梓欣', ...]``）。只往下看会漏掉前者近一半。
+
+    为什么值可能在前：PaddleOCR 的文本框返回顺序与版面阅读顺序不完全一致，
+    姓名这种「标签一格、值一格」的排版尤其容易调换。
+
+    顺序是「先下后上」而不是反过来：下一个位置在阅读顺序上更可能是
+    本字段的值；上一个位置则可能是**前一个字段的值**，
+    只在确认它没有归属时才取（见 :func:`_backwards_candidate`）。
     """
     for position, line in enumerate(lines):
         value = _value_after_label(line, label)
         if value:
             return value
-        # 本行只有标签（或标签后为空）：看下一行
+
         cleaned = _clean_line(line)
-        if label in cleaned and position + 1 < len(lines):
+        if label not in cleaned:
+            continue
+
+        # 本行只有标签（或标签后为空）：先看下一行，再看上一行
+        if position + 1 < len(lines):
             following = _clean_line(lines[position + 1])
             if following and not _looks_like_a_label(following):
                 return following
+
+        backward = _backwards_candidate(lines, position)
+        if backward:
+            return backward
     return None
 
 
@@ -239,16 +278,42 @@ def _extract_valid_period(ocr_text: str) -> str | None:
     return None
 
 
+def _extract_id_number(ocr_text: str) -> str | None:
+    """抽取身份证号。
+
+    **先逐行匹配，再退回整段匹配** —— 顺序不能反。
+
+    整段匹配把换行去掉（``_clean_text``），于是相邻两行会粘在一起：
+
+        大道86号12栋215        ← 住址行，结尾是数字
+        00000019941030076X     ← 号码行
+
+    粘成 ``...21500000019941030076X`` 之后，号码的 ``(?<!\\d)`` 前视
+    会因为前面那个 ``5`` 而失配 —— 号码明明在文本里，却取不到。
+
+    实测踩到过：CTE-5 扩到 2100 张后，`id_front_0076.jpg` 就是这样漏的。
+    逐行匹配天然避免了这个问题：一行里的号码两侧不会粘上别的数字。
+
+    逐行都失败再退回整段：号码被 OCR 拆成两行时（``0000001994103007``
+    + ``6X``），只有整段匹配才接得起来。
+    """
+    for line in ocr_text.splitlines():
+        match = ID_NUMBER_PATTERN.search(_clean_text(line))
+        if match:
+            return match.group(1).upper()
+    match = ID_NUMBER_PATTERN.search(_clean_text(ocr_text))
+    return match.group(1).upper() if match else None
+
+
 def parse_id_card_front_fields(ocr_text: str) -> dict[str, str | None]:
     lines = [_clean_line(line) for line in ocr_text.splitlines() if _clean_line(line)]
-    id_match = ID_NUMBER_PATTERN.search(_clean_text(ocr_text))
     return {
         "name": _extract_name(lines),
         "gender": _extract_labeled_value(lines, "性别", ("民族", "出生", "住址")),
         "nation": _extract_labeled_value(lines, "民族", ("出生", "住址")),
         "birth": _extract_birth(ocr_text),
         "address": _extract_address(lines),
-        "id_number": id_match.group(1).upper() if id_match else None,
+        "id_number": _extract_id_number(ocr_text),
     }
 
 

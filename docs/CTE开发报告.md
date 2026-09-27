@@ -1,9 +1,10 @@
-# CTE 开发报告（CTE-0 骨架 · CTE-1 首个闭环 · CTE-2 OCR 快照 · CTE-3 缺陷修复 · CTE-4 归因信号）
+# CTE 开发报告（CTE-0 … CTE-5）
 
-> 阶段：P5 Continuous Test Evolution（CTE-0 · CTE-1 · CTE-2 · CTE-3 · CTE-4）
+> 阶段：P5 Continuous Test Evolution（CTE-0 骨架 · CTE-1 首个闭环 · CTE-2 OCR 快照 ·
+> CTE-3 缺陷修复 · CTE-4 归因信号 · CTE-5 全量基线）
 > 日期：2026-09-27
 > 前置文档：[`p5计划.md`](p5计划.md)（初版方案）、[`p5修订md`](p5修订md)（吸收审计后的修订版）
-> 测试基线：**1052 → 1225 passed / 0 failed**（新增 173 项，零回归）
+> 测试基线：**1052 → 1251 passed / 0 failed**（新增 199 项，零回归）
 
 ---
 
@@ -51,15 +52,19 @@ ai_service/tests/test_cte_regressions.py         晋级出的回归资产（14 �
 tests/test_id_card_parser_real_ocr.py            用真实 OCR 形状的解析测试（CTE-3）
 tests/test_ocr_evidence.py                       归因信号测试（CTE-4）
 app/ocr_evidence.py                              字段缺失归因（CTE-4）
-data/annotations/ocr_outputs.json                真实 PaddleOCR 快照（50 条观测）
+test_evolution/ocr_report.py                     字段错误率基线（CTE-5）
+scripts/ocr_error_report.py                      生成基线报告（离线）
+docs/ocr_field_error_rates.md                    全量 2100 张的错误率基线
+data/annotations/ocr_outputs.json                真实 PaddleOCR 快照（2100 条观测）
 docs/baseline_migrations/001_real_ocr_fields.md  基线口径变更：字段改为真实 OCR 观测
 docs/baseline_migrations/002_severity_outranks_missing.md  基线口径变更：严重度优先
+docs/baseline_migrations/003_cte5_corpus_scale.md  基线口径变更：全量扩样
 ```
 
 ### 生成的过程证据（已入库，是审计轨迹）
 
 ```
-test_evolution/events/EVT-001..005.json          五个事件
+test_evolution/events/EVT-001..006.json          六个事件
 test_evolution/predictions/PRED-EVT-00*.json     盲预测（执行前落盘）
 test_evolution/retros/EVT-00*.md                 复盘
 test_evolution/candidates/CTE-00*.json           候选
@@ -396,18 +401,68 @@ CTE-2 之后就过期了 —— 一份过期的常量比没有常量更糟
 | 6 | **`validated/` 还没被 RAG 消费** | 它是为将来准备的索引源，当前没有检索代码读它 |
 | 7 | **KPI 只留了三个** | Candidate Count / Validated Count / Executable Test Yield。1 个 Candidate 算出来的「接受率 100%」没有信息量 |
 
-### 下一步（CTE-5）
+## 四之五、CTE-5：扩到全量，把错误率变成基线
 
-CTE-4 补齐了归因信号，剩余问题**精确地**收敛到两处，且都不是技术问题：
+CTE-2 的快照只覆盖每桶 5 张 —— 一张图就是 20 个百分点，模式看不出来。
+扩到全量 **2100 张**（每桶 100 张）后，三条此前看不见的东西立刻显形。
 
-- **反光严重度阈值**（7 条「该拒却转人工」）—— 需要产品口径决策
-- **4 条过度保守的 `pass→review`** —— 阈值标定，同上
+### 修掉两个系统性缺陷
 
-两处都需要有人回答「什么样的反光算不可用」。在那之前：
+| # | 缺陷 | 证据 | 修复后 |
+| --- | --- | --- | --- |
+| 1 | 身份证姓名的**值有时在标签之前** | 316/700 张；解析器只往下找 | `name` 52/100 → **97/100** |
+| 2 | 号码与相邻行数字粘连导致漏取 | 住址行尾 `...215` + 号码行 `000000199...` 粘成 20 位，两侧 `(?!\d)` 失配 | 已修（先逐行、再退回整段） |
 
-- 双判改判正确性的标定仍建议**暂缓**（阈值未定会把问题混进双判指标）
-- 可以做的是**扩大快照覆盖**（`--all` 录全量 2100 张），
-  把降质样本的字段错误率变成系统化基线 —— 那是纯工程，不需要产品决策
+第 1 条的修法本身被一条测试逼出细节：往上看时若上上行是标签，
+说明上一行已归属于那个字段 —— `['民族','回','姓名',...]` 里姓名不该取到「回」。
+
+### 登记但**未修**的一个
+
+`EVT-006`：银行卡模糊样本的姓名被认成 `VALID THIRU`
+（`bank_card/blur` 的 name 48%，其中 31% 解析器责任）。
+根因是 `CARD HOLDER` 被认成 `CARD HOLDEN`，标签正则失配后兜底取到
+第一行「像人名的」，而 `VALID THIRU` 恰好符合人名形状。
+
+**没修的原因**：修法有多个方向（扩充停用词 / 与有效期标签做模糊匹配 /
+要求姓名行与卡号行相邻），各有取舍 —— 属于设计选择，不是显而易见的修复。
+按 CTE 边界先记录量化证据，不擅自动手。
+
+### 一个工程教训：长任务必须能续
+
+第一次录 2100 张时**中途崩了**（PaddleOCR 抛 `CUDA error(700) illegal memory access`），
+而当时的实现攒在内存里最后才写 —— **半小时成果全丢**。
+
+已改为**边录边写 + 断点续录**。这不是可选优化：
+长任务里「最后一步失败 = 全部白做」不可接受。
+
+### 产出
+
+`docs/ocr_field_error_rates.md` —— 全量 2100 张的逐桶字段错误率，
+由 `scripts/ocr_error_report.py` 生成（**纯离线**，不需要 PaddleOCR，可随时重跑）。
+它是阈值决策的输入。
+
+三条关键读数：
+
+1. 银行卡只有 blur 是真退化（61%），其余桶 85% 以上
+2. 身份证基线本身就低（正常样本 73.4%），由两个**在未退化样本上就 0/100**
+   的字段主导 —— 成像问题，不是模型能力
+3. **反直觉**：blur 反而是身份证号唯一能认出来的桶（26/100）
+
+---
+
+### 下一步（CTE-6）
+
+剩余问题已全部量化，且**都不该靠调参解决**：
+
+| # | 问题 | 性质 |
+| --- | --- | --- |
+| 1 | `EVT-006` 姓名被认成有效期标签 | 需设计选择 |
+| 2 | 反光严重度阈值停用（7 条「该拒却转人工」） | 产品口径决策 |
+| 3 | 4 条过度保守的 `pass→review` | 阈值标定 |
+| 4 | `id_number`/`valid_period` 成像缺失 | 数据集问题，非解析/模型 |
+
+第 2、3 项现在**有了决策依据**（CTE-5 的分布），可以拿去问业务方了。
+双判改判正确性的标定仍建议**暂缓** —— 反光阈值未定会把问题混进双判指标。
 
 ---
 
@@ -415,8 +470,8 @@ CTE-4 补齐了归因信号，剩余问题**精确地**收敛到两处，且都�
 
 | 项 | 基线 | 当前 |
 | --- | --- | --- |
-| 全量测试 | 1052 passed | **1225 passed** |
-| CTE 自身测试 | — | 106 |
+| 全量测试 | 1052 passed | **1251 passed** |
+| CTE 自身测试 | — | 137 |
 | 晋级回归资产 | — | 14 |
 | `task.verdict_accuracy` | 0.775（标注真值） | **0.725**（真实 OCR + CTE-3 修复） |
 | 破坏既有接口 | — | 无（`app/` 一行未动） |

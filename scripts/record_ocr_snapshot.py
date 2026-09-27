@@ -153,11 +153,16 @@ def cmd_record(args: argparse.Namespace) -> int:
         print("[录制] --dry-run，未写文件。")
         return 0
 
+    # 断点：全量 2100 张要跑近半小时，而 PaddleOCR 在长循环里会崩
+    # （实测踩到 CUDA error(700)）。边录边写，崩了重跑接着来。
+    checkpoint = None if args.no_checkpoint else args.output
     snapshot = record(
         (path for path, _ in targets),
         doc_type_of=lambda path: dict(targets)[path],
         ocr_mode=args.mode,
         recorded_at=_now(),
+        checkpoint_path=checkpoint,
+        resume=not args.restart,
         notes=[
             "由 scripts/record_ocr_snapshot.py 录制。",
             "这是**系统观测**（引擎实际看到了什么），不是 Ground Truth —— "
@@ -248,6 +253,16 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--mode", default="paddle", choices=["paddle", "mock"])
     parser.add_argument("--all", action="store_true", help="录全量样本（很慢）")
     parser.add_argument("--dry-run", action="store_true", help="只列目标，不写文件")
+    parser.add_argument(
+        "--no-checkpoint",
+        action="store_true",
+        help="不写断点（整批录完才落盘）。默认边录边写，崩了可续",
+    )
+    parser.add_argument(
+        "--restart",
+        action="store_true",
+        help="忽略已有断点，从头重录（默认续录）",
+    )
     parser.add_argument("--verify", action="store_true", help="重跑并 diff，不覆盖")
     parser.add_argument("--update", action="store_true", help="显式覆盖快照")
     return parser.parse_args(argv)

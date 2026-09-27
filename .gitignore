@@ -25,3 +25,10 @@ reports/test-documents/
 
 # CTE 的过程证据要入库（它们是审计轨迹），但 CTE 的临时报告不入库
 test_evolution/reports/
+
+# CTE-5：全量快照的中间产物与录制日志（正式快照在 data/annotations/）
+reports/ocr_outputs_full.json
+reports/cte5-record*.log
+# 错误率报告是**生成物**，正文在 docs/ocr_field_error_rates.md
+reports/ocr_field_error_rates.md
+reports/ocr_field_error_rates.csv
