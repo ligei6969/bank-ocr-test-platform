@@ -1,0 +1,193 @@
+FFFFFFF.....                                                             [100%]
+================================== FAILURES ===================================
+_ test_operation_and_personal_context_determine_boundary[\u672c\u4eba\u8d26\u6237\u91cc\u5269\u591a\u5c11\u94b1\uff1f-pii] _
+
+question = '�����˻���ʣ����Ǯ��', intent = 'pii'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'pii'
+E         
+E         - pii
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u540d\u4e0b\u603b\u5171\u591a\u5c11\u5f20\u94f6\u884c\u5361\uff1f-pii] _
+
+question = '�������ܹ����������п���', intent = 'pii'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'pii'
+E         
+E         - pii
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u53bb\u5e74\u652f\u51fa\u4e86\u591a\u5c11\uff1f-pii] _
+
+question = '��ȥ��֧���˶��٣�', intent = 'pii'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'pii'
+E         
+E         - pii
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u7684\u94f6\u884c\u5361\u5230\u671f\u65f6\u95f4\u662f\u4ec0\u4e48\u65f6\u5019\uff1f-pii] _
+
+question = '�ҵ����п�����ʱ����ʲôʱ��', intent = 'pii'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'pii'
+E         
+E         - pii
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u7684\u4fe1\u7528\u5206\u662f\u5426\u591f\u7533\u8bf7\u4fe1\u7528\u5361\uff1f-advice] _
+
+question = '�ҵ����÷��Ƿ��������ÿ���', intent = 'advice'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'advice'
+E         
+E         - advice
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u9002\u5408\u6295\u8d44\u80a1\u7968\u8fd8\u662f\u57fa\u91d1\uff1f-advice] _
+
+question = '���ʺ�Ͷ�ʹ�Ʊ���ǻ���', intent = 'advice'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'advice'
+E         
+E         - advice
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+_ test_operation_and_personal_context_determine_boundary[\u6211\u7533\u8bf7\u7684\u98ce\u63a7\u5904\u7406\u8fdb\u5ea6\u5982\u4f55\uff1f-internal] _
+
+question = '������ķ�ش���������Σ�', intent = 'internal'
+
+    @pytest.mark.parametrize("question,intent", [
+        ("�����˻���ʣ����Ǯ��", "pii"),
+        ("�������ܹ����������п���", "pii"),
+        ("��ȥ��֧���˶��٣�", "pii"),
+        ("�ҵ����п�����ʱ����ʲôʱ��", "pii"),
+        ("�ҵ����÷��Ƿ��������ÿ���", "advice"),
+        ("���ʺ�Ͷ�ʹ�Ʊ���ǻ���", "advice"),
+        ("������ķ�ش���������Σ�", "internal"),
+        ("��β�ѯ���п���", "knowledge"),
+        ("���п���Ч��һ����ô����", "knowledge"),
+        ("����Ͷ�����ʲô����", "product"),
+        ("�����������������ã�", "knowledge"),
+        ("�ҵ����п�������ô�죿", "knowledge"),
+    ])
+    def test_operation_and_personal_context_determine_boundary(question, intent):
+>       assert detect_intent(question) == intent
+E       AssertionError: assert 'knowledge' == 'internal'
+E         
+E         - internal
+E         + knowledge
+
+ai_service\tests\test_boundary_paraphrases.py:23: AssertionError
+=========================== short test summary info ===========================
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u672c\u4eba\u8d26\u6237\u91cc\u5269\u591a\u5c11\u94b1\uff1f-pii]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u540d\u4e0b\u603b\u5171\u591a\u5c11\u5f20\u94f6\u884c\u5361\uff1f-pii]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u53bb\u5e74\u652f\u51fa\u4e86\u591a\u5c11\uff1f-pii]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u7684\u94f6\u884c\u5361\u5230\u671f\u65f6\u95f4\u662f\u4ec0\u4e48\u65f6\u5019\uff1f-pii]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u7684\u4fe1\u7528\u5206\u662f\u5426\u591f\u7533\u8bf7\u4fe1\u7528\u5361\uff1f-advice]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u9002\u5408\u6295\u8d44\u80a1\u7968\u8fd8\u662f\u57fa\u91d1\uff1f-advice]
+FAILED ai_service/tests/test_boundary_paraphrases.py::test_operation_and_personal_context_determine_boundary[\u6211\u7533\u8bf7\u7684\u98ce\u63a7\u5904\u7406\u8fdb\u5ea6\u5982\u4f55\uff1f-internal]
+7 failed, 5 passed in 0.23s

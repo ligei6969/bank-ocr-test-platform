@@ -264,22 +264,6 @@ def detect_intent(question: str) -> str:
     for intent, keywords in _INTENT_RULES:
         if any(keyword in text for keyword in keywords):
             return intent
-    # Match the requested operation and personal context, rather than banning
-    # bare nouns such as balance/funds (which also appear in legitimate guides).
-    if re.search(r"风控.{0,12}(状态|进度)|审核.{0,12}(哪个指标|指标超|指标不合格)", text):
-        return INTENT_INTERNAL
-    personal = re.search(r"我|本人|名下", text)
-    if personal and re.search(
-        r"(卡里|账户里|余额).{0,12}(多少|剩|结果)|"
-        r"(消费|支出).{0,12}(多少|金额)|名下.{0,8}(几张|多少张|卡)|"
-        r"(这张卡|银行卡|卡片).{0,12}(什么时候到期|到期时间|有效期)", text
-    ):
-        return INTENT_PII
-    if personal and re.search(
-        r"(信用分|资质|条件).{0,12}(够不够|是否够|能否).{0,12}(办|贷|卡)|"
-        r"(适合|应该|该选).{0,15}(定期|基金|理财|投资|股票)", text
-    ):
-        return INTENT_ADVICE
     return INTENT_KNOWLEDGE
 
 

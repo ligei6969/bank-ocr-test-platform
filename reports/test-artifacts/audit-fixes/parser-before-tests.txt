@@ -1,0 +1,215 @@
+FFF.FFF.FFF.F.....FFFFF                                                  [100%]
+================================== FAILURES ===================================
+____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-VALID THIRU] _____
+
+expiry = 'VALID THIRU', holder = 'CARD HOLDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VALID THIRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VALID THIRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-VAIID THRU] _____
+
+expiry = 'VAIID THRU', holder = 'CARD HOLDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VAIID THRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VAIID THRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-GOOD THRV] ______
+
+expiry = 'GOOD THRV', holder = 'CARD HOLDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'GOOD THRV' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + GOOD THRV
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-VALID THIRU] _____
+
+expiry = 'VALID THIRU', holder = 'CARD HOLDEN'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VALID THIRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VALID THIRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-VAIID THRU] _____
+
+expiry = 'VAIID THRU', holder = 'CARD HOLDEN'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VAIID THRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VAIID THRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-GOOD THRV] ______
+
+expiry = 'GOOD THRV', holder = 'CARD HOLDEN'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'GOOD THRV' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + GOOD THRV
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+____ test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-VALID THIRU] _____
+
+expiry = 'VALID THIRU', holder = 'CARD H0LDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VALID THIRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VALID THIRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-VAIID THRU] _____
+
+expiry = 'VAIID THRU', holder = 'CARD H0LDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'VAIID THRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VAIID THRU
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_____ test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-GOOD THRV] ______
+
+expiry = 'GOOD THRV', holder = 'CARD H0LDER'
+
+    @pytest.mark.parametrize("expiry", ["VALID THIRU", "VAIID THRU", "GOOD THRV", "EXPIRV"])
+    @pytest.mark.parametrize("holder", ["CARD HOLDER", "CARD HOLDEN", "CARD H0LDER"])
+    def test_interleaved_expiry_label_is_not_a_name(expiry, holder):
+        text = f"TEST BANK\n5415 9827 3869 1093\n{holder}\n{expiry}\nZHU BIN\n04/36"
+>       assert parser.extract_cardholder_name(text) == "ZHU BIN"
+E       AssertionError: assert 'GOOD THRV' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + GOOD THRV
+
+tests\test_bank_card_name_regression.py:15: AssertionError
+_________________ test_real_evt006_snapshot_name_is_extracted _________________
+
+    def test_real_evt006_snapshot_name_is_extracted():
+        path = Path(__file__).resolve().parents[1] / "data/annotations/ocr_outputs.json"
+        observation = json.loads(path.read_text(encoding="utf-8"))["observations"][
+            "data/processed/bank_card/blur/bank_card_0001.png"
+        ]
+>       assert parser.extract_cardholder_name("\n".join(observation["ocr_texts"])) == "ZHU BIN"
+E       AssertionError: assert 'VALID THIRU' == 'ZHU BIN'
+E         
+E         - ZHU BIN
+E         + VALID THIRU
+
+tests\test_bank_card_name_regression.py:23: AssertionError
+__ test_damaged_holder_label_prioritizes_its_value_over_other_uppercase_text __
+
+    def test_damaged_holder_label_prioritizes_its_value_over_other_uppercase_text():
+>       assert parser.extract_cardholder_name("CUSTOMER SERVICE\nCARD HOLDEN\nLI SI") == "LI SI"
+E       AssertionError: assert 'CUSTOMER SERVICE' == 'LI SI'
+E         
+E         - LI SI
+E         + CUSTOMER SERVICE
+
+tests\test_bank_card_name_regression.py:32: AssertionError
+____________ test_date_digits_must_not_be_erased_to_create_a_name _____________
+
+    def test_date_digits_must_not_be_erased_to_create_a_name():
+>       assert parser.extract_cardholder_name("VALID THIRU 12/30\n04/36") is None
+E       AssertionError: assert 'VALID THIRU' is None
+E        +  where 'VALID THIRU' = <function extract_cardholder_name at 0x000002A4613295A0>('VALID THIRU 12/30\n04/36')
+E        +    where <function extract_cardholder_name at 0x000002A4613295A0> = parser.extract_cardholder_name
+
+tests\test_bank_card_name_regression.py:36: AssertionError
+__________ test_card_body_candidate_outranks_unlabeled_header_noise ___________
+
+    def test_card_body_candidate_outranks_unlabeled_header_noise():
+>       assert parser.extract_cardholder_name("CUSTOMER SERVICE\n5415 9827 3869 1093\nSUN FENG") == "SUN FENG"
+E       AssertionError: assert 'CUSTOMER SERVICE' == 'SUN FENG'
+E         
+E         - SUN FENG
+E         + CUSTOMER SERVICE
+
+tests\test_bank_card_name_regression.py:40: AssertionError
+____ test_fuzzy_expiry_label_without_name_evidence_does_not_invent_a_name _____
+
+    def test_fuzzy_expiry_label_without_name_evidence_does_not_invent_a_name():
+>       assert parser.extract_cardholder_name("VAIID THIRU\n04/36") is None
+E       AssertionError: assert 'VAIID THIRU' is None
+E        +  where 'VAIID THIRU' = <function extract_cardholder_name at 0x000002A4613295A0>('VAIID THIRU\n04/36')
+E        +    where <function extract_cardholder_name at 0x000002A4613295A0> = parser.extract_cardholder_name
+
+tests\test_bank_card_name_regression.py:44: AssertionError
+_______ test_a_holder_label_does_not_make_an_expiry_label_a_valid_name ________
+
+    def test_a_holder_label_does_not_make_an_expiry_label_a_valid_name():
+>       assert parser.extract_cardholder_name("CARD HOLDER NAME: VALID THIRU\n04/36") is None
+E       AssertionError: assert 'VALID THIRU' is None
+E        +  where 'VALID THIRU' = <function extract_cardholder_name at 0x000002A4613295A0>('CARD HOLDER NAME: VALID THIRU\n04/36')
+E        +    where <function extract_cardholder_name at 0x000002A4613295A0> = parser.extract_cardholder_name
+
+tests\test_bank_card_name_regression.py:48: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-VALID THIRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-VAIID THRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDER-GOOD THRV]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-VALID THIRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-VAIID THRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD HOLDEN-GOOD THRV]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-VALID THIRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-VAIID THRU]
+FAILED tests/test_bank_card_name_regression.py::test_interleaved_expiry_label_is_not_a_name[CARD H0LDER-GOOD THRV]
+FAILED tests/test_bank_card_name_regression.py::test_real_evt006_snapshot_name_is_extracted
+FAILED tests/test_bank_card_name_regression.py::test_damaged_holder_label_prioritizes_its_value_over_other_uppercase_text
+FAILED tests/test_bank_card_name_regression.py::test_date_digits_must_not_be_erased_to_create_a_name
+FAILED tests/test_bank_card_name_regression.py::test_card_body_candidate_outranks_unlabeled_header_noise
+FAILED tests/test_bank_card_name_regression.py::test_fuzzy_expiry_label_without_name_evidence_does_not_invent_a_name
+FAILED tests/test_bank_card_name_regression.py::test_a_holder_label_does_not_make_an_expiry_label_a_valid_name
+15 failed, 8 passed in 0.24s

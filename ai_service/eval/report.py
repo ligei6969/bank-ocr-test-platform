@@ -63,6 +63,7 @@ class EvaluationReport:
     unregistered: List[str] = field(default_factory=list)
     baseline_path: Optional[str] = None
     calibration: Optional[CalibrationReport] = None
+    execution: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:
@@ -74,6 +75,7 @@ class EvaluationReport:
             "metrics": self.metrics,
             "flat": {key: round(value, 4) for key, value in self.flat.items()},
             "judge_engine": self.judge_engine,
+            "execution": self.execution,
             "regression": {
                 "baseline_path": self.baseline_path,
                 "passed": self.passed,
@@ -108,6 +110,7 @@ async def evaluate(
     rows: List[Dict[str, Any]] = []
     raw_outcomes: List[Dict[str, Any]] = []
     engines: set[str] = set()
+    judge_model_samples = 0
 
     for sample in golden.samples:
         base_payload = sample.to_review_context()
@@ -160,6 +163,7 @@ async def evaluate(
             prefer_llm=prefer_llm_judge,
         )
         engines.add(judged.engine)
+        judge_model_samples += judged.engine.startswith("llm-judge:")
         rows.append(score_sample(SampleOutcome(sample=sample, outcome=outcome, judge_scores=judged.as_dict())))
 
     metrics = aggregate(rows)
@@ -175,6 +179,38 @@ async def evaluate(
         missing = missing_metrics(flat, baseline_flat)
         baseline_used = str(baseline_path)
 
+    model_decisions = sum(
+        (outcome.get("engine") or {}).get("decision") == "llm"
+        and not outcome.get("degraded", True)
+        for outcome in raw_outcomes
+    )
+    expected_adjudications = sum(bool(o.get("llm_invoked")) for o in raw_outcomes)
+    successful_adjudications = sum(
+        bool(o.get("llm_invoked")) and not o.get("llm_fallback_reason")
+        for o in raw_outcomes
+    )
+    live_requested = llm is not None
+    # Configuration and rubric scores are not evidence of a successful call.
+    execution = {
+        "mode": "live" if live_requested else "offline",
+        "model_client": getattr(llm, "name", "none"),
+        "judge_model_samples": judge_model_samples,
+        "judge_fallback_samples": len(raw_outcomes) - judge_model_samples if prefer_llm_judge else 0,
+        "configured_model_available": bool(llm and llm.available),
+        "model_decision_samples": model_decisions,
+        "fallback_samples": sum(bool(o.get("degraded", True)) for o in raw_outcomes),
+        "adjudication_attempts": expected_adjudications,
+        "adjudication_successes": successful_adjudications,
+        "real_model_verified": bool(live_requested and model_decisions),
+        "live_validation_passed": bool(
+            live_requested and model_decisions == len(raw_outcomes) and raw_outcomes
+            and successful_adjudications == expected_adjudications
+            and (not prefer_llm_judge or judge_model_samples == len(raw_outcomes))
+        ),
+        "model_quality_qualified": None,
+        "scope": "offline_regression_and_fallback" if not live_requested else "live_service_evaluation",
+        "quality_note": "回归通过不代表模型质量达标；rubric 与作者占位自评不能代替独立人工验收。",
+    }
     return EvaluationReport(
         golden=golden.summary(),
         metrics=metrics,
@@ -185,6 +221,7 @@ async def evaluate(
         missing=missing,
         unregistered=unregistered_metrics(flat),
         baseline_path=baseline_used,
+        execution=execution,
     )
 
 

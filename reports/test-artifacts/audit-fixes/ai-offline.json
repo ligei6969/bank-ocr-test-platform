@@ -1,0 +1,134 @@
+{
+  "golden": {
+    "size": 40,
+    "labels_path": "data\\annotations\\labels.json",
+    "balance": {
+      "bank_card/blur": 4,
+      "bank_card/bright": 4,
+      "bank_card/dark": 4,
+      "bank_card/glare": 4,
+      "bank_card/normal": 4,
+      "id_card/blur": 4,
+      "id_card/bright": 4,
+      "id_card/dark": 4,
+      "id_card/glare": 4,
+      "id_card/normal": 4
+    },
+    "verdict_layer_available": true,
+    "notes": [
+      "labels.json 只标字段真值与注入的退化类型，不含审核结论。",
+      "任务层使用「原因码集合匹配率」作为代理指标，报告中标为 proxy。期望原因码来自**注入的退化类型标签**，而平台的结论来自**实测指标**；两者在阈值边界上会不一致（标为 bright 但实测亮度未过阈值，平台就不会给出 image_bright）——这类样本是边界样本，不是缺陷。",
+      "doc_type 已归一：id_card_front / id_card_back → id_card；application_form 不在审核链路上，已排除。",
+      "未映射的退化类型（occlusion, rotate）未纳入 golden 集。",
+      "决策层已启用：40 条样本带人工结论标注（jb（开发），2026-09-26）。"
+    ]
+  },
+  "metrics": {
+    "count": 40,
+    "tools": {
+      "sequence_accuracy": 0.9,
+      "sequence_subsequence_accuracy": 1.0,
+      "tool_set_accuracy": 0.9,
+      "parameter_accuracy": 1.0,
+      "avg_steps": 2.9
+    },
+    "task": {
+      "reason_code_match_rate": 0.925,
+      "evidence_rate": 1.0,
+      "action_rate": 1.0,
+      "escalation_accuracy": 1.0,
+      "degraded_rate": 1.0,
+      "truncated_rate": 0.0,
+      "verdict_accuracy": 0.725,
+      "llm_override_rate": 0.0,
+      "llm_failure_rate": 1.0
+    },
+    "explain": {
+      "relevance": 5.0,
+      "accuracy": 5.0,
+      "completeness": 5.0,
+      "usefulness": 4.8
+    },
+    "cost": {
+      "avg_tokens": 0.0,
+      "avg_provider_tokens": 0.0,
+      "provider_usage_rate": 0.0
+    }
+  },
+  "flat": {
+    "tools.sequence_accuracy": 0.9,
+    "tools.sequence_subsequence_accuracy": 1.0,
+    "tools.tool_set_accuracy": 0.9,
+    "tools.parameter_accuracy": 1.0,
+    "tools.avg_steps": 2.9,
+    "task.reason_code_match_rate": 0.925,
+    "task.evidence_rate": 1.0,
+    "task.action_rate": 1.0,
+    "task.escalation_accuracy": 1.0,
+    "task.degraded_rate": 1.0,
+    "task.truncated_rate": 0.0,
+    "task.verdict_accuracy": 0.725,
+    "task.llm_override_rate": 0.0,
+    "task.llm_failure_rate": 1.0,
+    "explain.relevance": 5.0,
+    "explain.accuracy": 5.0,
+    "explain.completeness": 5.0,
+    "explain.usefulness": 4.8,
+    "cost.avg_tokens": 0.0,
+    "cost.avg_provider_tokens": 0.0,
+    "cost.provider_usage_rate": 0.0
+  },
+  "judge_engine": "deterministic-rubric",
+  "execution": {
+    "mode": "offline",
+    "model_client": "none",
+    "judge_model_samples": 0,
+    "judge_fallback_samples": 0,
+    "configured_model_available": false,
+    "model_decision_samples": 0,
+    "fallback_samples": 40,
+    "adjudication_attempts": 4,
+    "adjudication_successes": 0,
+    "real_model_verified": false,
+    "live_validation_passed": false,
+    "model_quality_qualified": null,
+    "scope": "offline_regression_and_fallback",
+    "quality_note": "回归通过不代表模型质量达标；rubric 与作者占位自评不能代替独立人工验收。"
+  },
+  "regression": {
+    "baseline_path": "ai_service\\eval\\baseline.json",
+    "passed": true,
+    "alerts": [],
+    "missing_metrics": [],
+    "unregistered_metrics": []
+  },
+  "calibration": {
+    "samples": 10,
+    "exact_match_rate": 0.45,
+    "within_one_rate": 0.675,
+    "mean_absolute_error": 0.875,
+    "per_dimension": {
+      "relevance": {
+        "mean_absolute_error": 0.9,
+        "within_one_rate": 0.8
+      },
+      "accuracy": {
+        "mean_absolute_error": 0.5,
+        "within_one_rate": 0.8
+      },
+      "completeness": {
+        "mean_absolute_error": 0.6,
+        "within_one_rate": 0.7
+      },
+      "usefulness": {
+        "mean_absolute_error": 1.5,
+        "within_one_rate": 0.4
+      }
+    },
+    "engine": "deterministic-rubric",
+    "notes": [
+      "标注来源：项目作者自评，属**占位标注**，需替换为真实审核员标注后才具备统计意义。",
+      "样本数 10，样本量偏小，一致率只作趋势参考。"
+    ]
+  }
+}

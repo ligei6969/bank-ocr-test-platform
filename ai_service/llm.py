@@ -41,6 +41,7 @@ import json
 import logging
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Optional, Protocol
@@ -257,6 +258,13 @@ class HttpLLMClient:
                 messages.append({"role": "system", "content": system})
             messages.append({"role": "user", "content": prompt})
             payload = {"model": self.model, "messages": messages}
+            # DeepSeek defaults to thinking, which can consume our small output
+            # budgets before producing content. These tasks need final text only.
+            if (
+                urllib.parse.urlparse(self.base_url).hostname == "api.deepseek.com"
+                and (self.model == "deepseek-flash" or self.model.startswith("deepseek-v4"))
+            ):
+                payload["thinking"] = {"type": "disabled"}
 
         return urllib.request.Request(
             url,
@@ -278,7 +286,7 @@ class HttpLLMClient:
         if not choices or not isinstance(choices[0], dict):
             return ""
         message = choices[0].get("message") or {}
-        return str(message.get("content", ""))
+        return str(message.get("content") or "")
 
     @staticmethod
     def _extract_usage(provider: str, body: dict[str, Any]) -> LLMUsage | None:

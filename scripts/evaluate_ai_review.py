@@ -113,8 +113,8 @@ METRIC_LABELS = {
 
 #: 成本层在离线跑时恒为 0（不调模型），需要一句解释，否则读者会以为指标坏了
 COST_LAYER_NOTE = (
-    "成本层离线恒为 0：CI 与默认路径不调用模型。"
-    "接入真实模型后用 --live 重跑，这一层才会有数字。"
+    "此处统计审核 Agent 的 token；离线为 0。"
+    "平台双判可能另外请求 AI 服务，其用量不在此统计，0 不能证明所有链路都未调用模型。"
 )
 
 
@@ -210,7 +210,7 @@ def print_regression(report: EvaluationReport) -> None:
     if report.baseline_path is None:
         print("   未启用基线比对")
     elif report.passed:
-        print(f"   通过（基线 {report.baseline_path}）")
+        print(f"   指标基线回归通过（基线 {report.baseline_path}）；不代表真实 AI 可用")
     else:
         print(f"   发现 {len(report.alerts)} 项退化（基线 {report.baseline_path}）：")
         for alert in report.alerts:
@@ -222,6 +222,15 @@ def print_regression(report: EvaluationReport) -> None:
             f"   ⚠ 未登记方向的指标（不参与门禁，属静默漏检）："
             f"{', '.join(report.unregistered)}"
         )
+    print()
+    print("── 真实 AI 验证（独立于回归门禁）──")
+    execution = report.execution
+    print(f"   执行模式：{execution.get('mode', 'unknown')}")
+    print(f"   模型决策样本：{execution.get('model_decision_samples', 0)}；"
+          f"降级样本：{execution.get('fallback_samples', 0)}")
+    print(f"   真实模型响应证据：{'有' if execution.get('real_model_verified') else '未验证'}")
+    print(f"   真实服务全程验证：{'通过' if execution.get('live_validation_passed') else '未通过/未执行'}")
+    print("   模型质量：未作独立人工验收；确定性 rubric 高分不代表模型高分。")
     print()
 
 
@@ -317,6 +326,18 @@ def write_allure(report: EvaluationReport, directory: Path) -> int:
         },
     )
 
+    live_id = uuid.uuid4().hex
+    children.append(live_id)
+    live_requested = report.execution.get("mode") == "live"
+    write(f"{live_id}-result.json", {
+        "uuid": live_id,
+        "name": "真实 AI 服务验证（独立于 baseline）",
+        "fullName": "ai-review.live-validation",
+        "status": ("passed" if report.execution.get("live_validation_passed") else "failed") if live_requested else "skipped",
+        "stage": "finished", "start": 0, "stop": 0,
+        "statusDetails": {"message": json.dumps(report.execution, ensure_ascii=False)},
+    })
+
     write(
         f"{parent}-container.json",
         {
@@ -402,7 +423,8 @@ def main(argv: List[str] | None = None) -> int:
 
     llm = build_llm_client() if args.live else None
     if args.live and llm is not None and not llm.available:
-        print("[--live] 没有可用的模型，已退回离线评测。", file=sys.stderr)
+        print("[--live] 模型未配置，真实 AI 验证失败；请配置模型或显式去掉 --live。", file=sys.stderr)
+        return 2
 
     verdict_fn = _platform_verdict_fn(
         getattr(args, "ocr_snapshot", None),
@@ -452,7 +474,7 @@ def main(argv: List[str] | None = None) -> int:
         print(f"Allure 结果：{args.allure_dir}（{count} 个用例）")
         print("  allure serve reports/allure-results 查看")
 
-    return 0 if report.passed else 1
+    return 0 if report.passed and (not args.live or report.execution.get("live_validation_passed")) else 1
 
 
 if __name__ == "__main__":

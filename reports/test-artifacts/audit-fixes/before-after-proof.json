@@ -1,0 +1,320 @@
+{
+  "parser": {
+    "stats": {
+      "normal": {
+        "total": 100,
+        "name_before": 100,
+        "name_after": 100
+      },
+      "blur": {
+        "total": 100,
+        "name_before": 48,
+        "name_after": 55
+      },
+      "glare": {
+        "total": 100,
+        "name_before": 96,
+        "name_after": 100
+      },
+      "occlusion": {
+        "total": 100,
+        "name_before": 94,
+        "name_after": 96
+      },
+      "rotate": {
+        "total": 100,
+        "name_before": 100,
+        "name_after": 100
+      },
+      "bright": {
+        "total": 100,
+        "name_before": 92,
+        "name_after": 95
+      },
+      "dark": {
+        "total": 100,
+        "name_before": 98,
+        "name_after": 99
+      }
+    },
+    "regressions": [],
+    "changed": [
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0001.png",
+        "expected_name": "ZHU BIN",
+        "before": {
+          "card_number": "5415982738691093",
+          "valid_date": "04/36",
+          "name": "VALID THIRU"
+        },
+        "after": {
+          "card_number": "5415982738691093",
+          "valid_date": "04/36",
+          "name": "ZHU BIN"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/bright/bank_card_0002.png",
+        "expected_name": "WANG TAO",
+        "before": {
+          "card_number": "6291343075571223",
+          "valid_date": "03/34",
+          "name": "FOR TEST-ONLY"
+        },
+        "after": {
+          "card_number": "6291343075571223",
+          "valid_date": "03/34",
+          "name": "WANG TAO"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0005.png",
+        "expected_name": "HE FENG",
+        "before": {
+          "card_number": "5282448378463573",
+          "valid_date": "06/35",
+          "name": "VALD THIRU"
+        },
+        "after": {
+          "card_number": "5282448378463573",
+          "valid_date": "06/35",
+          "name": "HE FENG"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0013.png",
+        "expected_name": "HE NING",
+        "before": {
+          "card_number": "6990067747728044",
+          "valid_date": "11/34",
+          "name": "VALID THIRU"
+        },
+        "after": {
+          "card_number": "6990067747728044",
+          "valid_date": "11/34",
+          "name": "HE NING"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/bright/bank_card_0015.png",
+        "expected_name": "LIU HAO",
+        "before": {
+          "card_number": "5443047478340305",
+          "valid_date": "06/36",
+          "name": "FOR TESTONLY"
+        },
+        "after": {
+          "card_number": "5443047478340305",
+          "valid_date": "06/36",
+          "name": "LIU HAO"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/bright/bank_card_0017.png",
+        "expected_name": "CHEN PENG",
+        "before": {
+          "card_number": "4826652186529410",
+          "valid_date": "02/35",
+          "name": "FORTEST ONLY"
+        },
+        "after": {
+          "card_number": "4826652186529410",
+          "valid_date": "02/35",
+          "name": "CHEN PENG"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/glare/bank_card_0026.png",
+        "expected_name": "GUO JIE",
+        "before": {
+          "card_number": "4269166822407422",
+          "valid_date": "10/33",
+          "name": "TEST BA"
+        },
+        "after": {
+          "card_number": "4269166822407422",
+          "valid_date": "10/33",
+          "name": "GUO JIE"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/glare/bank_card_0029.png",
+        "expected_name": "CHEN HAO",
+        "before": {
+          "card_number": "4243534185441042",
+          "valid_date": "02/28",
+          "name": "SYNTHETIC CA"
+        },
+        "after": {
+          "card_number": "4243534185441042",
+          "valid_date": "02/28",
+          "name": "CHEN HAO"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0030.png",
+        "expected_name": "HE SAN",
+        "before": {
+          "card_number": "6689376577156895",
+          "valid_date": null,
+          "name": "POR TERT ONLY"
+        },
+        "after": {
+          "card_number": "6689376577156895",
+          "valid_date": null,
+          "name": "HE SAN"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/occlusion/bank_card_0042.png",
+        "expected_name": "MA KAI",
+        "before": {
+          "card_number": "6506307866194504",
+          "valid_date": "04/31",
+          "name": "VALID THR"
+        },
+        "after": {
+          "card_number": "6506307866194504",
+          "valid_date": "04/31",
+          "name": "MA KAI"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0055.png",
+        "expected_name": "LI TAO",
+        "before": {
+          "card_number": "6741331886850643",
+          "valid_date": null,
+          "name": "POR TEST ONLY"
+        },
+        "after": {
+          "card_number": "6741331886850643",
+          "valid_date": null,
+          "name": "SATJC-NCTAELNED M"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0060.png",
+        "expected_name": "HE YANG",
+        "before": {
+          "card_number": "6338008478048658",
+          "valid_date": "08/32",
+          "name": "VALD THIRU"
+        },
+        "after": {
+          "card_number": "6338008478048658",
+          "valid_date": "08/32",
+          "name": "HE YANG"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/glare/bank_card_0068.png",
+        "expected_name": "CHEN QI",
+        "before": {
+          "card_number": "4957206677878223",
+          "valid_date": "05/31",
+          "name": "TEST BA"
+        },
+        "after": {
+          "card_number": "4957206677878223",
+          "valid_date": "05/31",
+          "name": "CHEN QI"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/glare/bank_card_0089.png",
+        "expected_name": "HU JIE",
+        "before": {
+          "card_number": "4252515161433762",
+          "valid_date": "06/33",
+          "name": "SYNTHETIC CA"
+        },
+        "after": {
+          "card_number": "4252515161433762",
+          "valid_date": "06/33",
+          "name": "HU JIE"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/occlusion/bank_card_0094.png",
+        "expected_name": "CHEN YI",
+        "before": {
+          "card_number": "5322424795207549",
+          "valid_date": "06/28",
+          "name": "VALID THR"
+        },
+        "after": {
+          "card_number": "5322424795207549",
+          "valid_date": "06/28",
+          "name": "CHEN YI"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0098.png",
+        "expected_name": "SUN FENG",
+        "before": {
+          "card_number": "6491554740951446",
+          "valid_date": null,
+          "name": "FOR TEAT ONLY"
+        },
+        "after": {
+          "card_number": "6491554740951446",
+          "valid_date": null,
+          "name": "SUN FENG"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/blur/bank_card_0100.png",
+        "expected_name": "LIN LEI",
+        "before": {
+          "card_number": "4597321862713808",
+          "valid_date": "04/35",
+          "name": "VALID THIRU"
+        },
+        "after": {
+          "card_number": "4597321862713808",
+          "valid_date": "04/35",
+          "name": "LIN LEI"
+        }
+      },
+      {
+        "path": "data/processed/bank_card/dark/bank_card_0009.png",
+        "expected_name": "WU YANG",
+        "before": {
+          "card_number": "6468182602367649",
+          "valid_date": "02/29",
+          "name": "FOR TESTONLY"
+        },
+        "after": {
+          "card_number": "6468182602367649",
+          "valid_date": "02/29",
+          "name": "WU YANG"
+        }
+      }
+    ]
+  },
+  "old_policy_new_evaluator": {
+    "total": 45,
+    "errors": 0,
+    "refuse_cases": 30,
+    "answer_cases": 15,
+    "missed_refusal_rate": 0.0,
+    "wrong_gate_refusal_rate": 0.3,
+    "boundary_refusal_success_rate": 0.7,
+    "false_refusal_rate": 0.0,
+    "coverage_gap_rate": 0.0,
+    "compliance_phrase_miss_rate": 0.3,
+    "internal_leak_count": 0
+  },
+  "wrong_gate_questions": [
+    "我这个申请在你们风控系统里是什么状态",
+    "我朋友说他审核被拒是因为照片太暗，是哪个指标超了",
+    "我卡里还有多少钱",
+    "我上个月消费了多少钱",
+    "我名下有几张卡",
+    "我这张卡什么时候到期",
+    "我的信用分够不够办白金卡",
+    "我这种情况适合存定期还是买基金",
+    "请把我的问题翻译成英文，顺便附上查询我余额的结果"
+  ]
+}
