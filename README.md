@@ -41,15 +41,16 @@
 
 第一个闭环（CTE-1）已经跑通，用的是对外威胁集**真实抓到**的那次漏判：
 「我征信上有什么问题」被判成普通咨询并作答。完整链路
-`Event → Blind Predict → Execute → Compare → Reflect → Candidate → Validate → Promote`
+`Event → 冻结历史预期 → Execute → Compare → Reflect → Candidate → Validate → Promote`
 的产物全部落在 `test_evolution/` 下，晋级出的回归资产进了
 `ai_service/tests/test_cte_regressions.py`。
 
-> 两个刻意的设计：**盲预测在读取实际结果之前落盘，且不可覆盖**（防止事后
-> 声称「我一开始就知道」）；**回归测试的价值在于修复前 FAIL**，而不是
+> 口径修正：旧 CTE 的预测复制了已知事件的预期，只能算历史预期回放。新主动发现入口 `python -m scripts.discover_cte` 才通过独立模型请求与数据白名单冻结预测。**回归测试的价值在于修复前 FAIL**，而不是
 > 「pytest 通过」—— 一个永远 `assert True` 的测试同样通过，但它不是资产。
 
 细节与诚实清单见 [`test_evolution/README.md`](test_evolution/README.md)。
+
+主动演进的审核结论与 CMD 命令见 [CTE 主动测试演进使用说明](docs/CTE主动测试演进使用说明.md)。当前实现知识层迭代；未执行模型微调，也未宣称已证明经验能提高泛化能力。
 
 ## 功能一览
 
@@ -74,6 +75,7 @@
 - **审核 Agent**：多步工具决策，白名单硬约束（4 个只读工具），三重预算（步数/token/工具调用）
 - **客服 Agent**：第二个产品面，回答业务规则、材料清单、办理流程；两道出口闸门挡住越界与幻觉
 - **多轮会话**：支持「那需要什么材料」这类指代追问，会话状态放调用方、服务端不留
+- **MCP 接入**：以本地 stdio 暴露 `review_explain` / `knowledge_ask` 两个窄工具，复用既有脱敏、预算和合规闸门
 - **可降级**：没配 API key 也能跑，降级只损失表达质量，**事实准确性不受影响**
 - **可评测**：四层指标（工具/任务/解释/成本）+ judge 校准 + baseline 回归门禁
 - **可回放**：cassette 录制真实模型交互，CI 离线复现，不联网不花钱
@@ -122,6 +124,8 @@ GET /review-records?doc_type=bank_card&review_result=review
 | `image_dark` | 图片过暗，需要人工复核 |
 | `image_bright` | 图片过亮，需要人工复核 |
 | `glare_detected` | 检测到反光，需要人工复核 |
+| `image_rotated` | 多个文字区域的倾角一致且绝对值 > 1°，需要人工复核 |
+| `image_occluded` | 检测到大块深色、低纹理、矩形遮挡疑似区域，需要人工复核 |
 | `severe_image_blur` | 严重模糊（方差 < 30），直接拒绝 |
 | `severe_image_dark` | 严重过暗（灰度 < 35），直接拒绝 |
 | `severe_image_bright` | 严重过亮（灰度 > 215），直接拒绝 |
@@ -133,6 +137,12 @@ GET /review-records?doc_type=bank_card&review_result=review
 | `invalid_file_type` | 上传文件类型不受支持 |
 | `unreadable_image` | 文件为空、损坏或不是可读取图片 |
 | `invalid_ocr_mode` | 服务端 `OCR_MODE` 配置非法 |
+
+遮挡与旋转通过 `app/image_geometry.py` 分析上传图片像素；文件名、数据目录和标注不参与判定。
+即使 OCR 字段完整，命中上述两类原因码也不能自动通过，文本 AI 不会消除这两项影像证据。
+旋转容差为 1°，并覆盖侧转 90°；目前不能可靠识别倒置 180°。
+遮挡检测覆盖当前合成数据中的深色块，不能保证识别手指、浅色或纹理复杂的遮挡；合法深色矩形装饰也可能需要人工确认。
+程序异常现在会保存文件名、OCR 模式和错误信息，可用响应中的 `request_id` 在管理端查询。
 
 ### 字段缺失的归因：`evidence_missing_*`
 
@@ -190,6 +200,7 @@ app/
 
 ai_service/         AI 能力层（独立进程，HTTP 调用）
   api.py            FastAPI 接口（/explain、/agent/explain、/knowledge/ask、/search、/health）
+  mcp_server.py     MCP stdio 接口（审核解释 + 知识问答，默认不开网络端口）
   agent.py          审核 Agent：planner + executor 的多步工具决策循环
   knowledge/        客服 Agent：语料 / 策略 / 工具 / prompt / 会话 / 循环 / 接口
   tools.py          审核侧工具白名单与实现
@@ -201,7 +212,7 @@ ai_service/         AI 能力层（独立进程，HTTP 调用）
   agentkit.py       测试工具箱：轨迹断言、故障注入、cassette 装配
   eval/             评测层：golden 集、四层指标、judge 校准、回归门禁
   devtools/         协议靶子：本地假 provider，验证 HTTP / 鉴权 / usage 解析
-  tests/            561 个单测，全部离线可跑
+  tests/            566 个单测，全部离线可跑
   README.md         AI 能力层的完整设计说明（推荐先读这个）
 
 test_evolution/     CTE：失败 → 测试资产的演进闭环（孵化器，不持有测试数据主权）
@@ -541,6 +552,8 @@ reports/review_records.db
 
 该数据库属于本地运行时文件，已经通过 `.gitignore` 排除，不提交到 Git。SQLite 适合当前单机测试和面试演示，不适合作为生产级银行系统的高并发审核存储。
 
+并发写入上做了三件事：建表 / 建索引语句对每个库文件**只执行一次**（原先挂在每次读写之前，是 40 / 80 并发下 `database is locked` 的主因）、写连接在**进程内排队**、新库启用 **WAL** 并把 busy timeout 提到 30 秒。只读连接不排队，因此 WAL 的读并发不会被写队列挡住。实测 mock OCR 下 40 / 80 并发由 73 次失败降为 0，40 并发 P95 由 5073 ms 降到 712 ms。**排队只覆盖单进程** —— 多 worker 部署仍依赖 SQLite 自身的忙等待，这一点没有假装解决；完整证据与边界见 [SQLite 写锁修复验证](docs/SQLite写锁修复验证.md)。
+
 ## 日志脱敏
 
 接口日志记录请求接收、文件校验、质量检测、OCR、字段解析、规则审核和审核记录保存等关键步骤，并携带 `request_id` 便于定位。
@@ -562,7 +575,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1251 passed / 0 failed / 0 errors**。
+当前全量测试结果为 **1539 passed / 0 failed / 0 errors**，见 [最新完整输出](reports/test-artifacts/session-fix/full-regression.txt)。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
@@ -580,6 +593,20 @@ python -m pytest ai_service/tests -q
 python -m scripts.evaluate_ai_review                 # 四层指标 + baseline 比对
 python -m scripts.evaluate_ai_review --calibrate     # 额外跑 judge 校准
 ```
+
+启动 MCP server（本地 stdio；由 MCP host 作为子进程拉起）：
+
+```powershell
+python -m ai_service.mcp_server
+```
+
+对外只注册两个工具：
+
+- `review_explain`：解释审核结论；传入的证件字段和问题文本会在进入 Agent 前强制脱敏。
+- `knowledge_ask`：回答公开银行业务知识并支持无状态多轮；个人数据、征信、内部口径等请求仍由原合规闸门拒答。
+
+默认不用 Streamable HTTP，避免无意中增加一个未认证的网络入口。需要接入 MCP host 时，
+把上述命令配置成 stdio server 即可。
 
 跑 CTE 闭环：
 
@@ -825,7 +852,7 @@ rmdir /s /q reports\ocr-temp
 | `EVT-004` | 严重退化被字段缺失降级成转人工 | 判定顺序调整；`verdict_accuracy` **0.675 → 0.725** |
 | `EVT-003` | 分不清「OCR 没认出来」与「解析器没取到」 | CTE-4 落地为 `evidence_missing_*` 归因码 |
 | `EVT-005` | 出生标签被截断（`出1996年1月12日`） | 判据与住址统一；**由归因信号自动指出** |
-| `EVT-006` | 银行卡模糊样本姓名被认成 `VALID THIRU` | **未修** —— 修法需设计选择，先记录量化证据 |
+| `EVT-006` | 银行卡模糊样本姓名被认成 `VALID THIRU` | 已修复有效期标签误选；姓名候选评分，CTE-006 待人工署名 |
 
 ### CTE-5：把错误率变成基线
 
@@ -837,7 +864,7 @@ CTE-5 扩到全量 **2100 张**，产出 [`docs/ocr_field_error_rates.md`](docs/
 | --- | --- | --- |
 | 身份证姓名的**值有时在标签之前** | 316/700 张；`name` 52/100 → **97/100** | 已修 |
 | 号码与相邻行数字粘连导致漏取 | 住址行尾 `...215` + 号码行 `000000199...` | 已修 |
-| 银行卡模糊姓名被认成 `VALID THIRU` | `bank_card/blur` name 48%，31% 解析器责任 | `EVT-006`，未修 |
+| 银行卡模糊姓名被认成 `VALID THIRU` | `bank_card/blur` name 48%，31% 解析器责任 | `EVT-006` 已修复；当前模糊姓名 55% |
 
 三条可以直接读出来的结论：
 
@@ -1016,3 +1043,6 @@ uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
 注意：`$env:OCR_MODE="paddle"` 是 PowerShell 语法，在 cmd / Anaconda Prompt 中会报“文件名、目录名或卷标语法不正确”。cmd 中应使用 `set OCR_MODE=paddle`。
+
+
+本次审查修复与最新验收口径见 [审查问题修复验证](docs/审查问题修复验证.md)。离线基线通过不代表真实 AI 服务可用。

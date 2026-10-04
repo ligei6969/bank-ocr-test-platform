@@ -5,6 +5,14 @@
 
 **CTE 是测试资产的孵化器，不是第二套测试系统。**
 
+## 主动测试演进（2026-09-29）
+
+新增 `python -m scripts.discover_cte`：verified 经验检索 → 独立 LLM 调用生成 JSON 测试 → 冻结预测 → 注册执行器 → 独立 Oracle → 人工审核 → 结构化经验修订 → 回归导出。
+
+先读 [方案审核](../docs/CTE主动测试演进审核.md) 和 [CMD 使用与验收](../docs/CTE主动测试演进使用说明.md)。当前支持银行卡号、有效期及身份证文本解析，O1–O6 来源分级、反例/经验版本、无记忆与 RAG 对照。模型微调留待 P6。
+
+**历史口径修正：** 下文 CTE-1 等记录来自已知缺陷回放，旧 `blind_predict()` 复制事件预期，不能证明 AI 盲预测。旧文件作为历史审计保留，不纳入主动发现指标。新入口未配置模型会报错；`--demo` 明确使用脚本替身，仅验证工程链路。
+
 ---
 
 ## 一、它解决什么问题
@@ -15,7 +23,7 @@
 不是「让 AI 自己改代码」。CTE 的闭环是：
 
 ```
-真实失败 → Observe → Blind Predict → Execute → Compare → Reflect
+真实失败 → Observe → 冻结历史预期 → Execute → Compare → Reflect
         → Candidate → Validate → Human Promotion → Validated Knowledge
                                                           ↓
                                               后续任务重新检索和使用
@@ -51,7 +59,7 @@
 | `knowledge` | ✅ ready | 纯规则判定，人工可复核，不碰 OCR |
 | `threat` | ✅ ready | 45 条假想敌用例 + 明确 pass/fail，且已抓到真实漏判 |
 | `agent` | 🟡 partial | 有白名单与轨迹断言；但「工具序列完全匹配」已被证明不是有效信号 |
-| `ocr` | 🟡 partial | CTE-5 已给出全量 2100 张的字段错误率基线；仍非 ready，因为三个已知缺陷未修（见 `EVT-006`） |
+| `ocr` | 🟡 partial | 2100 张合成图错误率基线已建立，EVT-006 标签误选已修；真实图像泛化与残余 OCR 错误未充分验证 |
 | `adjudication` | 🟡 partial | 快照已能逐桶给出「图像还能不能读」的分布；改判正确性仍待标定 |
 
 `blocked` 不是「不能测」—— 安全不变式照跑 —— 而是**不能据此得出
@@ -129,7 +137,7 @@ python -m scripts.run_cte --replay "我征信上有什么问题"
 
 ```
 系统版本   policy@pre-bb7947e
-盲预测     pii（必须拒答 + 引导）  (命中：否)
+历史预期   pii（必须拒答 + 引导）  (与旧行为不符；非盲预测)
 实际       knowledge   期望 pii
 分类       new_failure_pattern
 复盘       test_evolution/retros/EVT-001.md
@@ -143,9 +151,7 @@ Candidate  CTE-001  [NEW_TEST]  validated
 
 ### 三个设计要点
 
-**（1）盲预测落盘在执行之前。** 这不是靠约定，是靠函数体里的调用次序 ——
-想颠倒就得改代码，改动会在 diff 里露出来。预测文件写盘后
-`write_prediction` 会抛 `FileExistsError`，改不了。
+**（1）历史预期落盘在回放之前。** 旧实现保证调用顺序和记录不可覆盖，但事件已经含有历史实际结果，而且预期是直接复制的；这些约束不足以证明盲度。真正的主动预测使用新增 discovery 入口的输入白名单和独立模型调用。
 
 **（2）历史重演是显式声明的。** 这个缺陷**已经修好了**，所以「复现旧行为」
 必须说清测的是哪个版本。`replay.py` 用固定化的规则快照回放，
@@ -282,11 +288,11 @@ def test_missing_fields_still_outrank_severity() -> None:
 
 ```
 reasons = ["missing_card_number", "evidence_missing_card_number"]
-                    ↑ 解析失败           ↑ 文本里也没有证据
-                    （要动解析代码）       （要动图像侧）
+                    ↑ 字段缺失           ↑ 文本里没有字段证据
+                                         （OCR/图像侧限制）
 
 reasons = ["missing_card_number"]
-                    ↑ OCR 没认出来（文本里有证据）
+                    ↑ 字段缺失；若文本里有有效证据，归因为解析器没取到
 ```
 
 判据在 [`app/ocr_evidence.py`](../app/ocr_evidence.py)：按字段给一个
@@ -332,10 +338,10 @@ CTE-2 的快照只覆盖每桶 5 张 —— 一张图就是 20 个百分点，
 | --- | --- | --- |
 | 1 | 身份证姓名的**值有时在标签之前** | 316/700 张；`name` 52/100 → **97/100** |
 | 2 | 号码与相邻行的数字粘连导致漏取 | 住址行结尾 `...215` + 号码行 `000000199...` |
-| 3 | 银行卡模糊的姓名被认成 `VALID THIRU` | `bank_card/blur` name 48%，31% 解析器责任（**未修**） |
+| 3 | 银行卡模糊的姓名被认成 `VALID THIRU` | `bank_card/blur` name 48%，31% 解析器责任（历史 48%；修复后 55%） |
 
 第 1、2 条已修（`EVT-005` 同类），第 3 条登记为 `EVT-006` ——
-它的修法有多个方向、各有取舍，按 CTE 边界先记录不擅自动手。
+原先因设计选择仅记录；2026-09-28 用户授权模糊标签、日期上下文和候选评分后已修复，CTE-006 机器验证通过，待人工署名。
 
 ### 产出：字段错误率基线
 
@@ -401,3 +407,6 @@ CTE-2 的快照只覆盖每桶 5 张 —— 一张图就是 20 个百分点，
 
 先积累到 20+ / 50+ Candidate，再讨论 Acceptance Rate、Regression Catch Rate、
 Mutation Delta、False Promotion Rate。
+
+
+2026-09-28：新增 EVT-007（客服错闸门评测假绿），旧规则错闸门率 30%，当前为 0。CTE-003/006/007 均为 machine_validated、待人工署名；validated 仍为 4 条。详见 [修复验证](../docs/审查问题修复验证.md)。

@@ -665,6 +665,27 @@ python -m ai_service --ask "那需要什么材料" --history session.json   # �
 
 ---
 
+## P4b：MCP 接入
+
+`ai_service/mcp_server.py` 以官方 MCP Python SDK v2 暴露两个 stdio 工具：
+
+```bash
+python -m ai_service.mcp_server
+```
+
+| 工具 | 能力 | 复用的安全边界 |
+| --- | --- | --- |
+| `review_explain` | 审核记录解释与处置建议 | 字段强制脱敏、审核工具白名单、三重预算、转人工硬规则 |
+| `knowledge_ask` | 公开业务问答与无状态多轮 | 越界闸门、接地闸门、历史脱敏、输出字段白名单 |
+
+默认只走 stdio，不额外开放网络端口。MCP 是新的接入协议，不是第三套 Agent；
+两个工具直接调用已有实现，因此 HTTP、CLI 与 MCP 不会各自演化出不同业务规则。
+
+协议级离线测试使用 SDK 自带客户端完成工具发现与调用，并断言原始卡号/姓名不会进入
+返回体、客服拒答仍生效、内部 `trace` / `rejected_answer` 不会出现在公开工具结果中。
+
+---
+
 ## Agent 测试体系
 
 这是 P1 真正的交付重点：**怎么测量一个不确定、会调工具、会多步决策的系统。**
@@ -824,3 +845,14 @@ Judge 本身也会飘（系统性偏高、长度偏好），所以不能盲信�
 > 客服 surface（P2.1）的边界见 `docs/Knowledge_Agent开发报告.md` 第八节，
 > 最需要记住的两条：**语料是示例不是行内制度**（替换 `knowledge/corpus.py` 即可）；
 > **越界判定是规则表不是分类器**（可解释、可复现，代价是新句式要补关键词）。
+
+
+## 2026-09-28 评测判据修正
+
+`evaluate_ai_review` 的 JSON 新增 `execution`，分别记录执行模式、模型决策/降级样本、Judge 模型与降级样本、双判尝试与成功数。`regression.passed` 只表示相对基线未退化；`execution.live_validation_passed` 才是本轮真实调用完整性。模型质量仍需独立人工验收，不能用 rubric 分数或 10 条作者占位自评替代。
+
+两个评测入口的 `--live` 无模型配置时退出 2；调用失败导致降级时退出 1，即使基线或安全兜底通过。Allure 单独展示真实 AI 服务验证：离线为 skipped，不会混为绿色 baseline。
+
+客服应拒题必须 `stop_reason=refused` 并命中合规话术；`ungrounded` 为“安全兜底通过，但边界识别失败”，记 WRONG_GATE。新增 `wrong_gate_refusal_rate`（分母为应拒题），类别期望驱动话术检查，防止自报 knowledge 跳过检查。45 题保持不变：修复前 9/30 错闸门，当前 0/30；30 条拒答 + 15 条正常作答均符合严格判据。
+
+见 [本次验收证据](../docs/审查问题修复验证.md)。历史 DeepSeek 实测仅说明当时结果，不证明当前进程的模型配置与服务可达。
