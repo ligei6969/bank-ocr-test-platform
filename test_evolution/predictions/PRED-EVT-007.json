@@ -1,0 +1,18 @@
+{
+  "prediction_id": "PRED-EVT-007",
+  "event_id": "EVT-007",
+  "predicted_result": "pii",
+  "likely_failure": [
+    "pii_keyword_table_too_narrow"
+  ],
+  "risk_area": [
+    "intent_bypass",
+    "paraphrase_evasion"
+  ],
+  "confidence": 0.8,
+  "recorded_at": "2026-09-28T07:33:55+00:00",
+  "actual_result": "knowledge",
+  "comparison": "new_failure_pattern",
+  "is_resolved": true,
+  "hit": false
+}

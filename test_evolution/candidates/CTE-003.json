@@ -3,13 +3,18 @@
   "type": "DOCUMENTATION",
   "title": "记录「OCR 未识别」与「解析失败」的区分方法",
   "evidence": [
-    "EVT-003"
+    "EVT-003",
+    "app/ocr_evidence.py",
+    "tests/test_ocr_evidence.py",
+    "docs/审查问题修复验证.md"
   ],
   "surface": "ocr",
-  "proposed_change": "不产出生产代码改动 —— 让 missing_* 原因码区分两种故障需要产品口径决策（是否对外暴露、算不算同一个指标）。本候选只把方法固定下来：\n1. CTE-2 的快照已录原始文本行，所以「证据在不在文本里」可计算；\n2. `tests/test_id_card_parser_real_ocr.py` 里的分布断言（2 张认出 / 8 张没认出）就是当前的事实基线；\n3. 归因前必须先做这一步，否则会把 OCR 的局限算成解析器的账。",
+  "proposed_change": "功能已实现 evidence_missing_* 与归因测试；本候选更新实现证据与文档，仍待人工署名晋级。\n1. CTE-2 的快照已录原始文本行，所以「证据在不在文本里」可计算；\n2. `tests/test_id_card_parser_real_ocr.py` 里的分布断言（2 张认出 / 8 张没认出）就是当前的事实基线；\n3. 归因前必须先做这一步，否则会把 OCR 的局限算成解析器的账。",
   "created_at": "2026-09-27T14:57:51+00:00",
-  "status": "candidate",
-  "checks": {},
+  "status": "machine_validated",
+  "checks": {
+    "has_evidence": "pass"
+  },
   "validated_at": "",
   "rejected_reason": "",
   "approver": "",
@@ -17,7 +22,7 @@
   "required_checks": [
     "has_evidence"
   ],
-  "is_machine_validated": false,
+  "is_machine_validated": true,
   "needs_human_review": true,
   "is_proposal_only": false,
   "is_elevated": false,

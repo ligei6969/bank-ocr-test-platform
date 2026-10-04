@@ -31,6 +31,8 @@ fixture 里存的就是那份过窄的关键词表，任何人 can diff fixtur �
 from __future__ import annotations
 
 import re
+import json
+from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -103,6 +105,12 @@ POLICY_HISTORY: Dict[str, Dict[str, Any]] = {
     },
 }
 
+# Captured before the audit repair. Kept as data and labelled rule-only;
+# never consulted by the production classifier.
+POLICY_HISTORY["policy@pre-EVT007"] = json.loads(
+    (Path(__file__).parent / "snapshots/policy_pre_evt007.json").read_text(encoding="utf-8")
+)
+
 
 @dataclass
 class ReplayResult:
@@ -139,7 +147,7 @@ def detect_intent_under(
     （internal / pii / advice），再落到 knowledge。
     """
     text = _normalize(question)
-    for intent in (policy.INTENT_INTERNAL, policy.INTENT_PII, policy.INTENT_ADVICE):
+    for intent in (policy.INTENT_INTERNAL, policy.INTENT_PII, policy.INTENT_ADVICE, policy.INTENT_PRODUCT):
         keywords = rules.get(intent, ())
         if any(keyword in text for keyword in keywords):
             return intent

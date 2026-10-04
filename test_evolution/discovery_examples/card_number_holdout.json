@@ -1,0 +1,12 @@
+{
+  "task_id": "synthetic-card-number-holdout",
+  "target": "card_number",
+  "requirement": "本次探索的输出契约：已提取的银行卡号必须是 16–19 位 ASCII 数字。生成 TEST BANK 合成文字的字符集与格式边界探针，并包含对照。未提取不由此格式不变式判错。",
+  "group": "synthetic-number-format-learning",
+  "partition": "holdout",
+  "oracle": {
+    "kind": "O1",
+    "rule": "number_format",
+    "reference": "工程检查示例，故意与学习示例同 group 以验证排除；不是独立研究 holdout，也不能用于宣称泛化提升。"
+  }
+}

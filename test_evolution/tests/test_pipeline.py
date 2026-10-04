@@ -167,12 +167,13 @@ def test_retro_answers_the_six_questions():
 
 
 def test_retro_records_that_the_prediction_missed():
-    """盲预测没命中就要白纸黑字写出来 —— 这正是记录它的意义。"""
+    """历史预期与回放不匹配时明确记录，不冒充盲预测。"""
     event = _event()
     comparison = compare(_prediction(), _execution("knowledge"), expected="pii")
     body = render_retro(event, comparison)
 
-    assert "命中：否" in body
+    assert "历史预期（非盲预测）" in body
+    assert "与回放匹配：否" in body
 
 
 def test_retro_content_matches_the_event_not_a_shared_template(root):
@@ -615,15 +616,25 @@ def test_a_wrong_value_is_not_reported_as_a_successful_parse(root):
     于是 ``actual_result`` 打印成「3 个字段解析成功」。可它明明发生了失败。
     只数「有几个字段非空」的措辞会让复盘读起来像成功。
     """
-    from test_evolution.pipeline import EVENT_LOG, execute, observe
+    from test_evolution.pipeline import EVENT_LOG, _execute_ocr, observe
 
     spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-006")
     event = observe(spec, root=root)
-    execution = execute(event)
+    execution = _execute_ocr(event, reparse=False)
 
     assert execution.detail["wrong_fields"] == ["name"]
     assert "值与真值不符" in execution.actual_result
     assert "解析成功" not in execution.actual_result
+
+
+def test_evt006_current_value_comparison_is_successful_after_fix(root):
+    spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-006")
+    event = observe(spec, root=root)
+    prediction = blind_predict(event, root=root)
+    execution = execute(event)
+    comparison = compare(prediction, execution, expected=event.expected_result)
+    assert execution.detail["wrong_fields"] == []
+    assert comparison.classification == "correct_prediction"
 
 
 def test_record_only_events_do_not_claim_a_candidate_exists(root):
@@ -634,7 +645,7 @@ def test_record_only_events_do_not_claim_a_candidate_exists(root):
     """
     from test_evolution.pipeline import EVENT_LOG, RECORD_ONLY, blind_predict, compare, execute, observe, reflect
 
-    assert "EVT-006" in RECORD_ONLY
+    # Use a temporary record-only designation, not the now-fixed EVT-006 state.
     spec = next(s for s in EVENT_LOG if s["event_id"] == "EVT-006")
     event = observe(spec, root=root)
     prediction = blind_predict(event, root=root)
@@ -642,7 +653,9 @@ def test_record_only_events_do_not_claim_a_candidate_exists(root):
     comparison = compare(
         prediction, execution, expected=event.expected_result, known_patterns=()
     )
-    path = reflect(event, comparison, root=root, executor=execution.executor)
+    from unittest.mock import patch
+    with patch.dict(RECORD_ONLY, {"EVT-006": "temporary proposal without design approval"}):
+        path = reflect(event, comparison, root=root, executor=execution.executor)
     body = path.read_text(encoding="utf-8")
 
     assert "见同目录 Candidate" not in body, "该事件没有候选，不该让读者去找"

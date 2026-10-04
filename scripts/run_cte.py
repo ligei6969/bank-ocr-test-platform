@@ -70,11 +70,21 @@ from test_evolution.schema import (  # noqa: E402
 #: 这一步需要有一个「修复后的版本」可测。没有它，该步只能标 ``skipped``，
 #: 候选也就无法完成机器验证。把「修复已落地」写成显式事实，
 #: 比让验证去猜「现在算不算修好了」可靠。
-FIX_LANDED = {"EVT-002", "EVT-004", "EVT-005"}
+FIX_LANDED = {"EVT-002", "EVT-004", "EVT-005", "EVT-006", "EVT-007"}
 
 #: 事件 → 它应该产出的 Candidate 类型与说明。
 #: 写成表而不是让 CLI 现推：Candidate 的类型是人对复盘的判断，不是程序能猜的。
 CANDIDATE_PLAN = {
+    "EVT-006": {
+        "candidate_id": "CTE-006", "candidate_type": "NEW_TEST",
+        "candidate_title": "有效期 OCR 错字不得替代持卡人姓名",
+        "proposed_change": "已按用户授权修复有限模糊标签、日期上下文和候选评分；真实 EVT-006 快照及负例见 tests/test_bank_card_name_regression.py，700 张比较无姓名回退。原始 OCR 文本与 GT 不变。",
+    },
+    "EVT-007": {
+        "candidate_id": "CTE-007", "candidate_type": "NEW_TEST",
+        "candidate_title": "客服应拒题必须走边界闸门，兜底不得报绿",
+        "proposed_change": "严格 refused 闸门与合规话术检查；独立统计 wrong_gate_refusal_rate；规则补个人查询、资质建议与内部状态改写。正式威胁题集不变，旧规则离线 Agent 9 条错闸门，修复后为零。",
+    },
     "EVT-001": {
         "candidate_id": "CTE-001",
         "candidate_type": "NEW_TEST",
@@ -104,8 +114,7 @@ CANDIDATE_PLAN = {
         "candidate_type": "DOCUMENTATION",
         "candidate_title": "记录「OCR 未识别」与「解析失败」的区分方法",
         "proposed_change": (
-            "不产出生产代码改动 —— 让 missing_* 原因码区分两种故障需要产品口径"
-            "决策（是否对外暴露、算不算同一个指标）。本候选只把方法固定下来：\n"
+            "功能已实现 evidence_missing_* 与归因测试；本候选更新实现证据与文档，仍待人工署名晋级。\n"
             "1. CTE-2 的快照已录原始文本行，所以「证据在不在文本里」可计算；\n"
             "2. `tests/test_id_card_parser_real_ocr.py` 里的分布断言"
             "（2 张认出 / 8 张没认出）就是当前的事实基线；\n"
@@ -220,7 +229,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     print("=" * 78)
     print(f"事件       {outcome['event']['event_id']}  {outcome['event']['title']}")
     print(f"系统版本   {outcome['event']['system_version']}")
-    print(f"盲预测     {outcome['prediction']['predicted_result']}"
+    print(f"历史预期（非盲预测） {outcome['prediction']['predicted_result']}"
           f"  (命中：{'是' if outcome['prediction']['hit'] else '否'})")
     print(f"实际       {outcome['execution']['actual_result']}"
           f"   期望 {outcome['comparison']['expected']}")
@@ -241,7 +250,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def _cmd_record_only(spec: dict, args: argparse.Namespace) -> int:
-    """只记录：事件 → 盲预测 → 执行 → 对比 → 复盘，**到此为止**。
+    """只记录：事件 → 历史预期 → 执行 → 对比 → 复盘，**到此为止**。
 
     与 ``run_event_loop`` 的区别是它不生成 Candidate —— 那是有意的判断
     （见 :data:`RECORD_ONLY`），不是流程没跑完。
@@ -276,7 +285,7 @@ def _cmd_record_only(spec: dict, args: argparse.Namespace) -> int:
     print("=" * 78)
     print(f"事件       {event.event_id}  {event.title}")
     print(f"系统版本   {event.system_version}")
-    print(f"盲预测     {prediction.predicted_result}"
+    print(f"历史预期（非盲预测） {prediction.predicted_result}"
           f"  (命中：{'是' if prediction.hit else '否'})")
     print(f"实际       {execution.actual_result}")
     print(f"分类       {comparison.classification}")

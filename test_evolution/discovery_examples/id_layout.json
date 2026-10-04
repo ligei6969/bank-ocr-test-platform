@@ -1,0 +1,12 @@
+{
+  "task_id": "synthetic-id-label-layout",
+  "target": "id_fields",
+  "requirement": "探索合成身份证 OCR 文本中字段标签与值的关联。仅使用虚构姓名、地址和测试号码；比较完整文本与空格加倍或空格换行后的输出。布局变形后字段变化只表示疑似问题，需要独立人工核对，不能直接推断哪种输出正确。生成正向和负向对照，且每条用例必须选择非 none 的 mutation。",
+  "group": "synthetic-id-layout-learning",
+  "partition": "learning",
+  "oracle": {
+    "kind": "O5",
+    "rule": "relation",
+    "reference": "布局扰动一致性探针；关系不成立仅报告 suspected，人工答案单独追加为 O3。"
+  }
+}

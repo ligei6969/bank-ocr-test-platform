@@ -89,16 +89,16 @@ SURFACES: Tuple[Surface, ...] = (
     Surface(
         name="ocr",
         level="partial",
-        ground_truth="OCR 快照（`data/annotations/ocr_outputs.json`，50 条观测）",
+        ground_truth="OCR 快照（`data/annotations/ocr_outputs.json`，2100 条合成图观测）",
         why=(
             "CTE-2 已交付真实 PaddleOCR 的 record/replay 快照，"
             "「字段全部解析成功」不再恒成立 —— 一录就暴露了三类真实缺陷"
             "（见 EVT-002 与 `docs/baseline_migrations/001_real_ocr_fields.md`）。"
-            "但仍只标 partial 而非 ready：快照只覆盖 golden 用到的 50 张图，"
-            "**降质样本（blur/glare 等）的字段错误率还没有系统化的基线**，"
-            "而且刚暴露的解析缺陷尚未修复。"
+            "CTE-5 已扩到 2100 张并建立降质错误率基线；EVT-006 的标签误选已修复。"
+            "仍为 partial：当前全是合成图，模糊姓名仍有 OCR 漏字/粘连，"
+            "不能从这些数据推断真实证件泛化质量。"
         ),
-        exit_condition="把 EVT-002 三条缺陷转成 CTE 事件走完闭环（CTE-3）",
+        exit_condition="纳入真实证件代表性样本并验证 OCR/解析泛化质量",
     ),
     Surface(
         name="adjudication",
@@ -109,9 +109,9 @@ SURFACES: Tuple[Surface, ...] = (
             "双判所缺的那个信号 ——「图像究竟还能不能读」—— CTE-2 的快照"
             "现在能给出一部分：反光样本里已经出现**单字符误识**"
             "（`5282448378463572` vs `...573`），正是双判该抓的那类错误。"
-            "但快照样本量（50 张）还不足以标定改判正确性，所以标 partial。"
+            "快照已扩到 2100 张；真实模型与真实证件改判正确性仍未充分标定，故为 partial。"
         ),
-        exit_condition="扩大快照覆盖到降质样本全量，再标定双判改判正确性",
+        exit_condition="以真实模型和代表性真实图像标定双判改判正确性",
     ),
 )
 

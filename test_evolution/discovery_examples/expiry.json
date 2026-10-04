@@ -1,0 +1,12 @@
+{
+  "task_id": "synthetic-expiry-format",
+  "target": "expiry",
+  "requirement": "探索合成银行卡 OCR 文本中有效期的格式边界，包括月份范围、字符集与分隔符。使用 TEST BANK 标记。非空返回须为 MM/YY，其中 MM 是 01 至 12，所有数字为 ASCII。未提取不由此格式契约判错；格式合法不代表日期未过期或正确对应原文。",
+  "group": "synthetic-expiry-learning",
+  "partition": "learning",
+  "oracle": {
+    "kind": "O2",
+    "rule": "expiry_format",
+    "reference": "独立输出格式契约：合法月份 MM/YY；不包含当前日期、是否过期或识别完整性判定。"
+  }
+}

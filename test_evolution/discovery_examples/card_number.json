@@ -1,0 +1,12 @@
+{
+  "task_id": "synthetic-card-number-format",
+  "target": "card_number",
+  "requirement": "本次探索的输出契约：已提取的银行卡号必须是 16–19 位 ASCII 数字。使用明确标记 TEST BANK 的合成文字，探索字符集、分隔符和布局边界。未提取出卡号不由此格式不变式判错。",
+  "group": "synthetic-number-format-learning",
+  "partition": "learning",
+  "oracle": {
+    "kind": "O1",
+    "rule": "number_format",
+    "reference": "本任务明确限定的 ASCII 输出契约；仅验证格式，不代表卡号真实性、Luhn 合法性或金融业务有效性。"
+  }
+}

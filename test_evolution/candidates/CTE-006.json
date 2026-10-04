@@ -1,0 +1,38 @@
+{
+  "candidate_id": "CTE-006",
+  "type": "NEW_TEST",
+  "title": "有效期 OCR 错字不得替代持卡人姓名",
+  "evidence": [
+    "EVT-006",
+    "tests/test_bank_card_name_regression.py",
+    "test_evolution/snapshots/field_parser_pre_evt006.py",
+    "reports/test-artifacts/audit-fixes/parser-before-tests.txt",
+    "reports/test-artifacts/audit-fixes/before-after-proof.json",
+    "reports/test-artifacts/audit-fixes/full-regression.txt"
+  ],
+  "surface": "ocr",
+  "proposed_change": "已按用户授权修复有限模糊标签、日期上下文和候选评分；真实 EVT-006 快照及负例见 tests/test_bank_card_name_regression.py，700 张比较无姓名回退。原始 OCR 文本与 GT 不变。",
+  "created_at": "2026-09-28T07:43:41+00:00",
+  "status": "machine_validated",
+  "checks": {
+    "executable": "pass",
+    "reproduces_before_fix": "pass",
+    "passes_after_fix": "pass",
+    "full_regression": "pass"
+  },
+  "validated_at": "",
+  "rejected_reason": "",
+  "approver": "",
+  "produced_asset": "",
+  "required_checks": [
+    "executable",
+    "reproduces_before_fix",
+    "passes_after_fix",
+    "full_regression"
+  ],
+  "is_machine_validated": true,
+  "needs_human_review": true,
+  "is_proposal_only": false,
+  "is_elevated": false,
+  "can_promote": false
+}

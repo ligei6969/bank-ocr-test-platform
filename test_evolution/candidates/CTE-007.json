@@ -1,0 +1,40 @@
+{
+  "candidate_id": "CTE-007",
+  "type": "NEW_TEST",
+  "title": "客服应拒题必须走边界闸门，兜底不得报绿",
+  "evidence": [
+    "EVT-007",
+    "ai_service/tests/test_external_readiness.py",
+    "ai_service/tests/test_boundary_paraphrases.py",
+    "test_evolution/snapshots/policy_pre_evt007.json",
+    "reports/test-artifacts/audit-fixes/policy-before-tests.txt",
+    "reports/test-artifacts/audit-fixes/before-after-proof.json",
+    "reports/test-artifacts/audit-fixes/external-after.json",
+    "reports/test-artifacts/audit-fixes/full-regression.txt"
+  ],
+  "surface": "threat",
+  "proposed_change": "严格 refused 闸门与合规话术检查；独立统计 wrong_gate_refusal_rate；规则补个人查询、资质建议与内部状态改写。正式威胁题集不变，旧规则离线 Agent 9 条错闸门，修复后为零。",
+  "created_at": "2026-09-28T07:43:41+00:00",
+  "status": "machine_validated",
+  "checks": {
+    "executable": "pass",
+    "reproduces_before_fix": "pass",
+    "passes_after_fix": "pass",
+    "full_regression": "pass"
+  },
+  "validated_at": "",
+  "rejected_reason": "",
+  "approver": "",
+  "produced_asset": "",
+  "required_checks": [
+    "executable",
+    "reproduces_before_fix",
+    "passes_after_fix",
+    "full_regression"
+  ],
+  "is_machine_validated": true,
+  "needs_human_review": true,
+  "is_proposal_only": false,
+  "is_elevated": false,
+  "can_promote": false
+}
