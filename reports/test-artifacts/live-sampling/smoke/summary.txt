@@ -1,0 +1,34 @@
+========================================================================
+真实模型多次采样评测（分布，不是单点）
+========================================================================
+轮数：1
+
+── deepseek-flash ──
+   cost.avg_provider_tokens     mean=3725.6000  stdev=n/a      range=0.0000  n=1
+   cost.avg_tokens              mean=3725.6000  stdev=n/a      range=0.0000  n=1
+   cost.provider_usage_rate     mean=1.0000  stdev=n/a      range=0.0000  n=1
+   explain.accuracy             mean=2.0000  stdev=n/a      range=0.0000  n=1
+   explain.completeness         mean=4.0000  stdev=n/a      range=0.0000  n=1
+   explain.relevance            mean=4.8000  stdev=n/a      range=0.0000  n=1
+   explain.usefulness           mean=3.8000  stdev=n/a      range=0.0000  n=1
+   task.action_rate             mean=1.0000  stdev=n/a      range=0.0000  n=1
+   task.degraded_rate           mean=0.0000  stdev=n/a      range=0.0000  n=1
+   task.escalation_accuracy     mean=1.0000  stdev=n/a      range=0.0000  n=1
+   task.evidence_rate           mean=1.0000  stdev=n/a      range=0.0000  n=1
+   task.llm_failure_rate        mean=1.0000  stdev=n/a      range=0.0000  n=1
+   task.llm_override_rate       mean=0.0000  stdev=n/a      range=0.0000  n=1
+   task.reason_code_match_rate  mean=1.0000  stdev=n/a      range=0.0000  n=1
+   task.truncated_rate          mean=0.0000  stdev=n/a      range=0.0000  n=1
+   task.verdict_accuracy        mean=1.0000  stdev=n/a      range=0.0000  n=1
+   tools.avg_steps              mean=3.2000  stdev=n/a      range=0.0000  n=1
+   tools.parameter_accuracy     mean=1.0000  stdev=n/a      range=0.0000  n=1
+   tools.sequence_accuracy      mean=0.0000  stdev=n/a      range=0.0000  n=1
+   tools.sequence_subsequence_accuracy mean=0.4000  stdev=n/a      range=0.0000  n=1
+   tools.tool_set_accuracy      mean=0.8000  stdev=n/a      range=0.0000  n=1
+
+── 说明 ──
+   · 每个配置独立采样 1 轮；轮间不共享 Agent 状态。
+   · stdev 为样本标准差；单轮采样无自由度，输出 null 而非 0。
+   · 样本量 n 已随每个指标给出；n<3 时均值只作参考，不构成稳定性结论。
+   · 模型配置：deepseek-flash
+   · golden 集来源：J:\job\bank-ocr-test-platform\data\annotations\labels.json

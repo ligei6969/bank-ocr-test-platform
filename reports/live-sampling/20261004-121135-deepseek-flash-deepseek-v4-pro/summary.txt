@@ -1,0 +1,57 @@
+========================================================================
+真实模型多次采样评测（分布，不是单点）
+========================================================================
+轮数：3
+
+── deepseek-flash ──
+   cost.avg_provider_tokens     mean=4160.7500  stdev=71.9502  range=143.6500  n=3
+   cost.avg_tokens              mean=4160.7500  stdev=71.9502  range=143.6500  n=3
+   cost.provider_usage_rate     mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   explain.accuracy             mean=2.5000  stdev=0.0433   range=0.0750  n=3
+   explain.completeness         mean=3.8250  stdev=0.0433   range=0.0750  n=3
+   explain.relevance            mean=4.5083  stdev=0.0382   range=0.0750  n=3
+   explain.usefulness           mean=3.7583  stdev=0.0144   range=0.0250  n=3
+   task.action_rate             mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.degraded_rate           mean=0.0083  stdev=0.0144   range=0.0250  n=3
+   task.escalation_accuracy     mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.evidence_rate           mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.llm_failure_rate        mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.llm_override_rate       mean=0.0000  stdev=0.0000   range=0.0000  n=3
+   task.reason_code_match_rate  mean=0.9250  stdev=0.0000   range=0.0000  n=3
+   task.truncated_rate          mean=0.0167  stdev=0.0144   range=0.0250  n=3
+   task.verdict_accuracy        mean=0.7250  stdev=0.0000   range=0.0000  n=3
+   tools.avg_steps              mean=3.4500  stdev=0.0750   range=0.1500  n=3
+   tools.parameter_accuracy     mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   tools.sequence_accuracy      mean=0.1000  stdev=0.0433   range=0.0750  n=3
+   tools.sequence_subsequence_accuracy mean=0.4917  stdev=0.0382   range=0.0750  n=3
+   tools.tool_set_accuracy      mean=0.8167  stdev=0.0144   range=0.0250  n=3
+
+── deepseek-v4-pro ──
+   cost.avg_provider_tokens     mean=4172.4500  stdev=31.8783  range=63.7000  n=3
+   cost.avg_tokens              mean=4172.4500  stdev=31.8783  range=63.7000  n=3
+   cost.provider_usage_rate     mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   explain.accuracy             mean=3.0500  stdev=0.0866   range=0.1500  n=3
+   explain.completeness         mean=3.8000  stdev=0.0000   range=0.0000  n=3
+   explain.relevance            mean=4.7583  stdev=0.0144   range=0.0250  n=3
+   explain.usefulness           mean=3.7000  stdev=0.0866   range=0.1500  n=3
+   task.action_rate             mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.degraded_rate           mean=0.0083  stdev=0.0144   range=0.0250  n=3
+   task.escalation_accuracy     mean=0.9917  stdev=0.0144   range=0.0250  n=3
+   task.evidence_rate           mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.llm_failure_rate        mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   task.llm_override_rate       mean=0.0000  stdev=0.0000   range=0.0000  n=3
+   task.reason_code_match_rate  mean=0.9250  stdev=0.0000   range=0.0000  n=3
+   task.truncated_rate          mean=0.1500  stdev=0.0250   range=0.0500  n=3
+   task.verdict_accuracy        mean=0.7250  stdev=0.0000   range=0.0000  n=3
+   tools.avg_steps              mean=3.5583  stdev=0.0144   range=0.0250  n=3
+   tools.parameter_accuracy     mean=1.0000  stdev=0.0000   range=0.0000  n=3
+   tools.sequence_accuracy      mean=0.2167  stdev=0.0289   range=0.0500  n=3
+   tools.sequence_subsequence_accuracy mean=0.4417  stdev=0.0289   range=0.0500  n=3
+   tools.tool_set_accuracy      mean=0.8000  stdev=0.0000   range=0.0000  n=3
+
+── 说明 ──
+   · 每个配置独立采样 3 轮；轮间不共享 Agent 状态。
+   · stdev 为样本标准差；单轮采样无自由度，输出 null 而非 0。
+   · 样本量 n 已随每个指标给出；n<3 时均值只作参考，不构成稳定性结论。
+   · 模型配置：deepseek-flash, deepseek-v4-pro
+   · golden 集来源：J:\job\bank-ocr-test-platform\data\annotations\labels.json

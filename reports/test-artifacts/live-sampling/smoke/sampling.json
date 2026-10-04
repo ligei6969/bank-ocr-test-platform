@@ -1,0 +1,292 @@
+{
+  "rounds": 1,
+  "per_model": {
+    "deepseek-flash": [
+      {
+        "round_index": 0,
+        "model_name": "deepseek-flash",
+        "flat": {
+          "tools.sequence_accuracy": 0.0,
+          "tools.sequence_subsequence_accuracy": 0.4,
+          "tools.tool_set_accuracy": 0.8,
+          "tools.parameter_accuracy": 1.0,
+          "tools.avg_steps": 3.2,
+          "task.reason_code_match_rate": 1.0,
+          "task.evidence_rate": 1.0,
+          "task.action_rate": 1.0,
+          "task.escalation_accuracy": 1.0,
+          "task.degraded_rate": 0.0,
+          "task.truncated_rate": 0.0,
+          "task.verdict_accuracy": 1.0,
+          "task.llm_override_rate": 0.0,
+          "task.llm_failure_rate": 1.0,
+          "explain.relevance": 4.8,
+          "explain.accuracy": 2.0,
+          "explain.completeness": 4.0,
+          "explain.usefulness": 3.8,
+          "cost.avg_tokens": 3725.6,
+          "cost.avg_provider_tokens": 3725.6,
+          "cost.provider_usage_rate": 1.0
+        },
+        "execution": {
+          "mode": "live",
+          "model_client": "llm:openai:deepseek-flash",
+          "judge_model_samples": 5,
+          "judge_fallback_samples": 0,
+          "configured_model_available": true,
+          "model_decision_samples": 5,
+          "fallback_samples": 0,
+          "adjudication_attempts": 1,
+          "adjudication_successes": 0,
+          "real_model_verified": true,
+          "live_validation_passed": false,
+          "model_quality_qualified": null,
+          "scope": "live_service_evaluation",
+          "quality_note": "回归通过不代表模型质量达标；rubric 与作者占位自评不能代替独立人工验收。"
+        }
+      }
+    ]
+  },
+  "spreads": {
+    "deepseek-flash": {
+      "cost.avg_provider_tokens": {
+        "values": [
+          3725.6
+        ],
+        "n": 1,
+        "mean": 3725.6,
+        "stdev": null,
+        "min": 3725.6,
+        "max": 3725.6,
+        "range": 0.0
+      },
+      "cost.avg_tokens": {
+        "values": [
+          3725.6
+        ],
+        "n": 1,
+        "mean": 3725.6,
+        "stdev": null,
+        "min": 3725.6,
+        "max": 3725.6,
+        "range": 0.0
+      },
+      "cost.provider_usage_rate": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "explain.accuracy": {
+        "values": [
+          2.0
+        ],
+        "n": 1,
+        "mean": 2.0,
+        "stdev": null,
+        "min": 2.0,
+        "max": 2.0,
+        "range": 0.0
+      },
+      "explain.completeness": {
+        "values": [
+          4.0
+        ],
+        "n": 1,
+        "mean": 4.0,
+        "stdev": null,
+        "min": 4.0,
+        "max": 4.0,
+        "range": 0.0
+      },
+      "explain.relevance": {
+        "values": [
+          4.8
+        ],
+        "n": 1,
+        "mean": 4.8,
+        "stdev": null,
+        "min": 4.8,
+        "max": 4.8,
+        "range": 0.0
+      },
+      "explain.usefulness": {
+        "values": [
+          3.8
+        ],
+        "n": 1,
+        "mean": 3.8,
+        "stdev": null,
+        "min": 3.8,
+        "max": 3.8,
+        "range": 0.0
+      },
+      "task.action_rate": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "task.degraded_rate": {
+        "values": [
+          0.0
+        ],
+        "n": 1,
+        "mean": 0.0,
+        "stdev": null,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0
+      },
+      "task.escalation_accuracy": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "task.evidence_rate": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "task.llm_failure_rate": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "task.llm_override_rate": {
+        "values": [
+          0.0
+        ],
+        "n": 1,
+        "mean": 0.0,
+        "stdev": null,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0
+      },
+      "task.reason_code_match_rate": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "task.truncated_rate": {
+        "values": [
+          0.0
+        ],
+        "n": 1,
+        "mean": 0.0,
+        "stdev": null,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0
+      },
+      "task.verdict_accuracy": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "tools.avg_steps": {
+        "values": [
+          3.2
+        ],
+        "n": 1,
+        "mean": 3.2,
+        "stdev": null,
+        "min": 3.2,
+        "max": 3.2,
+        "range": 0.0
+      },
+      "tools.parameter_accuracy": {
+        "values": [
+          1.0
+        ],
+        "n": 1,
+        "mean": 1.0,
+        "stdev": null,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0
+      },
+      "tools.sequence_accuracy": {
+        "values": [
+          0.0
+        ],
+        "n": 1,
+        "mean": 0.0,
+        "stdev": null,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0
+      },
+      "tools.sequence_subsequence_accuracy": {
+        "values": [
+          0.4
+        ],
+        "n": 1,
+        "mean": 0.4,
+        "stdev": null,
+        "min": 0.4,
+        "max": 0.4,
+        "range": 0.0
+      },
+      "tools.tool_set_accuracy": {
+        "values": [
+          0.8
+        ],
+        "n": 1,
+        "mean": 0.8,
+        "stdev": null,
+        "min": 0.8,
+        "max": 0.8,
+        "range": 0.0
+      }
+    }
+  },
+  "notes": [
+    "每个配置独立采样 1 轮；轮间不共享 Agent 状态。",
+    "stdev 为样本标准差；单轮采样无自由度，输出 null 而非 0。",
+    "样本量 n 已随每个指标给出；n<3 时均值只作参考，不构成稳定性结论。",
+    "模型配置：deepseek-flash",
+    "golden 集来源：J:\\job\\bank-ocr-test-platform\\data\\annotations\\labels.json"
+  ]
+}

@@ -10,12 +10,13 @@
 schema_version: 1
 
 current:
-  passed: 1602
-  recorded_at: "2026-10-03"
-  evidence: reports/test-artifacts/doc-numbers/full-regression.txt
+  passed: 1614
+  recorded_at: "2026-10-04"
+  evidence: reports/test-artifacts/live-sampling-sampling-tests/full-regression.txt
   note: >
-    文档基线对账机制（scripts/check_doc_numbers.py + tests/test_doc_numbers.py）
-    落地后的全量回归。新增 21 条守卫测试；上一基线 1581。
+    真实模型采样框架（ai_service/eval/sampling.py +
+    scripts/evaluate_live_sampling.py + 12 条机制测试）落地后的全量回归。
+    上一基线 1602。
 
 # ── 历史快照（不追改，不参与对账）─────────────────────────────────────────
 # 每一项写清楚「当时是什么状态」，避免读者把历史数字当当前基线。
@@ -69,3 +70,8 @@ snapshots:
     passed: 1581
     where: docs/SQLite写锁修复验证.md、README.md
     why: SQLite 写锁修复后（+11 条并发测试）
+
+  - at: "2026-10-03"
+    passed: 1602
+    where: docs/baseline_numbers.yml、README.md
+    why: 文档基线对账机制落地后（+21 条守卫测试）
