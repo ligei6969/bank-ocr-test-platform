@@ -1,0 +1,93 @@
+{
+  "sequential": [
+    {
+      "path": "data/processed/id_card/front/normal/id_front_0002.jpg",
+      "text": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ]
+    },
+    {
+      "path": "data/processed/id_card/back/bright/id_back_0002.jpg",
+      "text": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ]
+    }
+  ],
+  "concurrent": [
+    {
+      "path": "data/processed/id_card/front/normal/id_front_0002.jpg",
+      "text": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ]
+    },
+    {
+      "path": "data/processed/id_card/back/bright/id_back_0002.jpg",
+      "text": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ]
+    },
+    {
+      "path": "data/processed/id_card/front/normal/id_front_0002.jpg",
+      "text": [
+        "姓名",
+        "张怡",
+        "性别男",
+        "民族回",
+        "出生1996",
+        "年1月12日",
+        "住址",
+        "安北省明港市城东区样本",
+        "街57号",
+        "公民身份号码",
+        "非真实证件"
+      ]
+    },
+    {
+      "path": "data/processed/id_card/back/bright/id_back_0002.jpg",
+      "text": [
+        "中华人民共和国",
+        "居",
+        "民",
+        "身",
+        "份",
+        "证",
+        "签发机关",
+        "测试公安局"
+      ]
+    }
+  ]
+}

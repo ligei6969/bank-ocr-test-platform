@@ -1,0 +1,173 @@
+FFFF.....FFFFF                                                           [100%]
+================================== FAILURES ===================================
+_ test_readable_fields_do_not_hide_geometry_defects[occlusion-1-image_occluded] _
+
+kind = 'occlusion', index = 1, reason = 'image_occluded'
+
+    @pytest.mark.parametrize(
+        ("kind", "index", "reason"),
+        [("occlusion", 1, "image_occluded"), ("occlusion", 2, "image_occluded"),
+         ("rotate", 2, "image_rotated"), ("rotate", 3, "image_rotated")],
+    )
+    def test_readable_fields_do_not_hide_geometry_defects(kind, index, reason):
+        quality = check_image_quality(str(DATA_DIR / kind / f"bank_card_{index:04d}.png"))
+        fields = parse_bank_card_fields("\n".join(MOCK_OCR_TEXT))
+        result, reasons = review_bank_card_with_reasons(fields, quality)
+>       assert result == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:26: AssertionError
+_ test_readable_fields_do_not_hide_geometry_defects[occlusion-2-image_occluded] _
+
+kind = 'occlusion', index = 2, reason = 'image_occluded'
+
+    @pytest.mark.parametrize(
+        ("kind", "index", "reason"),
+        [("occlusion", 1, "image_occluded"), ("occlusion", 2, "image_occluded"),
+         ("rotate", 2, "image_rotated"), ("rotate", 3, "image_rotated")],
+    )
+    def test_readable_fields_do_not_hide_geometry_defects(kind, index, reason):
+        quality = check_image_quality(str(DATA_DIR / kind / f"bank_card_{index:04d}.png"))
+        fields = parse_bank_card_fields("\n".join(MOCK_OCR_TEXT))
+        result, reasons = review_bank_card_with_reasons(fields, quality)
+>       assert result == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:26: AssertionError
+__ test_readable_fields_do_not_hide_geometry_defects[rotate-2-image_rotated] __
+
+kind = 'rotate', index = 2, reason = 'image_rotated'
+
+    @pytest.mark.parametrize(
+        ("kind", "index", "reason"),
+        [("occlusion", 1, "image_occluded"), ("occlusion", 2, "image_occluded"),
+         ("rotate", 2, "image_rotated"), ("rotate", 3, "image_rotated")],
+    )
+    def test_readable_fields_do_not_hide_geometry_defects(kind, index, reason):
+        quality = check_image_quality(str(DATA_DIR / kind / f"bank_card_{index:04d}.png"))
+        fields = parse_bank_card_fields("\n".join(MOCK_OCR_TEXT))
+        result, reasons = review_bank_card_with_reasons(fields, quality)
+>       assert result == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:26: AssertionError
+__ test_readable_fields_do_not_hide_geometry_defects[rotate-3-image_rotated] __
+
+kind = 'rotate', index = 3, reason = 'image_rotated'
+
+    @pytest.mark.parametrize(
+        ("kind", "index", "reason"),
+        [("occlusion", 1, "image_occluded"), ("occlusion", 2, "image_occluded"),
+         ("rotate", 2, "image_rotated"), ("rotate", 3, "image_rotated")],
+    )
+    def test_readable_fields_do_not_hide_geometry_defects(kind, index, reason):
+        quality = check_image_quality(str(DATA_DIR / kind / f"bank_card_{index:04d}.png"))
+        fields = parse_bank_card_fields("\n".join(MOCK_OCR_TEXT))
+        result, reasons = review_bank_card_with_reasons(fields, quality)
+>       assert result == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:26: AssertionError
+___ test_api_detects_pixels_even_when_upload_filename_is_normal[occlusion] ____
+
+authenticated_client = <starlette.testclient.TestClient object at 0x000002FA398288E0>
+kind = 'occlusion'
+
+    @pytest.mark.parametrize("kind", ["occlusion", "rotate"])
+    def test_api_detects_pixels_even_when_upload_filename_is_normal(authenticated_client, kind):
+        path = DATA_DIR / kind / "bank_card_0002.png"
+        response = authenticated_client.post(
+            "/bank-card/review", files={"file": ("normal.png", path.read_bytes(), "image/png")},
+        )
+        assert response.status_code == 200
+>       assert response.json()["review_result"] == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:44: AssertionError
+_____ test_api_detects_pixels_even_when_upload_filename_is_normal[rotate] _____
+
+authenticated_client = <starlette.testclient.TestClient object at 0x000002FA39825450>
+kind = 'rotate'
+
+    @pytest.mark.parametrize("kind", ["occlusion", "rotate"])
+    def test_api_detects_pixels_even_when_upload_filename_is_normal(authenticated_client, kind):
+        path = DATA_DIR / kind / "bank_card_0002.png"
+        response = authenticated_client.post(
+            "/bank-card/review", files={"file": ("normal.png", path.read_bytes(), "image/png")},
+        )
+        assert response.status_code == 200
+>       assert response.json()["review_result"] == "review"
+E       AssertionError: assert 'pass' == 'review'
+E         
+E         - review
+E         + pass
+
+tests\test_image_geometry_review.py:44: AssertionError
+_______________ test_rotation_is_detected_from_a_new_image[-7] ________________
+
+tmp_path = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-f5327b664903/test_rotation_is_detected_from0')
+angle = -7
+
+    @pytest.mark.parametrize("angle", [-7, 7, 90])
+    def test_rotation_is_detected_from_a_new_image(tmp_path, angle):
+        path = tmp_path / "arbitrary.png"
+        with Image.open(DATA_DIR / "normal" / "bank_card_0002.png") as image:
+            image.rotate(angle, expand=True, fillcolor=(20, 35, 52)).save(path)
+>       assert "image_rotated" in check_image_quality(str(path))["quality_reasons"]
+E       AssertionError: assert 'image_rotated' in []
+
+tests\test_image_geometry_review.py:54: AssertionError
+________________ test_rotation_is_detected_from_a_new_image[7] ________________
+
+tmp_path = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-f5327b664903/test_rotation_is_detected_from1')
+angle = 7
+
+    @pytest.mark.parametrize("angle", [-7, 7, 90])
+    def test_rotation_is_detected_from_a_new_image(tmp_path, angle):
+        path = tmp_path / "arbitrary.png"
+        with Image.open(DATA_DIR / "normal" / "bank_card_0002.png") as image:
+            image.rotate(angle, expand=True, fillcolor=(20, 35, 52)).save(path)
+>       assert "image_rotated" in check_image_quality(str(path))["quality_reasons"]
+E       AssertionError: assert 'image_rotated' in []
+
+tests\test_image_geometry_review.py:54: AssertionError
+_______________ test_rotation_is_detected_from_a_new_image[90] ________________
+
+tmp_path = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-f5327b664903/test_rotation_is_detected_from2')
+angle = 90
+
+    @pytest.mark.parametrize("angle", [-7, 7, 90])
+    def test_rotation_is_detected_from_a_new_image(tmp_path, angle):
+        path = tmp_path / "arbitrary.png"
+        with Image.open(DATA_DIR / "normal" / "bank_card_0002.png") as image:
+            image.rotate(angle, expand=True, fillcolor=(20, 35, 52)).save(path)
+>       assert "image_rotated" in check_image_quality(str(path))["quality_reasons"]
+E       AssertionError: assert 'image_rotated' in []
+
+tests\test_image_geometry_review.py:54: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_image_geometry_review.py::test_readable_fields_do_not_hide_geometry_defects[occlusion-1-image_occluded]
+FAILED tests/test_image_geometry_review.py::test_readable_fields_do_not_hide_geometry_defects[occlusion-2-image_occluded]
+FAILED tests/test_image_geometry_review.py::test_readable_fields_do_not_hide_geometry_defects[rotate-2-image_rotated]
+FAILED tests/test_image_geometry_review.py::test_readable_fields_do_not_hide_geometry_defects[rotate-3-image_rotated]
+FAILED tests/test_image_geometry_review.py::test_api_detects_pixels_even_when_upload_filename_is_normal[occlusion]
+FAILED tests/test_image_geometry_review.py::test_api_detects_pixels_even_when_upload_filename_is_normal[rotate]
+FAILED tests/test_image_geometry_review.py::test_rotation_is_detected_from_a_new_image[-7]
+FAILED tests/test_image_geometry_review.py::test_rotation_is_detected_from_a_new_image[7]
+FAILED tests/test_image_geometry_review.py::test_rotation_is_detected_from_a_new_image[90]
+9 failed, 5 passed in 1.42s

@@ -49,6 +49,8 @@ QUALITY_CODES = frozenset(
         "image_dark",
         "image_bright",
         "glare_detected",
+        "image_rotated",
+        "image_occluded",
         # 严重退化同样源自影像质量，只是程度到「直接拒绝」而非「转人工」
         "severe_image_blur",
         "severe_image_dark",

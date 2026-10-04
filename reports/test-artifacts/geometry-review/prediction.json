@@ -1,0 +1,5 @@
+{
+  "system_version": "00d4e72c4124635c9e4758063c3705e19e335e11 + working tree before geometry fix",
+  "prediction": "原实现正常、遮挡、旋转三张均通过；修复后正常图保持通过，明显遮挡与倾斜应为 review。",
+  "note": "针对尚未执行的质量及规则层预测，不覆盖。"
+}

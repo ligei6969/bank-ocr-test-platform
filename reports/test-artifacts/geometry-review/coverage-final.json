@@ -1,0 +1,16 @@
+{
+  "bank_card_normal": {
+    "tested": 100,
+    "geometry_false_positives": 0
+  },
+  "bank_card_solid_occlusion": {
+    "tested": 100,
+    "auto_pass": 0
+  },
+  "method": "Executable regression tests in tests/test_image_geometry_review.py; 219 geometry and OCR concurrency cases passed; full regression 1489 passed.",
+  "limitations": [
+    "Rotation within 1 degree may pass.",
+    "No reliable 180-degree orientation detection.",
+    "Occlusion heuristic is not a general object detector."
+  ]
+}

@@ -1,0 +1,81 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_shared_predictor_is_locked_until_lazy_results_are_consumed _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000205FF5E30A0>
+
+    def test_shared_predictor_is_locked_until_lazy_results_are_consumed(monkeypatch):
+        state_lock = Lock()
+        start = Barrier(2)
+        active = 0
+    
+        class SharedEngine:
+            def predict(self, image_path):
+                class LazyResult:
+                    def json(self):
+                        nonlocal active
+                        with state_lock:
+                            active += 1
+                        try:
+                            sleep(0.05)
+                            with state_lock:
+                                assert active == 1, "Concurrent use of shared predictor"
+                            return {"rec_texts": [image_path]}
+                        finally:
+                            with state_lock:
+                                active -= 1
+                return [LazyResult()]
+    
+        engine = SharedEngine()
+        monkeypatch.setattr("app.ocr_service._get_paddle_ocr_engine", lambda: engine)
+    
+        def run(path):
+            start.wait(timeout=5)
+            return recognize_text(path, mode="paddle")
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+>           assert list(pool.map(run, ["front.png", "back.png"])) == [["front.png"], ["back.png"]]
+
+tests\test_ocr_concurrency.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\jb\miniconda3\envs\bank\lib\concurrent\futures\_base.py:621: in result_iterator
+    yield _result_or_cancel(fs.pop())
+C:\Users\jb\miniconda3\envs\bank\lib\concurrent\futures\_base.py:319: in _result_or_cancel
+    return fut.result(timeout)
+C:\Users\jb\miniconda3\envs\bank\lib\concurrent\futures\_base.py:458: in result
+    return self.__get_result()
+C:\Users\jb\miniconda3\envs\bank\lib\concurrent\futures\_base.py:403: in __get_result
+    raise self._exception
+C:\Users\jb\miniconda3\envs\bank\lib\concurrent\futures\thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+tests\test_ocr_concurrency.py:37: in run
+    return recognize_text(path, mode="paddle")
+app\ocr_service.py:131: in recognize_text
+    return _recognize_text_with_paddle(image_path)
+app\ocr_service.py:119: in _recognize_text_with_paddle
+    return _extract_text_lines(result)
+app\ocr_service.py:71: in _extract_text_lines
+    collect(ocr_result)
+app\ocr_service.py:56: in collect
+    collect(item)
+app\ocr_service.py:61: in collect
+    collect(result_json())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_ocr_concurrency.test_shared_predictor_is_locked_until_lazy_results_are_consumed.<locals>.SharedEngine.predict.<locals>.LazyResult object at 0x00000205FF5E2D40>
+
+    def json(self):
+        nonlocal active
+        with state_lock:
+            active += 1
+        try:
+            sleep(0.05)
+            with state_lock:
+>               assert active == 1, "Concurrent use of shared predictor"
+E               AssertionError: Concurrent use of shared predictor
+E               assert 2 == 1
+
+tests\test_ocr_concurrency.py:25: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_ocr_concurrency.py::test_shared_predictor_is_locked_until_lazy_results_are_consumed
+1 failed in 0.21s

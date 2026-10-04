@@ -96,6 +96,8 @@ def test_check_image_quality_exposes_raw_metrics() -> None:
         "blur_laplacian_variance",
         "brightness_mean",
         "glare_component_ratio",
+        "rotation_angle_degrees",
+        "occlusion_area_ratio",
     }
 
 

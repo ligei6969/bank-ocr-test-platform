@@ -5,6 +5,12 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
+from app.image_geometry import (
+    OCCLUSION_AREA_THRESHOLD,
+    ROTATION_REVIEW_THRESHOLD,
+    measure_image_geometry,
+)
+
 
 GLARE_VALUE_THRESHOLD = 245
 GLARE_SATURATION_THRESHOLD = 45
@@ -76,6 +82,11 @@ def get_quality_reasons(quality: dict) -> list[str]:
         reasons.append("image_bright")
     if quality.get("has_glare"):
         reasons.append("glare_detected")
+    metrics = quality.get("quality_metrics") or {}
+    if abs(metrics.get("rotation_angle_degrees", 0.0)) > ROTATION_REVIEW_THRESHOLD:
+        reasons.append("image_rotated")
+    if metrics.get("occlusion_area_ratio", 0.0) >= OCCLUSION_AREA_THRESHOLD:
+        reasons.append("image_occluded")
     return reasons
 
 
@@ -144,6 +155,7 @@ def measure_image_quality(image_path: str) -> dict[str, float]:
         "blur_laplacian_variance": _blur_variance(image_path),
         "brightness_mean": mean_value,
         "glare_component_ratio": _glare_component_ratio(image_path),
+        **measure_image_geometry(_read_image(image_path)),
     }
 
 
@@ -159,7 +171,9 @@ def check_image_quality(image_path: str) -> dict:
         "has_glare": has_glare,
         "quality_result": quality_result,
     }
-    result["quality_reasons"] = get_quality_reasons(result)
     result["quality_metrics"] = metrics
+    result["quality_reasons"] = get_quality_reasons(result)
+    if result["quality_reasons"]:
+        result["quality_result"] = "review"
     result["severe_reasons"] = _severe_reasons(metrics)
     return result

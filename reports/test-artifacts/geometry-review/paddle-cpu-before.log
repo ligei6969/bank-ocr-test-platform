@@ -1,0 +1,13 @@
+Creating model: ('PP-OCRv6_medium_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.
+INFO: Could not find files for the given pattern(s).
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('PP-OCRv6_medium_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.
+sequential data/processed/id_card/front/normal/id_front_0002.jpg OK
+sequential data/processed/id_card/back/bright/id_back_0002.jpg OK
+concurrent data/processed/id_card/front/normal/id_front_0002.jpg OK
+concurrent data/processed/id_card/back/bright/id_back_0002.jpg OK
+concurrent data/processed/id_card/front/normal/id_front_0002.jpg OK
+concurrent data/processed/id_card/back/bright/id_back_0002.jpg OK

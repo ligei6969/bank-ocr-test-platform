@@ -1,0 +1,85 @@
+[
+  {
+    "doc": "bank_card",
+    "kind": "normal",
+    "total": 100,
+    "occluded": 1,
+    "rotated": 0,
+    "examples": [
+      {
+        "path": "data\\processed\\bank_card\\normal\\bank_card_0097.png",
+        "metrics": {
+          "blur_laplacian_variance": 1041.169875513696,
+          "brightness_mean": 89.39202803203662,
+          "glare_component_ratio": 0.0008352402745995423,
+          "rotation_angle_degrees": 0.0,
+          "occlusion_area_ratio": 0.03458237986270023
+        }
+      }
+    ]
+  },
+  {
+    "doc": "bank_card",
+    "kind": "occlusion",
+    "total": 100,
+    "occluded": 81,
+    "rotated": 0,
+    "examples": []
+  },
+  {
+    "doc": "bank_card",
+    "kind": "rotate",
+    "total": 100,
+    "occluded": 0,
+    "rotated": 88,
+    "examples": []
+  },
+  {
+    "doc": "id_card/front",
+    "kind": "normal",
+    "total": 100,
+    "occluded": 0,
+    "rotated": 0,
+    "examples": []
+  },
+  {
+    "doc": "id_card/front",
+    "kind": "occlusion",
+    "total": 100,
+    "occluded": 49,
+    "rotated": 0,
+    "examples": []
+  },
+  {
+    "doc": "id_card/front",
+    "kind": "rotate",
+    "total": 100,
+    "occluded": 0,
+    "rotated": 81,
+    "examples": []
+  },
+  {
+    "doc": "id_card/back",
+    "kind": "normal",
+    "total": 100,
+    "occluded": 0,
+    "rotated": 0,
+    "examples": []
+  },
+  {
+    "doc": "id_card/back",
+    "kind": "occlusion",
+    "total": 100,
+    "occluded": 35,
+    "rotated": 0,
+    "examples": []
+  },
+  {
+    "doc": "id_card/back",
+    "kind": "rotate",
+    "total": 100,
+    "occluded": 0,
+    "rotated": 8,
+    "examples": []
+  }
+]

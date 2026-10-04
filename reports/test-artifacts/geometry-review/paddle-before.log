@@ -1,0 +1,99 @@
+INFO: Could not find files for the given pattern(s).
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('PP-OCRv6_medium_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0928 14:44:04.235296 54156 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+Creating model: ('PP-OCRv6_medium_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.
+W0928 14:44:05.499815 54156 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+W0928 14:44:05.603494 54156 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+W0928 14:44:05.703423 32644 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+W0928 14:44:05.724344 16244 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+W0928 14:44:05.822718 16244 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+W0928 14:44:05.852483 32644 dynamic_loader.cc:383] Note: [Recommend] copy cudnn into CUDA installation directory. 
+ For instance, download cudnn-10.0-windows10-x64-v7.6.5.32.zip from NVIDIA's official website, 
+then, unzip it and copy it into C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0
+You should do this according to your CUDA installation directory and CUDNN version.
+sequential data/processed/id_card/front/normal/id_front_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]
+sequential data/processed/id_card/back/bright/id_back_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]
+concurrent data/processed/id_card/front/normal/id_front_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]
+concurrent data/processed/id_card/back/bright/id_back_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]
+concurrent data/processed/id_card/front/normal/id_front_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]
+concurrent data/processed/id_card/back/bright/id_back_0002.jpg In user code:
+
+
+    PreconditionNotMetError: The third-party dynamic library (cudnn64_9.dll) that Paddle depends on is not configured correctly. (error code is 126)
+      Suggestions:
+      1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+      2. Configure third-party dynamic library environment variables as follows:
+      - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+      - Windows: set PATH by `set PATH=XXX;%PATH%`
+      - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+      [operator < pd_kernel.phi_kernel > error]

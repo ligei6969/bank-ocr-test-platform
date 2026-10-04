@@ -1,0 +1,270 @@
+2026-09-28 14:56:55,167 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+INFO:     Started server process [46836]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61349 - "GET /csrf-token HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61349 - "GET /csrf-token HTTP/1.1" 200 OK
+2026-09-28 14:57:20,716 INFO app.main request received request_id=ae2ed4c9502e41c58b0573b99706d65f path=/bank-card/review
+2026-09-28 14:57:20,725 INFO app.main file validation request_id=ae2ed4c9502e41c58b0573b99706d65f filename=synthetic-qa-bank_card_0002.png
+2026-09-28 14:57:20,784 INFO app.main quality check request_id=ae2ed4c9502e41c58b0573b99706d65f result=pass reasons=[]
+ÐÅÏ¢: ÓÃÌá¹©µÄÄ£Ê½ÎÞ·¨ÕÒµ½ÎÄ¼þ¡£
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+[32mCreating model: ('PP-OCRv6_medium_det', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.[0m
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0928 14:57:24.901530 12552 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+[32mCreating model: ('PP-OCRv6_medium_rec', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.[0m
+W0928 14:57:26.129897 12552 gpu_resources.cc:245] WARNING: device: 0. The installed Paddle is compiled with CUDNN 9.9, but CUDNN version in your machine is 9.5, which may cause serious incompatible bug. Please recompile or reinstall Paddle with compatible CUDNN version.
+2026-09-28 14:57:26,595 INFO app.main ocr request_id=ae2ed4c9502e41c58b0573b99706d65f mode=paddle line_count=10
+2026-09-28 14:57:26,596 INFO app.main field parse request_id=ae2ed4c9502e41c58b0573b99706d65f fields={'card_number': '629134******1223', 'valid_date': '03/34', 'name': 'WANG TAO'}
+2026-09-28 14:57:26,596 INFO app.main rule check request_id=ae2ed4c9502e41c58b0573b99706d65f result=pass reasons=[]
+2026-09-28 14:57:26,602 INFO app.main record saved request_id=ae2ed4c9502e41c58b0573b99706d65f doc_type=bank_card
+INFO:     127.0.0.1:61349 - "POST /bank-card/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /review-records/ae2ed4c9502e41c58b0573b99706d65f HTTP/1.1" 200 OK
+2026-09-28 14:57:26,612 INFO app.main request received request_id=c266c577f052414ebd860728200ab96a path=/bank-card/review
+2026-09-28 14:57:26,614 INFO app.main file validation request_id=c266c577f052414ebd860728200ab96a filename=synthetic-qa-bank_card_0002.png
+2026-09-28 14:57:26,637 INFO app.main quality check request_id=c266c577f052414ebd860728200ab96a result=review reasons=['image_occluded']
+2026-09-28 14:57:26,775 INFO app.main ocr request_id=c266c577f052414ebd860728200ab96a mode=paddle line_count=10
+2026-09-28 14:57:26,775 INFO app.main field parse request_id=c266c577f052414ebd860728200ab96a fields={'card_number': '629134******1223', 'valid_date': '03/34', 'name': 'WANG TAO'}
+2026-09-28 14:57:26,775 INFO app.main rule check request_id=c266c577f052414ebd860728200ab96a result=review reasons=['image_occluded']
+2026-09-28 14:57:26,778 INFO app.main record saved request_id=c266c577f052414ebd860728200ab96a doc_type=bank_card
+INFO:     127.0.0.1:61349 - "POST /bank-card/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /review-records/c266c577f052414ebd860728200ab96a HTTP/1.1" 200 OK
+2026-09-28 14:57:26,787 INFO app.main request received request_id=f257c9a30b8141b896165193521d4ba7 path=/bank-card/review
+2026-09-28 14:57:26,790 INFO app.main file validation request_id=f257c9a30b8141b896165193521d4ba7 filename=synthetic-qa-bank_card_0002.png
+2026-09-28 14:57:26,825 INFO app.main quality check request_id=f257c9a30b8141b896165193521d4ba7 result=review reasons=['image_rotated']
+2026-09-28 14:57:26,933 INFO app.main ocr request_id=f257c9a30b8141b896165193521d4ba7 mode=paddle line_count=10
+2026-09-28 14:57:26,934 INFO app.main field parse request_id=f257c9a30b8141b896165193521d4ba7 fields={'card_number': '629134******1223', 'valid_date': '03/34', 'name': 'WANG TAO'}
+2026-09-28 14:57:26,934 INFO app.main rule check request_id=f257c9a30b8141b896165193521d4ba7 result=review reasons=['image_rotated']
+2026-09-28 14:57:26,937 INFO app.main record saved request_id=f257c9a30b8141b896165193521d4ba7 doc_type=bank_card
+INFO:     127.0.0.1:61349 - "POST /bank-card/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /review-records/f257c9a30b8141b896165193521d4ba7 HTTP/1.1" 200 OK
+2026-09-28 14:57:26,947 INFO app.main request received request_id=7cdd9446b627442aa5eb569a072608c7 path=/id-card/review
+2026-09-28 14:57:26,953 INFO app.main file validation request_id=7cdd9446b627442aa5eb569a072608c7 filename=synthetic-qa-id_front_0002.jpg
+2026-09-28 14:57:26,965 INFO app.main request received request_id=265bff089a3d41c68aad5ea2d13cb452 path=/id-card/review
+2026-09-28 14:57:26,972 INFO app.main file validation request_id=265bff089a3d41c68aad5ea2d13cb452 filename=synthetic-qa-id_back_0002.jpg
+2026-09-28 14:57:27,105 INFO app.main quality check request_id=7cdd9446b627442aa5eb569a072608c7 result=pass reasons=[]
+2026-09-28 14:57:27,130 INFO app.main quality check request_id=265bff089a3d41c68aad5ea2d13cb452 result=pass reasons=[]
+2026-09-28 14:57:27,410 INFO app.main ocr request_id=7cdd9446b627442aa5eb569a072608c7 mode=paddle line_count=11
+2026-09-28 14:57:27,410 INFO app.main field parse request_id=7cdd9446b627442aa5eb569a072608c7 fields={'name': 'ÕÅâù', 'gender': 'ÄÐ', 'nation': '»Ø', 'birth': '1996-01-12', 'address': '°²±±Ê¡Ã÷¸ÛÊÐ³Ç¶«ÇøÑù±¾½Ö57ºÅ', 'id_number': None}
+2026-09-28 14:57:27,410 INFO app.main rule check request_id=7cdd9446b627442aa5eb569a072608c7 result=review reasons=['missing_id_number', 'evidence_missing_id_number']
+2026-09-28 14:57:27,410 INFO app.main record saved request_id=7cdd9446b627442aa5eb569a072608c7 doc_type=id_card
+INFO:     127.0.0.1:61349 - "POST /id-card/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /review-records/7cdd9446b627442aa5eb569a072608c7 HTTP/1.1" 200 OK
+2026-09-28 14:57:27,687 INFO app.main ocr request_id=265bff089a3d41c68aad5ea2d13cb452 mode=paddle line_count=8
+2026-09-28 14:57:27,687 INFO app.main field parse request_id=265bff089a3d41c68aad5ea2d13cb452 fields={'issue_authority': '²âÊÔ¹«°²¾Ö', 'valid_period': None}
+2026-09-28 14:57:27,687 INFO app.main rule check request_id=265bff089a3d41c68aad5ea2d13cb452 result=review reasons=['missing_valid_period', 'evidence_missing_valid_period']
+2026-09-28 14:57:27,687 INFO app.main record saved request_id=265bff089a3d41c68aad5ea2d13cb452 doc_type=id_card
+INFO:     127.0.0.1:61392 - "POST /id-card/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /review-records/265bff089a3d41c68aad5ea2d13cb452 HTTP/1.1" 200 OK
+2026-09-28 15:02:05,073 INFO uvicorn.error Will watch for changes in these directories: ['J:\\job\\bank-ocr-test-platform']
+2026-09-28 15:02:05,509 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:02:05,525 INFO uvicorn.error Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+2026-09-28 15:02:05,525 INFO uvicorn.error Started reloader process [35240] using StatReload
+2026-09-28 15:02:06,164 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:02:06,170 INFO uvicorn.error Started server process [47512]
+2026-09-28 15:02:06,170 INFO uvicorn.error Waiting for application startup.
+2026-09-28 15:02:06,171 INFO uvicorn.error Application startup complete.
+2026-09-28 15:02:36,713 INFO uvicorn.access 127.0.0.1:50398 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:02:36,906 INFO uvicorn.access 127.0.0.1:50398 - "POST /login HTTP/1.1" 303
+2026-09-28 15:02:36,908 INFO uvicorn.access 127.0.0.1:50398 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:02:36,912 INFO app.main request received request_id=c2615eaa8e6b401ca37a948e90c20f64 path=/bank-card/review
+2026-09-28 15:02:36,918 INFO app.main file validation request_id=c2615eaa8e6b401ca37a948e90c20f64 filename=synthetic-qa-bank_card_0097.png
+2026-09-28 15:02:36,938 INFO app.main request received request_id=56398ad0e545423dae667c45c42fa9d9 path=/bank-card/review
+2026-09-28 15:02:36,940 INFO app.main file validation request_id=56398ad0e545423dae667c45c42fa9d9 filename=synthetic-qa-bank_card_0038.png
+2026-09-28 15:02:36,979 INFO app.main quality check request_id=c2615eaa8e6b401ca37a948e90c20f64 result=pass reasons=[]
+2026-09-28 15:02:36,988 INFO app.main quality check request_id=56398ad0e545423dae667c45c42fa9d9 result=review reasons=['image_occluded']
+ÐÅÏ¢: ÓÃÌá¹©µÄÄ£Ê½ÎÞ·¨ÕÒµ½ÎÄ¼þ¡£
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+[32mCreating model: ('PP-OCRv6_medium_det', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.[0m
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0928 15:02:40.726580 53076 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+[32mCreating model: ('PP-OCRv6_medium_rec', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.[0m
+W0928 15:02:42.036345 53076 gpu_resources.cc:245] WARNING: device: 0. The installed Paddle is compiled with CUDNN 9.9, but CUDNN version in your machine is 9.5, which may cause serious incompatible bug. Please recompile or reinstall Paddle with compatible CUDNN version.
+2026-09-28 15:02:42,451 INFO app.main ocr request_id=c2615eaa8e6b401ca37a948e90c20f64 mode=paddle line_count=10
+2026-09-28 15:02:42,451 INFO app.main field parse request_id=c2615eaa8e6b401ca37a948e90c20f64 fields={'card_number': '661022******1593', 'valid_date': '03/36', 'name': 'HE LEI'}
+2026-09-28 15:02:42,451 INFO app.main rule check request_id=c2615eaa8e6b401ca37a948e90c20f64 result=pass reasons=[]
+2026-09-28 15:02:42,465 INFO app.main record saved request_id=c2615eaa8e6b401ca37a948e90c20f64 doc_type=bank_card
+2026-09-28 15:02:42,466 INFO uvicorn.access 127.0.0.1:50398 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:02:42,502 INFO uvicorn.access 127.0.0.1:50398 - "GET /review-records/c2615eaa8e6b401ca37a948e90c20f64 HTTP/1.1" 200
+2026-09-28 15:02:42,504 INFO app.main request received request_id=e8d9e03a375b4edd84dbb93b02e35582 path=/bank-card/review
+2026-09-28 15:02:42,533 INFO app.main file validation request_id=e8d9e03a375b4edd84dbb93b02e35582 filename=synthetic-qa-bank_card_0002.png
+2026-09-28 15:02:42,591 INFO app.main ocr request_id=56398ad0e545423dae667c45c42fa9d9 mode=paddle line_count=10
+2026-09-28 15:02:42,592 INFO app.main field parse request_id=56398ad0e545423dae667c45c42fa9d9 fields={'card_number': None, 'valid_date': '05/33', 'name': 'HE FENG'}
+2026-09-28 15:02:42,592 INFO app.main rule check request_id=56398ad0e545423dae667c45c42fa9d9 result=review reasons=['missing_card_number', 'evidence_missing_card_number', 'image_occluded']
+2026-09-28 15:02:42,596 INFO app.main record saved request_id=56398ad0e545423dae667c45c42fa9d9 doc_type=bank_card
+2026-09-28 15:02:42,597 INFO uvicorn.access 127.0.0.1:50401 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:02:42,601 INFO uvicorn.access 127.0.0.1:50401 - "GET /review-records/56398ad0e545423dae667c45c42fa9d9 HTTP/1.1" 200
+2026-09-28 15:02:42,605 INFO app.main request received request_id=7cea90073cad4060b8ab8201098028bf path=/id-card/review
+2026-09-28 15:02:42,613 INFO app.main file validation request_id=7cea90073cad4060b8ab8201098028bf filename=synthetic-qa-id_front_0002.jpg
+2026-09-28 15:02:42,618 INFO app.main quality check request_id=e8d9e03a375b4edd84dbb93b02e35582 result=review reasons=['image_rotated']
+2026-09-28 15:02:42,734 INFO app.main ocr request_id=e8d9e03a375b4edd84dbb93b02e35582 mode=paddle line_count=10
+2026-09-28 15:02:42,734 INFO app.main field parse request_id=e8d9e03a375b4edd84dbb93b02e35582 fields={'card_number': '629134******1223', 'valid_date': '03/34', 'name': 'WANG TAO'}
+2026-09-28 15:02:42,734 INFO app.main rule check request_id=e8d9e03a375b4edd84dbb93b02e35582 result=review reasons=['image_rotated']
+2026-09-28 15:02:42,738 INFO app.main record saved request_id=e8d9e03a375b4edd84dbb93b02e35582 doc_type=bank_card
+2026-09-28 15:02:42,740 INFO uvicorn.access 127.0.0.1:50398 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:02:42,749 INFO uvicorn.access 127.0.0.1:50398 - "GET /review-records/e8d9e03a375b4edd84dbb93b02e35582 HTTP/1.1" 200
+2026-09-28 15:02:42,750 INFO app.main request received request_id=e7be46817e4f480da770cf6ab99e2636 path=/id-card/review
+2026-09-28 15:02:42,754 INFO app.main file validation request_id=e7be46817e4f480da770cf6ab99e2636 filename=synthetic-qa-id_back_0002.jpg
+2026-09-28 15:02:42,842 INFO app.main quality check request_id=7cea90073cad4060b8ab8201098028bf result=pass reasons=[]
+2026-09-28 15:02:43,140 INFO app.main quality check request_id=e7be46817e4f480da770cf6ab99e2636 result=pass reasons=[]
+2026-09-28 15:02:43,179 INFO app.main ocr request_id=7cea90073cad4060b8ab8201098028bf mode=paddle line_count=11
+2026-09-28 15:02:43,179 INFO app.main field parse request_id=7cea90073cad4060b8ab8201098028bf fields={'name': 'ÕÅâù', 'gender': 'ÄÐ', 'nation': '»Ø', 'birth': '1996-01-12', 'address': '°²±±Ê¡Ã÷¸ÛÊÐ³Ç¶«ÇøÑù±¾½Ö57ºÅ', 'id_number': None}
+2026-09-28 15:02:43,179 INFO app.main rule check request_id=7cea90073cad4060b8ab8201098028bf result=review reasons=['missing_id_number', 'evidence_missing_id_number']
+2026-09-28 15:02:43,183 INFO app.main record saved request_id=7cea90073cad4060b8ab8201098028bf doc_type=id_card
+2026-09-28 15:02:43,185 INFO uvicorn.access 127.0.0.1:50401 - "POST /id-card/review HTTP/1.1" 200
+2026-09-28 15:02:43,191 INFO uvicorn.access 127.0.0.1:50401 - "GET /review-records/7cea90073cad4060b8ab8201098028bf HTTP/1.1" 200
+2026-09-28 15:02:43,438 INFO app.main ocr request_id=e7be46817e4f480da770cf6ab99e2636 mode=paddle line_count=8
+2026-09-28 15:02:43,438 INFO app.main field parse request_id=e7be46817e4f480da770cf6ab99e2636 fields={'issue_authority': '²âÊÔ¹«°²¾Ö', 'valid_period': None}
+2026-09-28 15:02:43,438 INFO app.main rule check request_id=e7be46817e4f480da770cf6ab99e2636 result=review reasons=['missing_valid_period', 'evidence_missing_valid_period']
+2026-09-28 15:02:43,448 INFO app.main record saved request_id=e7be46817e4f480da770cf6ab99e2636 doc_type=id_card
+2026-09-28 15:02:43,452 INFO uvicorn.access 127.0.0.1:50398 - "POST /id-card/review HTTP/1.1" 200
+2026-09-28 15:02:43,456 INFO uvicorn.access 127.0.0.1:50398 - "GET /review-records/e7be46817e4f480da770cf6ab99e2636 HTTP/1.1" 200
+2026-09-28 15:21:33,179 INFO uvicorn.access 127.0.0.1:56102 - "GET /user/bank-card HTTP/1.1" 303
+2026-09-28 15:21:33,189 INFO uvicorn.access 127.0.0.1:56102 - "GET /login HTTP/1.1" 200
+2026-09-28 15:21:33,220 INFO uvicorn.access 127.0.0.1:56102 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:21:39,519 INFO uvicorn.access 127.0.0.1:56923 - "POST /login HTTP/1.1" 303
+2026-09-28 15:21:39,526 INFO uvicorn.access 127.0.0.1:56923 - "GET /user HTTP/1.1" 200
+2026-09-28 15:21:39,542 INFO uvicorn.access 127.0.0.1:56923 - "GET /user HTTP/1.1" 200
+2026-09-28 15:21:39,568 INFO uvicorn.access 127.0.0.1:56923 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:21:40,576 INFO uvicorn.access 127.0.0.1:56923 - "GET /user/bank-card HTTP/1.1" 200
+2026-09-28 15:21:40,603 INFO uvicorn.access 127.0.0.1:56923 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:21:55,076 INFO app.main request received request_id=f2be75caf4a04fd6a411b8a29f49ed84 path=/bank-card/review
+2026-09-28 15:21:55,078 INFO app.main file validation request_id=f2be75caf4a04fd6a411b8a29f49ed84 filename=id_front_0030.jpg
+2026-09-28 15:21:55,218 INFO app.main quality check request_id=f2be75caf4a04fd6a411b8a29f49ed84 result=review reasons=['image_bright', 'glare_detected']
+2026-09-28 15:21:55,501 INFO app.main ocr request_id=f2be75caf4a04fd6a411b8a29f49ed84 mode=paddle line_count=11
+2026-09-28 15:21:55,501 INFO app.main field parse request_id=f2be75caf4a04fd6a411b8a29f49ed84 fields={'card_number': None, 'valid_date': None, 'name': None}
+2026-09-28 15:21:55,501 INFO app.main rule check request_id=f2be75caf4a04fd6a411b8a29f49ed84 result=reject reasons=['severe_image_bright', 'missing_card_number', 'missing_valid_date', 'missing_name', 'evidence_missing_card_number', 'evidence_missing_valid_date', 'image_bright', 'glare_detected']
+2026-09-28 15:21:55,501 INFO app.main record saved request_id=f2be75caf4a04fd6a411b8a29f49ed84 doc_type=bank_card
+2026-09-28 15:21:55,516 INFO uvicorn.access 127.0.0.1:65281 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:22:01,910 INFO uvicorn.access 127.0.0.1:55658 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:03,005 INFO uvicorn.access 127.0.0.1:55658 - "GET /user/bank-card HTTP/1.1" 200
+2026-09-28 15:22:03,035 INFO uvicorn.access 127.0.0.1:55658 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:07,924 INFO app.main request received request_id=b881bb060f7840319633f4758b7643e6 path=/bank-card/review
+2026-09-28 15:22:07,925 INFO app.main file validation request_id=b881bb060f7840319633f4758b7643e6 filename=id_front_0092.jpg
+2026-09-28 15:22:08,061 INFO app.main quality check request_id=b881bb060f7840319633f4758b7643e6 result=pass reasons=[]
+2026-09-28 15:22:08,687 INFO app.main ocr request_id=b881bb060f7840319633f4758b7643e6 mode=paddle line_count=14
+2026-09-28 15:22:08,687 INFO app.main field parse request_id=b881bb060f7840319633f4758b7643e6 fields={'card_number': None, 'valid_date': None, 'name': None}
+2026-09-28 15:22:08,687 INFO app.main rule check request_id=b881bb060f7840319633f4758b7643e6 result=review reasons=['missing_card_number', 'missing_valid_date', 'missing_name', 'evidence_missing_card_number', 'evidence_missing_valid_date']
+2026-09-28 15:22:08,696 INFO app.main record saved request_id=b881bb060f7840319633f4758b7643e6 doc_type=bank_card
+2026-09-28 15:22:08,697 INFO uvicorn.access 127.0.0.1:55658 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:22:21,102 INFO app.main request received request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 path=/bank-card/review
+2026-09-28 15:22:21,106 INFO app.main file validation request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 filename=bank_card_0001.png
+2026-09-28 15:22:21,144 INFO app.main quality check request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 result=review reasons=['image_blur', 'image_bright', 'glare_detected']
+2026-09-28 15:22:21,284 INFO app.main ocr request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 mode=paddle line_count=10
+2026-09-28 15:22:21,285 INFO app.main field parse request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 fields={'card_number': '541598******1093', 'valid_date': '04/36', 'name': 'ZHU BIN'}
+2026-09-28 15:22:21,285 INFO app.main rule check request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 result=reject reasons=['severe_image_bright', 'image_blur', 'image_bright', 'glare_detected']
+2026-09-28 15:22:21,291 INFO app.main record saved request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 doc_type=bank_card
+2026-09-28 15:22:21,292 INFO uvicorn.access 127.0.0.1:59276 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 15:22:33,828 INFO uvicorn.access 127.0.0.1:50763 - "GET /admin/reviews HTTP/1.1" 403
+2026-09-28 15:22:33,861 INFO uvicorn.access 127.0.0.1:50763 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:37,278 INFO uvicorn.access 127.0.0.1:50763 - "POST /logout HTTP/1.1" 303
+2026-09-28 15:22:37,280 INFO uvicorn.access 127.0.0.1:50763 - "GET /login HTTP/1.1" 200
+2026-09-28 15:22:37,293 INFO uvicorn.access 127.0.0.1:50763 - "GET /login HTTP/1.1" 200
+2026-09-28 15:22:37,326 INFO uvicorn.access 127.0.0.1:50763 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:44,231 INFO uvicorn.access 127.0.0.1:62860 - "POST /login HTTP/1.1" 303
+2026-09-28 15:22:44,235 INFO uvicorn.access 127.0.0.1:62860 - "GET /admin/reviews HTTP/1.1" 200
+2026-09-28 15:22:44,247 INFO uvicorn.access 127.0.0.1:62860 - "GET /admin/reviews HTTP/1.1" 200
+2026-09-28 15:22:44,282 INFO uvicorn.access 127.0.0.1:62860 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:44,377 INFO uvicorn.access 127.0.0.1:58417 - "GET /review-records HTTP/1.1" 200
+2026-09-28 15:22:51,337 INFO uvicorn.access 127.0.0.1:57444 - "GET /admin/reviews/2ab7d3b3106f4ae9ab38fbadd98e2239 HTTP/1.1" 200
+2026-09-28 15:22:51,376 INFO uvicorn.access 127.0.0.1:57444 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 15:22:51,378 INFO uvicorn.access 127.0.0.1:54897 - "GET /review-records/2ab7d3b3106f4ae9ab38fbadd98e2239 HTTP/1.1" 200
+2026-09-28 15:26:38,529 WARNING uvicorn.error StatReload detected changes in 'app\field_parser.py'. Reloading...
+ 2026-09-28 15:28:07,664 INFO uvicorn.error Shutting down
+2026-09-28 15:28:07,776 INFO uvicorn.error Waiting for connections to close. (CTRL+C to force quit)
+2026-09-28 15:28:09,602 WARNING app.ai_client AI ¸´ºË·þÎñµ÷ÓÃÊ§°Ü reason=unreachable detail=[WinError 10061] ÓÉÓÚÄ¿±ê¼ÆËã»ú»ý¼«¾Ü¾ø£¬ÎÞ·¨Á¬½Ó¡£
+2026-09-28 15:28:09,603 INFO app.ai_routes ai explain request_id=2ab7d3b3106f4ae9ab38fbadd98e2239 available=False degraded=True reason=unreachable
+2026-09-28 15:28:09,603 INFO uvicorn.access 127.0.0.1:61283 - "POST /ai/explain/2ab7d3b3106f4ae9ab38fbadd98e2239 HTTP/1.1" 200
+2026-09-28 15:28:09,645 INFO uvicorn.error Waiting for application shutdown.
+2026-09-28 15:28:09,645 INFO uvicorn.error Application shutdown complete.
+2026-09-28 15:28:09,645 INFO uvicorn.error Finished server process [47512]
+2026-09-28 15:28:10,725 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:28:10,729 INFO uvicorn.error Started server process [38908]
+2026-09-28 15:28:10,729 INFO uvicorn.error Waiting for application startup.
+2026-09-28 15:28:10,730 INFO uvicorn.error Application startup complete.
+2026-09-28 15:28:15,841 INFO uvicorn.access 127.0.0.1:63686 - "POST /ai/agent/explain/2ab7d3b3106f4ae9ab38fbadd98e2239 HTTP/1.1" 401
+2026-09-28 15:28:19,781 WARNING uvicorn.error StatReload detected changes in 'ai_service\eval\report.py'. Reloading...
+ 2026-09-28 15:33:10,206 INFO uvicorn.error Shutting down
+2026-09-28 15:33:10,307 INFO uvicorn.error Waiting for application shutdown.
+2026-09-28 15:33:10,307 INFO uvicorn.error Application shutdown complete.
+2026-09-28 15:33:10,307 INFO uvicorn.error Finished server process [38908]
+2026-09-28 15:33:11,018 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:33:11,025 INFO uvicorn.error Started server process [56492]
+2026-09-28 15:33:11,025 INFO uvicorn.error Waiting for application startup.
+2026-09-28 15:33:11,025 INFO uvicorn.error Application startup complete.
+2026-09-28 15:33:11,537 WARNING uvicorn.error StatReload detected changes in 'test_evolution\replay.py'. Reloading...
+ 2026-09-28 15:38:10,389 INFO uvicorn.error Shutting down
+2026-09-28 15:38:10,496 INFO uvicorn.error Waiting for application shutdown.
+2026-09-28 15:38:10,496 INFO uvicorn.error Application shutdown complete.
+2026-09-28 15:38:10,496 INFO uvicorn.error Finished server process [56492]
+2026-09-28 15:38:11,174 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:38:11,185 INFO uvicorn.error Started server process [38016]
+2026-09-28 15:38:11,185 INFO uvicorn.error Waiting for application startup.
+2026-09-28 15:38:11,189 INFO uvicorn.error Application startup complete.
+2026-09-28 15:38:54,224 WARNING uvicorn.error StatReload detected changes in 'scripts\evaluate_ai_review.py'. Reloading...
+ 2026-09-28 15:43:10,639 INFO uvicorn.error Shutting down
+2026-09-28 15:43:10,742 INFO uvicorn.error Waiting for application shutdown.
+2026-09-28 15:43:10,742 INFO uvicorn.error Application shutdown complete.
+2026-09-28 15:43:10,742 INFO uvicorn.error Finished server process [38016]
+2026-09-28 15:43:11,469 WARNING app.main SESSION_SECRET is not set; using an ephemeral development session key.
+2026-09-28 15:43:11,475 INFO uvicorn.error Started server process [31128]
+2026-09-28 15:43:11,475 INFO uvicorn.error Waiting for application startup.
+2026-09-28 15:43:11,475 INFO uvicorn.error Application startup complete.
+2026-09-28 16:12:27,881 INFO app.main request received request_id=fcc750a51b894fb5b5309fc67f9c1356 path=/bank-card/review
+2026-09-28 16:12:27,901 INFO uvicorn.access 127.0.0.1:65083 - "POST /bank-card/review HTTP/1.1" 401
+2026-09-28 16:12:27,916 INFO uvicorn.access 127.0.0.1:65083 - "GET /login HTTP/1.1" 200
+2026-09-28 16:12:27,947 INFO uvicorn.access 127.0.0.1:65083 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 16:12:36,809 INFO uvicorn.access 127.0.0.1:57292 - "POST /login HTTP/1.1" 303
+2026-09-28 16:12:36,815 INFO uvicorn.access 127.0.0.1:57292 - "GET /user HTTP/1.1" 200
+2026-09-28 16:12:36,827 INFO uvicorn.access 127.0.0.1:57292 - "GET /user HTTP/1.1" 200
+2026-09-28 16:12:36,856 INFO uvicorn.access 127.0.0.1:57292 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:00:43,431 INFO uvicorn.access 127.0.0.1:52029 - "GET /admin/reviews HTTP/1.1" 303
+2026-09-28 17:00:43,462 INFO uvicorn.access 127.0.0.1:52029 - "GET /login HTTP/1.1" 200
+2026-09-28 17:00:43,561 INFO uvicorn.access 127.0.0.1:52029 - "GET /static/portal/portal.css HTTP/1.1" 304
+2026-09-28 17:00:43,579 INFO uvicorn.access 127.0.0.1:52029 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:01:22,630 INFO uvicorn.access 127.0.0.1:63438 - "GET /user HTTP/1.1" 303
+2026-09-28 17:01:22,637 INFO uvicorn.access 127.0.0.1:63438 - "GET /login HTTP/1.1" 200
+2026-09-28 17:01:22,667 INFO uvicorn.access 127.0.0.1:63438 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:01:27,602 INFO uvicorn.access 127.0.0.1:63438 - "POST /login HTTP/1.1" 303
+2026-09-28 17:01:27,606 INFO uvicorn.access 127.0.0.1:63438 - "GET /user HTTP/1.1" 200
+2026-09-28 17:01:27,618 INFO uvicorn.access 127.0.0.1:63438 - "GET /user HTTP/1.1" 200
+2026-09-28 17:01:27,639 INFO uvicorn.access 127.0.0.1:63438 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:02:13,446 INFO uvicorn.access 127.0.0.1:55545 - "GET /user/bank-card HTTP/1.1" 303
+2026-09-28 17:02:13,453 INFO uvicorn.access 127.0.0.1:55545 - "GET /login HTTP/1.1" 200
+2026-09-28 17:02:13,486 INFO uvicorn.access 127.0.0.1:55545 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:02:23,934 INFO uvicorn.access 127.0.0.1:49960 - "POST /login HTTP/1.1" 303
+2026-09-28 17:02:23,939 INFO uvicorn.access 127.0.0.1:49960 - "GET /user HTTP/1.1" 200
+2026-09-28 17:02:23,954 INFO uvicorn.access 127.0.0.1:49960 - "GET /user HTTP/1.1" 200
+2026-09-28 17:02:23,992 INFO uvicorn.access 127.0.0.1:49960 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:02:27,209 INFO uvicorn.access 127.0.0.1:49960 - "GET /user/bank-card HTTP/1.1" 200
+2026-09-28 17:02:27,239 INFO uvicorn.access 127.0.0.1:49960 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:02:45,543 INFO app.main request received request_id=dbd7f72e912a45b696ee75f69858ae0f path=/bank-card/review
+2026-09-28 17:02:45,547 INFO app.main file validation request_id=dbd7f72e912a45b696ee75f69858ae0f filename=bank_card_0004.png
+2026-09-28 17:02:45,612 INFO app.main quality check request_id=dbd7f72e912a45b696ee75f69858ae0f result=review reasons=['image_rotated']
+ÐÅÏ¢: ÓÃÌá¹©µÄÄ£Ê½ÎÞ·¨ÕÒµ½ÎÄ¼þ¡£
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+[32mCreating model: ('PP-OCRv6_medium_det', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.[0m
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0928 17:02:48.860668 35160 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+[32mCreating model: ('PP-OCRv6_medium_rec', None, None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.[0m
+W0928 17:02:50.221319 35160 gpu_resources.cc:245] WARNING: device: 0. The installed Paddle is compiled with CUDNN 9.9, but CUDNN version in your machine is 9.5, which may cause serious incompatible bug. Please recompile or reinstall Paddle with compatible CUDNN version.
+2026-09-28 17:02:50,697 INFO app.main ocr request_id=dbd7f72e912a45b696ee75f69858ae0f mode=paddle line_count=10
+2026-09-28 17:02:50,697 INFO app.main field parse request_id=dbd7f72e912a45b696ee75f69858ae0f fields={'card_number': '478742******8639', 'valid_date': '12/36', 'name': 'GUO PENG'}
+2026-09-28 17:02:50,697 INFO app.main rule check request_id=dbd7f72e912a45b696ee75f69858ae0f result=review reasons=['image_rotated']
+2026-09-28 17:02:50,697 INFO app.main record saved request_id=dbd7f72e912a45b696ee75f69858ae0f doc_type=bank_card
+2026-09-28 17:02:50,697 INFO uvicorn.access 127.0.0.1:56180 - "POST /bank-card/review HTTP/1.1" 200
+2026-09-28 17:06:45,248 INFO uvicorn.access 127.0.0.1:62917 - "GET /csrf-token HTTP/1.1" 200
+2026-09-28 17:06:45,437 INFO uvicorn.access 127.0.0.1:62917 - "POST /login HTTP/1.1" 303
+2026-09-28 17:06:45,447 INFO uvicorn.access 127.0.0.1:62917 - "GET /admin/reviews HTTP/1.1" 200
+2026-09-28 17:06:45,463 INFO uvicorn.access 127.0.0.1:62917 - "GET /admin/reviews HTTP/1.1" 303

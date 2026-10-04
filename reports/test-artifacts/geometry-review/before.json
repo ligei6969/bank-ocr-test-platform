@@ -1,0 +1,56 @@
+[
+  {
+    "path": "data\\processed\\bank_card\\normal\\bank_card_0001.png",
+    "quality": {
+      "is_blur": false,
+      "brightness": "normal",
+      "has_glare": false,
+      "quality_result": "pass",
+      "quality_reasons": [],
+      "quality_metrics": {
+        "blur_laplacian_variance": 898.7095995359192,
+        "brightness_mean": 94.15854691075515,
+        "glare_component_ratio": 0.0008381006864988559
+      },
+      "severe_reasons": []
+    },
+    "review_result": "pass",
+    "reasons": []
+  },
+  {
+    "path": "data\\processed\\bank_card\\occlusion\\bank_card_0001.png",
+    "quality": {
+      "is_blur": false,
+      "brightness": "normal",
+      "has_glare": false,
+      "quality_result": "pass",
+      "quality_reasons": [],
+      "quality_metrics": {
+        "blur_laplacian_variance": 901.8584610919834,
+        "brightness_mean": 92.79383867276889,
+        "glare_component_ratio": 0.0008381006864988559
+      },
+      "severe_reasons": []
+    },
+    "review_result": "pass",
+    "reasons": []
+  },
+  {
+    "path": "data\\processed\\bank_card\\rotate\\bank_card_0001.png",
+    "quality": {
+      "is_blur": false,
+      "brightness": "normal",
+      "has_glare": false,
+      "quality_result": "pass",
+      "quality_reasons": [],
+      "quality_metrics": {
+        "blur_laplacian_variance": 873.5801995647117,
+        "brightness_mean": 93.98119565217391,
+        "glare_component_ratio": 0.0007236842105263158
+      },
+      "severe_reasons": []
+    },
+    "review_result": "pass",
+    "reasons": []
+  }
+]

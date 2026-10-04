@@ -65,6 +65,37 @@ class KnowledgeDoc:
 
 REASON_CODE_DOCS: tuple[KnowledgeDoc, ...] = (
     KnowledgeDoc(
+        doc_id="rc.image_rotated",
+        title="image_rotated 图片倾斜或侧转",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("image_rotated",),
+        tags=("质量检测", "旋转", "倾斜"),
+        content=(
+            "原因码 image_rotated，含义是图片存在倾斜或侧转。"
+            "触发条件：至少两个分布在不同位置的文字区域方向一致，估计倾角绝对值超过 1.0 度时待复核。"
+            "实现位置 app/image_geometry.py；依据图像像素检测，不根据文件名判断。"
+            "即使字段完整也不自动通过，文本 AI 不能消除此项影像证据。"
+            "处置建议：请将证件放正后重拍。接近零度的轻微旋转不触发；本算法不能可靠识别倒置 180 度。"
+            "用户话术：图片倾斜，请将证件放正后重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
+        doc_id="rc.image_occluded",
+        title="image_occluded 图片疑似遮挡",
+        category=CATEGORY_REASON_CODE,
+        reason_codes=("image_occluded",),
+        tags=("质量检测", "遮挡", "完整性"),
+        content=(
+            "原因码 image_occluded，含义是图片疑似存在遮挡。"
+            "触发条件：发现大块深色、低纹理、矩形区域且周围有明显颜色差，"
+            "面积占比达到 0.008 时待复核。实现位置 app/image_geometry.py。"
+            "即使 OCR 字段完整也不自动通过；合法装饰也可能触发，应由人工确认或重拍。"
+            "当前启发式覆盖深色块遮挡，不保证检测手指、浅色或纹理复杂遮挡。"
+            "处置建议：请移开遮挡物，完整展示证件后重拍。"
+            "用户话术：图片疑似有遮挡，请移开遮挡物后重新拍摄。"
+        ),
+    ),
+    KnowledgeDoc(
         doc_id="rc.image_blur",
         title="image_blur 图片模糊",
         category=CATEGORY_REASON_CODE,

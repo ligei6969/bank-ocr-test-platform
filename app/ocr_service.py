@@ -6,6 +6,7 @@ import os
 import tempfile
 from functools import lru_cache
 from pathlib import Path
+from threading import Lock
 from typing import Any, Literal
 
 
@@ -20,6 +21,10 @@ MOCK_OCR_TEXT = [
     "ZHANG SAN",
     "VALID THRU 12/30",
 ]
+
+# FastAPI runs the two ID-card requests in separate threads. Paddle predictors
+# are shared; initialization, inference and result consumption must be atomic.
+_PADDLE_INFERENCE_LOCK = Lock()
 
 
 def _extract_text_lines(ocr_result: Any) -> list[str]:
@@ -110,13 +115,13 @@ def _recognize_text_with_paddle(image_path: str) -> list[str]:
     PaddleOCR 3.x exposes ``predict`` while older 2.x releases expose ``ocr``.
     The output shape differs by version, so text extraction is normalized here.
     """
-    ocr_engine = _get_paddle_ocr_engine()
-    if hasattr(ocr_engine, "predict"):
-        result = ocr_engine.predict(image_path)
-    else:
-        result = ocr_engine.ocr(image_path)
-
-    return _extract_text_lines(result)
+    with _PADDLE_INFERENCE_LOCK:
+        ocr_engine = _get_paddle_ocr_engine()
+        if hasattr(ocr_engine, "predict"):
+            result = ocr_engine.predict(image_path)
+        else:
+            result = ocr_engine.ocr(image_path)
+        return _extract_text_lines(result)
 
 
 def recognize_text(image_path: str, mode: OCRMode = "mock") -> list[str]:

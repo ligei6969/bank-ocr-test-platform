@@ -1,0 +1,54 @@
+[
+  {
+    "path": "data/processed/bank_card/normal/bank_card_0097.png",
+    "status": 200,
+    "request_id": "c2615eaa8e6b401ca37a948e90c20f64",
+    "ocr_mode": "paddle",
+    "result": "pass",
+    "reasons": []
+  },
+  {
+    "path": "data/processed/bank_card/occlusion/bank_card_0038.png",
+    "status": 200,
+    "request_id": "56398ad0e545423dae667c45c42fa9d9",
+    "ocr_mode": "paddle",
+    "result": "review",
+    "reasons": [
+      "missing_card_number",
+      "evidence_missing_card_number",
+      "image_occluded"
+    ]
+  },
+  {
+    "path": "data/processed/bank_card/rotate/bank_card_0002.png",
+    "status": 200,
+    "request_id": "e8d9e03a375b4edd84dbb93b02e35582",
+    "ocr_mode": "paddle",
+    "result": "review",
+    "reasons": [
+      "image_rotated"
+    ]
+  },
+  {
+    "path": "data/processed/id_card/front/normal/id_front_0002.jpg",
+    "status": 200,
+    "request_id": "7cea90073cad4060b8ab8201098028bf",
+    "ocr_mode": "paddle",
+    "result": "review",
+    "reasons": [
+      "missing_id_number",
+      "evidence_missing_id_number"
+    ]
+  },
+  {
+    "path": "data/processed/id_card/back/bright/id_back_0002.jpg",
+    "status": 200,
+    "request_id": "e7be46817e4f480da770cf6ab99e2636",
+    "ocr_mode": "paddle",
+    "result": "review",
+    "reasons": [
+      "missing_valid_period",
+      "evidence_missing_valid_period"
+    ]
+  }
+]

@@ -1,0 +1,64 @@
+........................................................................ [  5%]
+........................................................................ [ 11%]
+........................................................................ [ 16%]
+........................................................................ [ 22%]
+........................................................................ [ 27%]
+........................................................................ [ 33%]
+........................................................................ [ 38%]
+...............................................................FF....... [ 44%]
+........................................................................ [ 50%]
+........................................................................ [ 55%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 72%]
+........................................................................ [ 77%]
+........................................................................ [ 83%]
+........................................................................ [ 89%]
+........................................................................ [ 94%]
+......................................................................   [100%]
+================================== FAILURES ===================================
+_______________ test_every_event_file_is_registered_in_the_log ________________
+
+    def test_every_event_file_is_registered_in_the_log():
+        """����ҲҪ�������������е��¼���������ע������ҵ���
+    
+        ���� ``--list`` ��©������������ʵ�Ǵ��ڵġ�
+        """
+        registered = {spec["event_id"] for spec in EVENT_LOG}
+        events_dir = DEFAULT_EVOLUTION_DIR / "events"
+        if not events_dir.is_dir():
+            pytest.skip("û���¼��ļ�")
+    
+        orphaned = [
+            path.stem
+            for path in sorted(events_dir.glob("EVT-*.json"))
+            if path.stem not in registered
+        ]
+>       assert not orphaned, f"��Щ�¼��ļ�û���� EVENT_LOG ��Ǽǣ�{orphaned}"
+E       AssertionError: ��Щ�¼��ļ�û���� EVENT_LOG ��Ǽǣ�['EVT-007']
+E       assert not ['EVT-007']
+
+test_evolution\tests\test_evidence_consistency.py:74: AssertionError
+______________________ test_every_event_has_a_prediction ______________________
+
+    def test_every_event_has_a_prediction():
+        """äԤ���� CTE �ĺ��Ĳ�������ÿ���¼���������ִ��ǰ����Ԥ�⡣"""
+        events_dir = DEFAULT_EVOLUTION_DIR / "events"
+        predictions_dir = DEFAULT_EVOLUTION_DIR / "predictions"
+        if not events_dir.is_dir():
+            pytest.skip("û���¼�")
+    
+        missing = [
+            path.stem
+            for path in sorted(events_dir.glob("EVT-*.json"))
+            if not (predictions_dir / f"PRED-{path.stem}.json").is_file()
+        ]
+>       assert not missing, f"��Щ�¼�ȱ��äԤ�⣨���ڷ����ˡ������º�Ŀڡ�����{missing}"
+E       AssertionError: ��Щ�¼�ȱ��äԤ�⣨���ڷ����ˡ������º�Ŀڡ�����['EVT-007']
+E       assert not ['EVT-007']
+
+test_evolution\tests\test_evidence_consistency.py:89: AssertionError
+=========================== short test summary info ===========================
+FAILED test_evolution/tests/test_evidence_consistency.py::test_every_event_file_is_registered_in_the_log
+FAILED test_evolution/tests/test_evidence_consistency.py::test_every_event_has_a_prediction
+2 failed, 1292 passed in 91.49s (0:01:31)

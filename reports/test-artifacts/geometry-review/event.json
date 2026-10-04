@@ -1,0 +1,13 @@
+{
+  "event_id": "EVT-007",
+  "source": "new_bug",
+  "surface": "ocr",
+  "title": "遮挡与旋转影像缺少独立质量规则，字段可读时自动通过",
+  "observed_at": "2026-09-28T14:44:00+08:00",
+  "system_version": "00d4e72c4124635c9e4758063c3705e19e335e11 + working tree before geometry fix",
+  "input_case": "data/processed/bank_card/{normal,occlusion,rotate}/bank_card_0001.png",
+  "current_result": "用户报告遮挡与旋转均通过；待执行固定样本复现",
+  "expected_result": "明显遮挡或超过倾斜容差的图片应至少待复核",
+  "notes": "用户明确授权修改审核规则。原始标注、人工真值、holdout 不修改；不自动晋级 CTE 候选。",
+  "learning_blocked": false
+}

@@ -185,6 +185,10 @@ def detect_boundary_case(
         # review 却没有任何原因码，说明这条记录的判定来路不明，
         # 该交人工查规则本身，而不是问 LLM「要不要放行」
         return []
+    # The AI receives text and numeric metrics, not the original image. It
+    # cannot establish that a detected obstruction or tilt has been repaired.
+    if {"image_occluded", "image_rotated"} & set(review_reasons):
+        return []
 
     criteria: list[str] = []
     criteria.extend(detect_near_threshold_criteria(quality))
