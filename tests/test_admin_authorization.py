@@ -55,7 +55,7 @@ def login(client: TestClient, *, username: str, password: str):
         headers={"X-CSRF-Token": token},
         follow_redirects=False,
     )
-    if response.status_code == 303 and response.headers["location"] == "/user":
+    if response.status_code == 303 and response.headers["location"] in {"/user", "/admin/reviews"}:
         client.headers["X-CSRF-Token"] = get_csrf_token(client)
     return response
 
@@ -72,7 +72,7 @@ def create_and_login_admin(client: TestClient) -> dict:
         password=ADMIN_PASSWORD,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == "/user"
+    assert response.headers["location"] == "/admin/reviews"
     return user
 
 
@@ -92,10 +92,13 @@ def create_and_login_user(client: TestClient) -> dict:
     return user
 
 
-def test_admin_login_still_redirects_to_user_home_and_session_is_minimal(
+def test_admin_login_redirects_to_reviews_and_session_is_minimal(
     isolated_auth_client: TestClient,
 ) -> None:
     admin = create_and_login_admin(isolated_auth_client)
+
+    landing = isolated_auth_client.get("/admin/reviews")
+    assert landing.status_code == 200
 
     cookie = isolated_auth_client.cookies.get("bank_ocr_session")
     assert cookie is not None
@@ -110,7 +113,7 @@ def test_admin_login_still_redirects_to_user_home_and_session_is_minimal(
     assert admin["password_hash"] not in cookie
 
 
-def test_logged_in_admin_visiting_login_redirects_to_user_home(
+def test_logged_in_admin_visiting_login_redirects_to_reviews(
     isolated_auth_client: TestClient,
 ) -> None:
     create_and_login_admin(isolated_auth_client)
@@ -118,7 +121,7 @@ def test_logged_in_admin_visiting_login_redirects_to_user_home(
     response = isolated_auth_client.get("/login", follow_redirects=False)
 
     assert response.status_code == 303
-    assert response.headers["location"] == "/user"
+    assert response.headers["location"] == "/admin/reviews"
 
 
 def test_disabled_admin_cannot_log_in(

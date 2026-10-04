@@ -1,0 +1,68 @@
+[
+  {
+    "check": "login",
+    "status": 303
+  },
+  {
+    "check": "admin before switching ports",
+    "status": 200
+  },
+  {
+    "check": "csrf on other port",
+    "status": 200
+  },
+  {
+    "check": "admin after switching ports",
+    "status": 200
+  },
+  {
+    "check": "admin on other port",
+    "status": 200
+  },
+  {
+    "check": "upload 1 without relogin",
+    "status": 200
+  },
+  {
+    "check": "detail page 1",
+    "status": 200
+  },
+  {
+    "check": "detail API 1",
+    "status": 200
+  },
+  {
+    "check": "upload 1 runtime OCR",
+    "mode": "paddle",
+    "request_id": "c3e17a18fab5415cb8cbbbf8cdf099d7"
+  },
+  {
+    "check": "upload 2 without relogin",
+    "status": 200
+  },
+  {
+    "check": "detail page 2",
+    "status": 200
+  },
+  {
+    "check": "detail API 2",
+    "status": 200
+  },
+  {
+    "check": "upload 2 runtime OCR",
+    "mode": "paddle",
+    "request_id": "26aedb0423954021b3ac9739192c8d59"
+  },
+  {
+    "check": "admin after actual server restart",
+    "status": 200
+  },
+  {
+    "check": "original port after server restart",
+    "status": 200
+  },
+  {
+    "check": "unauthenticated detail API stays protected",
+    "status": 401
+  }
+]

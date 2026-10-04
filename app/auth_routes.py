@@ -98,7 +98,10 @@ def csrf_token(request: Request) -> JSONResponse:
 def login_page(request: Request) -> Response:
     user = get_active_session_user(request)
     if user is not None:
-        return RedirectResponse(url="/user", status_code=303)
+        return RedirectResponse(
+            url="/admin/reviews" if user["role"] == ADMIN_ROLE else "/user",
+            status_code=303,
+        )
     return HTMLResponse(content=LOGIN_PAGE_PATH.read_text(encoding="utf-8"))
 
 
@@ -127,7 +130,10 @@ def login(
     request.session.clear()
     request.session["user_id"] = user["id"]
     rotate_csrf_token(request)
-    return RedirectResponse(url="/user", status_code=303)
+    return RedirectResponse(
+        url="/admin/reviews" if user["role"] == ADMIN_ROLE else "/user",
+        status_code=303,
+    )
 
 
 @router.post("/logout")

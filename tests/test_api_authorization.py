@@ -48,7 +48,7 @@ def create_account_and_login(
         follow_redirects=False,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == "/user"
+    assert response.headers["location"] == ("/admin/reviews" if role == "admin" else "/user")
     client.headers["X-CSRF-Token"] = get_csrf_token(client)
     return user
 

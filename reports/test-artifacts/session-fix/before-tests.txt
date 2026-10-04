@@ -1,0 +1,100 @@
+F.FFF                                                                    [100%]
+================================== FAILURES ===================================
+____________ test_local_session_key_is_reused_after_app_recreation ____________
+
+local_key = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-d868459f4f2c/test_local_session_key_is_reus0/reports/.session-secret')
+
+    def test_local_session_key_is_reused_after_app_recreation(local_key):
+        first = main._get_session_secret()
+        assert len(first) >= 32
+>       assert main._get_session_secret() == first
+E       AssertionError: assert 'dnnAh03NCAxX...-l5Yi9diLtvnE' == 'ZeAPURiZPy1A...YzOWXK_BWrQzA'
+E         
+E         - ZeAPURiZPy1APnuMUA--NHspYd0XsdYzOWXK_BWrQzA
+E         + dnnAh03NCAxXJ2JI_e-ZHGkY4azySf-l5Yi9diLtvnE
+
+tests\test_session_persistence.py:36: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+___________________ test_simultaneous_workers_share_one_key ___________________
+
+local_key = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-d868459f4f2c/test_simultaneous_workers_shar0/reports/.session-secret')
+
+    def test_simultaneous_workers_share_one_key(local_key):
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            keys = list(pool.map(lambda _: main._get_session_secret(), range(16)))
+>       assert len(set(keys)) == 1
+E       AssertionError: assert 16 == 1
+E        +  where 16 = len({'0NuBKt9_kj8mPj3RYm0px3voI8IPKn-Ue1SlqvZ4iHY', '1UDquTjTB0wi3SwFQWalqqWLGdzaxYM82UroafF3Pl0', '1eQAWrKDpYifz4ek4TUmS8...98qsNEpmSXoDkngFFs', 'D4HTZEPGJcnGLkmCnlFOewqLUGoXWoxKgSNVE-tfUDM', 'ErOqG6vzwPsMwvcenxmytIuFi6bsfdjeTITum5QIcFg', ...})
+E        +    where {'0NuBKt9_kj8mPj3RYm0px3voI8IPKn-Ue1SlqvZ4iHY', '1UDquTjTB0wi3SwFQWalqqWLGdzaxYM82UroafF3Pl0', '1eQAWrKDpYifz4ek4TUmS8...98qsNEpmSXoDkngFFs', 'D4HTZEPGJcnGLkmCnlFOewqLUGoXWoxKgSNVE-tfUDM', 'ErOqG6vzwPsMwvcenxmytIuFi6bsfdjeTITum5QIcFg', ...} = set(['y2I1bIZwOQFLI_1yYsseEfrlJ_hgguIbPn7m4eJPsBQ', 'FhHtFMjyrY548XZ1bH53YfogDmXLAzLe8ZM2OhZA7rQ', 'UBg8MmJSWnygc5FanHRclD...oj9BXDfSexyiviDkVc', '0NuBKt9_kj8mPj3RYm0px3voI8IPKn-Ue1SlqvZ4iHY', 'dCpwXWUbjhtoAouyyovWhgvhVKKfn9iAHIwPUehLB7A', ...])
+
+tests\test_session_persistence.py:49: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+__________________ test_invalid_key_is_not_silently_replaced __________________
+
+local_key = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-d868459f4f2c/test_invalid_key_is_not_silent0/reports/.session-secret')
+
+    def test_invalid_key_is_not_silently_replaced(local_key):
+        local_key.parent.mkdir()
+        local_key.write_text("", encoding="ascii")
+>       with pytest.raises(RuntimeError, match="Local session key"):
+E       Failed: DID NOT RAISE RuntimeError
+
+tests\test_session_persistence.py:56: Failed
+------------------------------ Captured log call ------------------------------
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+__________ test_admin_cookie_and_csrf_survive_another_local_instance __________
+
+local_key = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-d868459f4f2c/test_admin_cookie_and_csrf_sur0/reports/.session-secret')
+auth_db_path = WindowsPath('J:/job/bank-ocr-test-platform/reports/pytest-tmp-d868459f4f2c/test_admin_cookie_and_csrf_sur0/review_records.db')
+
+    def test_admin_cookie_and_csrf_survive_another_local_instance(local_key, auth_db_path):
+        create_user(username="session-test-admin", password="Session-test-password", role="admin")
+        with TestClient(fresh_app(), base_url="http://testserver:8001") as first:
+            token = first.get("/csrf-token").json()["csrf_token"]
+            response = first.post("/login", data={"username": "session-test-admin", "password": "Session-test-password"},
+                                  headers={"X-CSRF-Token": token}, follow_redirects=False)
+            assert response.headers["location"] == "/admin/reviews"
+            rotated_token = first.get("/csrf-token").json()["csrf_token"]
+            with TestClient(fresh_app(), base_url="http://testserver:8002") as restarted:
+                restarted.cookies.update(first.cookies)
+                for path in ("/user/bank-card", "/user/id-card", "/admin/reviews", "/admin/reviews/example-id"):
+>                   assert restarted.get(path, follow_redirects=False).status_code == 200
+E                   AssertionError: assert 303 == 200
+E                    +  where 303 = <Response [303 See Other]>.status_code
+E                    +    where <Response [303 See Other]> = get('/user/bank-card', follow_redirects=False)
+E                    +      where get = <starlette.testclient.TestClient object at 0x000002337FBDE4A0>.get
+
+tests\test_session_persistence.py:72: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+WARNING  app.main:pre-fix-session-config:65 SESSION_SECRET is not set; using an ephemeral development session key.
+============================== warnings summary ===============================
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\_pytest\config\__init__.py:1345
+  C:\Users\jb\miniconda3\envs\bank\lib\site-packages\_pytest\config\__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_session_persistence.py::test_local_session_key_is_reused_after_app_recreation
+FAILED tests/test_session_persistence.py::test_simultaneous_workers_share_one_key
+FAILED tests/test_session_persistence.py::test_invalid_key_is_not_silently_replaced
+FAILED tests/test_session_persistence.py::test_admin_cookie_and_csrf_survive_another_local_instance
+4 failed, 1 passed, 1 warning in 0.50s

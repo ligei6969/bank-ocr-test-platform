@@ -79,7 +79,7 @@ def create_and_login(
         token=anonymous_token,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == "/user"
+    assert response.headers["location"] == ("/admin/reviews" if role == "admin" else "/user")
     authenticated_token = get_csrf_token(client)
     return user, anonymous_token, authenticated_token
 

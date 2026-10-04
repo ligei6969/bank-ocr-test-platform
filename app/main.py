@@ -6,6 +6,7 @@ import logging
 import os
 import secrets
 import shutil
+import time
 import warnings
 from pathlib import Path
 from uuid import uuid4
@@ -56,16 +57,32 @@ ID_CARD_MAX_ASPECT_RATIO = 5.0
 ALLOWED_ID_CARD_FORMATS = {"PNG", "JPEG"}
 ALLOWED_OCR_MODES = {"mock", "paddle"}
 REVIEW_PATHS = {"/bank-card/review", "/id-card/review"}
+SESSION_SECRET_PATH = ROOT_DIR / "reports" / ".session-secret"
 
 
 def _get_session_secret() -> str:
     configured_secret = os.getenv("SESSION_SECRET")
     if configured_secret:
         return configured_secret
-    logger.warning(
-        "SESSION_SECRET is not set; using an ephemeral development session key."
-    )
-    return secrets.token_urlsafe(32)
+    # Same checkout must reuse its key across reloads and local ports. Cookies
+    # are scoped to a host, not a port; per-process keys invalidate each other.
+    SESSION_SECRET_PATH.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        descriptor = os.open(SESSION_SECRET_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError:
+        # Another worker may have created the file just before writing its key.
+        for _ in range(10):
+            secret = SESSION_SECRET_PATH.read_text(encoding="ascii").strip()
+            if len(secret) >= 32:
+                return secret
+            time.sleep(0.02)
+        raise RuntimeError("Local session key is empty or invalid; restore it or configure SESSION_SECRET.")
+
+    secret = secrets.token_urlsafe(32)
+    with os.fdopen(descriptor, "w", encoding="ascii") as handle:
+        handle.write(secret)
+    logger.info("Created persistent local session key; configure SESSION_SECRET for deployment.")
+    return secret
 
 
 app = FastAPI(title="Bank OCR Test Platform")
@@ -400,9 +417,11 @@ def review_bank_card_image(
                 fields=fields,
                 quality=quality,
             )
-        except HTTPException as exc:
-            error_message = str(exc.detail)
-            review_reasons = [_error_reason(exc.detail)]
+        except Exception as exc:
+            error_message = str(exc.detail) if isinstance(exc, HTTPException) else str(exc)
+            review_reasons = (
+                [_error_reason(exc.detail)] if isinstance(exc, HTTPException) else ["internal_error"]
+            )
             logger.warning(
                 "review failed request_id=%s error=%s",
                 request_id,
@@ -549,9 +568,11 @@ def review_id_card_image(
                 fields=fields,
                 quality=quality,
             )
-        except HTTPException as exc:
-            error_message = str(exc.detail)
-            review_reasons = [_error_reason(exc.detail)]
+        except Exception as exc:
+            error_message = str(exc.detail) if isinstance(exc, HTTPException) else str(exc)
+            review_reasons = (
+                [_error_reason(exc.detail)] if isinstance(exc, HTTPException) else ["internal_error"]
+            )
             logger.warning(
                 "review failed request_id=%s error=%s",
                 request_id,

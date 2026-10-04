@@ -39,7 +39,7 @@ def login_with_csrf(
         headers={"X-CSRF-Token": token},
         follow_redirects=False,
     )
-    if response.status_code == 303 and response.headers["location"] == "/user":
+    if response.status_code == 303 and response.headers["location"] in {"/user", "/admin/reviews"}:
         client.headers["X-CSRF-Token"] = get_csrf_token(client)
     return response
 
@@ -131,5 +131,5 @@ def authenticated_admin_client(
         password=password,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == "/user"
+    assert response.headers["location"] == "/admin/reviews"
     yield isolated_auth_client

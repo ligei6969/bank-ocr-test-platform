@@ -1,0 +1,16 @@
+[
+  {
+    "port": 8002,
+    "pid": 43900,
+    "ocr_mode": "paddle",
+    "ready": true,
+    "reload": false
+  },
+  {
+    "port": 8001,
+    "pid": 44576,
+    "ocr_mode": "paddle",
+    "ready": true,
+    "reload": true
+  }
+]
