@@ -1,0 +1,71 @@
+# 文档基线登记表（唯一事实来源）
+#
+# 本文件是「文档里引用的全量测试数」的唯一登记处。
+# scripts/check_doc_numbers.py 与 tests/test_doc_numbers.py 都从这里读。
+#
+# 两条规则：
+#   1. current 条目必须与最近一次全量回归的实际数字一致，漂了测试就红。
+#   2. snapshots 条目是历史快照（写明「当时」），不追改、不参与对账。
+
+schema_version: 1
+
+current:
+  passed: 1602
+  recorded_at: "2026-10-03"
+  evidence: reports/test-artifacts/doc-numbers/full-regression.txt
+  note: >
+    文档基线对账机制（scripts/check_doc_numbers.py + tests/test_doc_numbers.py）
+    落地后的全量回归。新增 21 条守卫测试；上一基线 1581。
+
+# ── 历史快照（不追改，不参与对账）─────────────────────────────────────────
+# 每一项写清楚「当时是什么状态」，避免读者把历史数字当当前基线。
+snapshots:
+  - at: "2026-06-15"
+    passed: 136
+    where: modedify_log.md（V1.2.1 面试冻结版）
+    why: 最早的完整记录口径
+
+  - at: "2026-09-26"
+    passed: 1011
+    where: docs/下一步开发计划.md
+    why: P4 多轮会话交付后的基线
+
+  - at: "2026-09-27"
+    passed: 1052
+    where: docs/项目现状总结.md、docs/CTE开发报告.md
+    why: CTE 开工前
+
+  - at: "2026-09-27"
+    passed: 1263
+    where: docs/项目现状总结.md 的补注
+    why: 交接文档当时引用的「当前基线」
+
+  - at: "2026-09-28"
+    passed: 1489
+    where: docs/审查问题修复验证.md
+    why: 审查修复开始前
+
+  - at: "2026-09-28"
+    passed: 1534
+    where: docs/审查问题修复验证.md、docs/项目验收报告.md、docs/PR_描述.md
+    why: 审查修复（EVT-006/007）完成后
+
+  - at: "2026-09-28"
+    passed: 1539
+    where: docs/项目使用方法、亮点与成果.md、README.md
+    why: 登录会话修复（+5）后
+
+  - at: "2026-09-29"
+    passed: 1568
+    where: docs/CTE主动测试演进审核.md
+    why: CTE 主动测试演进交付后
+
+  - at: "2026-10-03"
+    passed: 1570
+    where: docs/SQLite写锁修复验证.md
+    why: SQLite 写锁修复前
+
+  - at: "2026-10-03"
+    passed: 1581
+    where: docs/SQLite写锁修复验证.md、README.md
+    why: SQLite 写锁修复后（+11 条并发测试）

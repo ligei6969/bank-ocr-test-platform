@@ -575,7 +575,7 @@ reports/review_records.db
 python -m pytest -v
 ```
 
-当前全量测试结果为 **1539 passed / 0 failed / 0 errors**，见 [最新完整输出](reports/test-artifacts/session-fix/full-regression.txt)。
+当前全量测试结果为 **1581 passed / 0 failed / 0 errors**，见 [最新完整输出](reports/test-artifacts/sqlite-concurrency/pressure-after.txt)。
 
 **全部离线可跑，不需要任何 API key。** AI 服务侧默认走确定性序列，
 需要真实模型时必须显式加 `--live`。普通 pytest 会清理外部 `OCR_MODE` 环境变量
