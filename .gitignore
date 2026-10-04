@@ -35,3 +35,4 @@ reports/cte5-record*.log
 reports/ocr_field_error_rates.md
 reports/ocr_field_error_rates.csv
 reports/test-artifacts/pressure/*/review_records.db
+reports/test-report.html
