@@ -53,6 +53,8 @@ def emitted_reason_codes() -> set[str]:
         {"brightness": "dark"},
         {"brightness": "bright"},
         {"has_glare": True},
+        {"quality_metrics": {"rotation_angle_degrees": 7.0}},
+        {"quality_metrics": {"occlusion_area_ratio": 0.03}},
     ):
         codes.update(quality_check.get_quality_reasons(quality))
 
@@ -146,11 +148,11 @@ def _source_number(function: Callable[..., Any], pattern: str) -> str:
 # ── 覆盖率 ────────────────────────────────────────────────────────────────────
 
 def test_platform_emits_at_least_the_expected_number_of_reason_codes() -> None:
-    # 35 是当前实现的完整集合：
-    #   26 个原有码 + 4 个严重退化码 + 5 个字段缺失归因码（CTE-4）
+    # 37 是当前实现的完整集合：
+    #   26 个原有码 + 4 个严重退化码 + 5 个字段缺失归因码 + 2 个影像几何码
     # 数量变化时本测试会失败，提醒同步语料与文档 —— 这是有意的摩擦点：
     # 新增原因码必须同时回答「语料收了吗、文档写了吗」。
-    assert len(emitted_reason_codes()) == 35
+    assert len(emitted_reason_codes()) == 37
 
 
 def test_every_emitted_reason_code_is_described_in_the_corpus() -> None:

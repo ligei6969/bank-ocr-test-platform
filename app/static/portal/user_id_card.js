@@ -11,6 +11,8 @@ const ID_CARD_REASON_MESSAGES = {
   image_dark: "图片过暗，请在光线充足的环境下重新拍摄。",
   image_bright: "图片过亮，请避免强光直射。",
   glare_detected: "图片存在明显反光，请调整拍摄角度。",
+  image_rotated: "图片存在明显倾斜或侧转，请将身份证放正后重新拍摄。",
+  image_occluded: "图片疑似存在遮挡，请移开遮挡物，完整展示身份证后重新拍摄。",
   unknown_id_card_side: "未能判断身份证人像面或国徽面，请重新上传清晰完整的图片。",
   missing_name: "未能识别人像面姓名信息。",
   missing_id_number: "未能识别人像面身份证号码。",
@@ -241,6 +243,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (detail.includes("not a readable image")) {
       return "无法读取所选图片，请重新拍摄或选择其他图片。";
+    }
+    if (detail === "Internal server error.") {
+      return "识别服务处理异常，请稍后重试，可使用下方 request_id 查询错误记录。";
     }
     return "图片处理失败，请检查文件后重试。";
   }

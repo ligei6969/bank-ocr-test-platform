@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const rows = [
       [
         "解释生成",
-        engine.generation === "llm" ? "大模型生成" : "模板生成（未配置大模型）",
+        engine.generation === "llm" ? "大模型生成" : "模板生成（降级路径）",
       ],
       ["查询改写", engine.rewrite === "llm" ? "大模型改写" : "规则同义词扩展"],
       ["结果重排", engine.rerank === "llm" ? "大模型重排" : "共识度重排"],
@@ -401,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       } else if (result.degraded === true) {
         setAiMessage(
-          "未配置大模型，已用模板与规则检索生成解释；事实内容取自知识库，可正常参考。",
+          "已使用模板与规则检索生成解释；可能未配置模型或模型调用失败，事实内容取自知识库。",
           "note",
         );
       } else {
@@ -639,7 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
       thought.textContent = String(entry.thought);
       item.append(thought);
     }
-    if (rejected && entry.error) {
+    if ((rejected || isFailure) && entry.error) {
       const error = document.createElement("p");
       error.className = "agent-trace-error";
       error.textContent = String(entry.error);
@@ -743,7 +743,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (stop === "escalated") {
         setAgentMessage("Agent 判定证据不足，已转人工。", "note");
       } else if (result.degraded === true) {
-        setAgentMessage("未配置大模型，走的是确定性工具序列。", "note");
+        setAgentMessage("已退回确定性工具序列；可能未配置模型或模型决策失败，请查看轨迹。", "note");
       } else {
         setAgentMessage("轨迹已生成，可对照工具序列与预算用量核对。", null);
       }
