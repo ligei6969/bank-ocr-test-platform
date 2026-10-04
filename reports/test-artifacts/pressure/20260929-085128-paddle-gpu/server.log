@@ -1,0 +1,10 @@
+信息: 用提供的模式无法找到文件。
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('PP-OCRv6_medium_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0929 08:51:38.222872 29504 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+Creating model: ('PP-OCRv6_medium_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.
+W0929 08:51:39.363415 29504 gpu_resources.cc:245] WARNING: device: 0. The installed Paddle is compiled with CUDNN 9.9, but CUDNN version in your machine is 9.5, which may cause serious incompatible bug. Please recompile or reinstall Paddle with compatible CUDNN version.

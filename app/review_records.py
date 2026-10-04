@@ -9,11 +9,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.sqlite_connection import connect_database
+from app.sqlite_connection import connect_database, setup_database_once
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = ROOT_DIR / "reports" / "review_records.db"
+
+#: 建库标记的 key。``review_records`` 与 ``users`` 共用一个库文件，
+#: 所以标记必须带上「这一次建的是哪组表」。
+SCHEMA_KEY = "review_records"
 
 
 def get_review_db_path() -> Path:
@@ -22,65 +26,81 @@ def get_review_db_path() -> Path:
 
 
 def initialize_review_database() -> None:
-    with connect_database(get_review_db_path()) as connection:
-        connection.execute(
-            """
-            CREATE TABLE IF NOT EXISTS review_records (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                request_id TEXT NOT NULL UNIQUE,
-                doc_type TEXT NOT NULL,
-                filename TEXT NOT NULL,
-                ocr_mode TEXT,
-                review_result TEXT NOT NULL,
-                quality_result TEXT,
-                quality_reasons TEXT NOT NULL,
-                review_reasons TEXT NOT NULL DEFAULT '[]',
-                fields_json TEXT NOT NULL,
-                error_message TEXT,
-                created_at TEXT NOT NULL,
-                llm_invoked INTEGER NOT NULL DEFAULT 0,
-                llm_override INTEGER NOT NULL DEFAULT 0,
-                llm_decision TEXT NOT NULL DEFAULT '',
-                llm_fallback_reason TEXT NOT NULL DEFAULT '',
-                boundary_criteria TEXT NOT NULL DEFAULT '[]',
-                llm_rationale TEXT NOT NULL DEFAULT '',
-                quality_metrics TEXT NOT NULL DEFAULT '{}'
-            )
-            """
+    """建立 / 增量升级 ``review_records`` 表。
+
+    **每个库文件只真正执行一次**（见 :func:`setup_database_once`）。
+    这是压测修复的核心：此前它被放在每次读写之前，于是每条审核请求
+    都要多跑 2 条 DDL 写语句去抢写锁，40 / 80 并发下直接变成
+    ``database is locked`` 的超时风暴。
+
+    公开行为没有变：第一次调用建表、老库补列，之后是纯内存判断。
+    库文件被删掉后再次调用会重新建表 —— 判断里带了「文件还在不在」。
+    """
+    setup_database_once(
+        get_review_db_path(), key=SCHEMA_KEY, setup=_create_review_schema
+    )
+
+
+def _create_review_schema(connection: sqlite3.Connection) -> None:
+    """建表 + 增量补列 + 建索引。只在建库那一次执行。"""
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS review_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            request_id TEXT NOT NULL UNIQUE,
+            doc_type TEXT NOT NULL,
+            filename TEXT NOT NULL,
+            ocr_mode TEXT,
+            review_result TEXT NOT NULL,
+            quality_result TEXT,
+            quality_reasons TEXT NOT NULL,
+            review_reasons TEXT NOT NULL DEFAULT '[]',
+            fields_json TEXT NOT NULL,
+            error_message TEXT,
+            created_at TEXT NOT NULL,
+            llm_invoked INTEGER NOT NULL DEFAULT 0,
+            llm_override INTEGER NOT NULL DEFAULT 0,
+            llm_decision TEXT NOT NULL DEFAULT '',
+            llm_fallback_reason TEXT NOT NULL DEFAULT '',
+            boundary_criteria TEXT NOT NULL DEFAULT '[]',
+            llm_rationale TEXT NOT NULL DEFAULT '',
+            quality_metrics TEXT NOT NULL DEFAULT '{}'
         )
-        columns = {
-            row[1]
-            for row in connection.execute("PRAGMA table_info(review_records)").fetchall()
-        }
-        if "review_reasons" not in columns:
+        """
+    )
+    columns = {
+        row[1]
+        for row in connection.execute("PRAGMA table_info(review_records)").fetchall()
+    }
+    if "review_reasons" not in columns:
+        connection.execute(
+            "ALTER TABLE review_records ADD COLUMN review_reasons TEXT NOT NULL DEFAULT '[]'"
+        )
+    # 双判（P2.3）落库。逐列判存在再 ALTER，与上面的 review_reasons 同一写法。
+    #
+    # 为什么 llm_invoked 与 llm_override 要分开：'未尝试复核' 与
+    # '尝试了但失败' 在运维上完全不同 —— 前者是没走到边界判据，后者是
+    # AI 服务出问题了。只用一个 bool 会让改判率的分母被故障样本稀释，
+    # 而且故障越多久改判率越低，看起来像规则阈值的问题，方向是反的。
+    for column, ddl in (
+        ("llm_invoked", "INTEGER NOT NULL DEFAULT 0"),
+        ("llm_override", "INTEGER NOT NULL DEFAULT 0"),
+        ("llm_decision", "TEXT NOT NULL DEFAULT ''"),
+        ("llm_fallback_reason", "TEXT NOT NULL DEFAULT ''"),
+        ("boundary_criteria", "TEXT NOT NULL DEFAULT '[]'"),
+        ("llm_rationale", "TEXT NOT NULL DEFAULT ''"),
+        ("quality_metrics", "TEXT NOT NULL DEFAULT '{}'"),
+    ):
+        if column not in columns:
             connection.execute(
-                "ALTER TABLE review_records ADD COLUMN review_reasons TEXT NOT NULL DEFAULT '[]'"
+                f"ALTER TABLE review_records ADD COLUMN {column} {ddl}"
             )
-        # 双判（P2.3）落库。逐列判存在再 ALTER，与上面的 review_reasons 同一写法。
-        #
-        # 为什么 llm_invoked 与 llm_override 要分开：'未尝试复核' 与
-        # '尝试了但失败' 在运维上完全不同 —— 前者是没走到边界判据，后者是
-        # AI 服务出问题了。只用一个 bool 会让改判率的分母被故障样本稀释，
-        # 而且故障越多久改判率越低，看起来像规则阈值的问题，方向是反的。
-        for column, ddl in (
-            ("llm_invoked", "INTEGER NOT NULL DEFAULT 0"),
-            ("llm_override", "INTEGER NOT NULL DEFAULT 0"),
-            ("llm_decision", "TEXT NOT NULL DEFAULT ''"),
-            ("llm_fallback_reason", "TEXT NOT NULL DEFAULT ''"),
-            ("boundary_criteria", "TEXT NOT NULL DEFAULT '[]'"),
-            ("llm_rationale", "TEXT NOT NULL DEFAULT ''"),
-            ("quality_metrics", "TEXT NOT NULL DEFAULT '{}'"),
-        ):
-            if column not in columns:
-                connection.execute(
-                    f"ALTER TABLE review_records ADD COLUMN {column} {ddl}"
-                )
-        connection.execute(
-            """
-            CREATE INDEX IF NOT EXISTS idx_review_records_filters
-            ON review_records (doc_type, review_result, created_at)
-            """
-        )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_review_records_filters
+        ON review_records (doc_type, review_result, created_at)
+        """
+    )
 
 
 def save_review_record(
@@ -104,7 +124,7 @@ def save_review_record(
     quality_metrics: dict[str, Any] | None = None,
 ) -> None:
     initialize_review_database()
-    with connect_database(get_review_db_path()) as connection:
+    with connect_database(get_review_db_path(), write=True) as connection:
         connection.execute(
             """
             INSERT INTO review_records (

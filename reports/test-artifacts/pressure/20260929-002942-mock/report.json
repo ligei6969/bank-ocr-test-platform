@@ -1,0 +1,179 @@
+{
+  "mode": "mock",
+  "base_url": "http://127.0.0.1:58068",
+  "endpoint": "POST /bank-card/review",
+  "workers": 1,
+  "ocr_device": "mock",
+  "ai_assist_enabled": false,
+  "load_model": "closed-loop, zero think time, one outstanding request per virtual user",
+  "login_and_warmup_excluded": true,
+  "database": "J:\\job\\bank-ocr-test-platform\\reports\\test-artifacts\\pressure\\20260929-002942-mock\\review_records.db",
+  "started_at": "2026-09-29T00:29:42.630958+08:00",
+  "image": {
+    "path": "J:\\job\\bank-ocr-test-platform\\data\\synthetic\\bank_card\\Synthetic Test Bank\\normal\\synthetic_debit_001.png",
+    "bytes": 265754,
+    "sha256": "dcb241c67cca4102b53357c5664987f349e76ce5e337530a0826921807246283"
+  },
+  "environment": {
+    "python": "3.10.20",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "logical_cpus": 32,
+    "physical_cpus": 16,
+    "memory_gb": 15.2,
+    "processor": "unknown"
+  },
+  "stages": [
+    {
+      "concurrency": 1,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.074,
+      "requests": 118,
+      "successes": 118,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 7.83,
+      "completed_rps": 7.83,
+      "latency_ms": {
+        "p50": 127.08,
+        "p95": 137.85,
+        "p99": 141.37,
+        "max": 150.6
+      },
+      "errors": {},
+      "review_results": {
+        "reject": 118
+      },
+      "server_cpu_percent_peak": 428.1,
+      "server_rss_peak_mb": 106.0
+    },
+    {
+      "concurrency": 5,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.123,
+      "requests": 366,
+      "successes": 366,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 24.2,
+      "completed_rps": 24.2,
+      "latency_ms": {
+        "p50": 204.14,
+        "p95": 237.55,
+        "p99": 259.61,
+        "max": 271.96
+      },
+      "errors": {},
+      "review_results": {
+        "reject": 366
+      },
+      "server_cpu_percent_peak": 1234.4,
+      "server_rss_peak_mb": 156.8
+    },
+    {
+      "concurrency": 10,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.201,
+      "requests": 394,
+      "successes": 394,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 25.92,
+      "completed_rps": 25.92,
+      "latency_ms": {
+        "p50": 378.98,
+        "p95": 460.15,
+        "p99": 588.51,
+        "max": 702.74
+      },
+      "errors": {},
+      "review_results": {
+        "reject": 394
+      },
+      "server_cpu_percent_peak": 1318.8,
+      "server_rss_peak_mb": 270.3
+    },
+    {
+      "concurrency": 20,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.289,
+      "requests": 391,
+      "successes": 391,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 25.57,
+      "completed_rps": 25.57,
+      "latency_ms": {
+        "p50": 775.54,
+        "p95": 1104.57,
+        "p99": 1262.97,
+        "max": 1293.85
+      },
+      "errors": {},
+      "review_results": {
+        "reject": 391
+      },
+      "server_cpu_percent_peak": 1626.1,
+      "server_rss_peak_mb": 400.8
+    },
+    {
+      "concurrency": 40,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 16.614,
+      "requests": 375,
+      "successes": 371,
+      "failures": 4,
+      "failure_rate": 0.010666666666666666,
+      "successful_rps": 22.33,
+      "completed_rps": 22.57,
+      "latency_ms": {
+        "p50": 1154.91,
+        "p95": 4634.58,
+        "p99": 6996.08,
+        "max": 7875.21
+      },
+      "errors": {
+        "HTTP_500": 2,
+        "ReadError": 2
+      },
+      "review_results": {
+        "reject": 371
+      },
+      "server_cpu_percent_peak": 1912.5,
+      "server_rss_peak_mb": 839.3
+    },
+    {
+      "concurrency": 80,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 17.059,
+      "requests": 396,
+      "successes": 396,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 23.21,
+      "completed_rps": 23.21,
+      "latency_ms": {
+        "p50": 3175.1,
+        "p95": 4542.36,
+        "p99": 5202.72,
+        "max": 5614.97
+      },
+      "errors": {},
+      "review_results": {
+        "reject": 396
+      },
+      "server_cpu_percent_peak": 1921.9,
+      "server_rss_peak_mb": 715.1
+    }
+  ],
+  "cold_request_s": 0.194,
+  "warmup_review_result": "reject",
+  "audit_check": {
+    "rows": 2037,
+    "acknowledged_unique_requests": 2037,
+    "missing_acknowledged_records": 0,
+    "extra_records": 0
+  },
+  "status": "completed",
+  "server_stopped": true,
+  "ended_at": "2026-09-29T00:31:21.180790+08:00"
+}

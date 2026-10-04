@@ -1,0 +1,17 @@
+��Ϣ: ���ṩ��ģʽ�޷��ҵ��ļ���
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W0929 08:50:45.395411 55820 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.9, Driver API Version: 12.7, Runtime API Version: 12.6
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\base\dygraph\generated_tensor_methods_patch.py", line 19, in _matmul
+    return _C_ops.matmul(*args, **kwargs)
+RuntimeError: (PreconditionNotMet) The third-party dynamic library (cublas64_12.dll) that Paddle depends on is not configured correctly. (error code is 126)
+  Suggestions:
+  1. Check if the third-party dynamic library (e.g. CUDA, CUDNN) is installed correctly and its version is matched with paddlepaddle you installed.
+  2. Configure third-party dynamic library environment variables as follows:
+  - Linux: set LD_LIBRARY_PATH by `export LD_LIBRARY_PATH=...`
+  - Windows: set PATH by `set PATH=XXX;%PATH%`
+  - Mac: set  DYLD_LIBRARY_PATH by `export DYLD_LIBRARY_PATH=...` [Note: After Mac OS 10.11, using the DYLD_LIBRARY_PATH is impossible unless System Integrity Protection (SIP) is disabled.] (at ..\paddle\phi\backends\dynload\dynamic_loader.cc:410)
+

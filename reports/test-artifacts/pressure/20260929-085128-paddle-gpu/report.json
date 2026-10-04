@@ -1,0 +1,179 @@
+{
+  "mode": "paddle",
+  "base_url": "http://127.0.0.1:61123",
+  "endpoint": "POST /bank-card/review",
+  "workers": 1,
+  "ocr_device": "GPU",
+  "ai_assist_enabled": false,
+  "load_model": "closed-loop, zero think time, one outstanding request per virtual user",
+  "login_and_warmup_excluded": true,
+  "database": "J:\\job\\bank-ocr-test-platform\\reports\\test-artifacts\\pressure\\20260929-085128-paddle-gpu\\review_records.db",
+  "started_at": "2026-09-29T08:51:28.449942+08:00",
+  "image": {
+    "path": "J:\\job\\bank-ocr-test-platform\\data\\processed\\bank_card\\normal\\bank_card_0001.png",
+    "bytes": 32385,
+    "sha256": "508f963af78657cf5846bf5fab711da12dda04a992f24f976d455087051a20d1"
+  },
+  "environment": {
+    "python": "3.10.20",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "logical_cpus": 32,
+    "physical_cpus": 16,
+    "memory_gb": 15.2,
+    "processor": "unknown",
+    "packages": {
+      "fastapi": "0.137.1",
+      "httpx": "0.28.1",
+      "opencv-python": "4.13.0.92",
+      "paddleocr": "3.7.0",
+      "paddlepaddle-gpu": "3.3.0",
+      "uvicorn": "0.49.0"
+    }
+  },
+  "code_sha256": {
+    "app/__init__.py": "514b11a1cb986f964f87c25721842a3bfd302386b1475d5465dc71a4fe610a9e",
+    "app/adjudication.py": "1b15c060bc1199463614bf12ff2acc4f0dbe64992fc57ff4bd63e479af07f3d9",
+    "app/ai_client.py": "8a4793821d40c27ac2281e71bb722afe5ef3d75b40db003146f814859fe69d9a",
+    "app/ai_routes.py": "e9ea05a8b3223c026c8d07d30456f005c4d5e50c15d66b007d90856e682fd3ab",
+    "app/auth_routes.py": "a8d79ce649f6f862e697cace50aa55419df408c0cec15722f31e3eebd68904e7",
+    "app/boundary.py": "851ab497f31df41cbf76fb972a8c50ad97bd0ee8cf7b4750c9e9b49d1aae814b",
+    "app/csrf.py": "7840eed6ed6d2823726e4c49823c8aef8485f2ea4d192431fe73241a6fc2ee01",
+    "app/field_parser.py": "91a0a69b13302a89434fea4beb7719c0c0f85a1f2f186711438330da42c85409",
+    "app/id_card_parser.py": "5b51b21121fdde4cc9fe625ff3e778f28488e73db0890c2ccc34c75239bdeb7b",
+    "app/image_geometry.py": "0c2c400e301900c7930a7ecb876c1164d1b790ddb0d740d3d5a7d110cbe85f0e",
+    "app/logging_utils.py": "3a84e4482b9ce66d6dd6bcce2aca67c608dc0fa600b5b1ee0992606f5c0fd320",
+    "app/main.py": "8e87965b54b4d5c2d7320158e8e00814f9d3f6d3546b35341f5b4f669a10f33c",
+    "app/ocr_evidence.py": "80af1c2c54307b88f0f211d80dbed4d737e321d8bc02ef3ae5e293de6e6a22cc",
+    "app/ocr_service.py": "7c43d4678d166883bdfde4c7af92c67186b55787b6c16363770ffdeea554c858",
+    "app/page_routes.py": "51312051e7dc10fe98677cb080b55745eff5ad416f939d752b045d6360962a5d",
+    "app/quality_check.py": "7634ebeafaa0836b138ff7c9001574c733d1ce788e816b82a5a2b4beae0c46ba",
+    "app/review_records.py": "276654a5ca22c85b235c8da2e9d5340700b05a31e757031df2ae2f4198fc68a2",
+    "app/rule_check.py": "2a79cc196ee6394eb76024912c575b483b84583222d78fb91ff4082db4d3c981",
+    "app/sqlite_connection.py": "9d0d8e8364c4842c2bb0a4be83963cf0f0ca24c9fe37efa10a1ef929395cc4f0",
+    "app/users.py": "e6e9c92bc011971493ee552b6f4c9924e57bb1ba737c3144a7b2c97427b4ac0b"
+  },
+  "stages": [
+    {
+      "concurrency": 1,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.019,
+      "requests": 105,
+      "successes": 105,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 6.99,
+      "completed_rps": 6.99,
+      "latency_ms": {
+        "p50": 139.09,
+        "p95": 165.53,
+        "p99": 177.52,
+        "max": 192.24
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 105
+      },
+      "server_cpu_percent_peak": 287.7,
+      "server_rss_peak_mb": 1376.8
+    },
+    {
+      "concurrency": 2,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.132,
+      "requests": 132,
+      "successes": 132,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 8.72,
+      "completed_rps": 8.72,
+      "latency_ms": {
+        "p50": 227.04,
+        "p95": 249.21,
+        "p99": 261.01,
+        "max": 277.17
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 132
+      },
+      "server_cpu_percent_peak": 318.0,
+      "server_rss_peak_mb": 1370.3
+    },
+    {
+      "concurrency": 4,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.404,
+      "requests": 143,
+      "successes": 143,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 9.28,
+      "completed_rps": 9.28,
+      "latency_ms": {
+        "p50": 428.89,
+        "p95": 451.13,
+        "p99": 467.25,
+        "max": 475.77
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 143
+      },
+      "server_cpu_percent_peak": 484.5,
+      "server_rss_peak_mb": 1416.0
+    },
+    {
+      "concurrency": 8,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.785,
+      "requests": 142,
+      "successes": 142,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 9.0,
+      "completed_rps": 9.0,
+      "latency_ms": {
+        "p50": 883.73,
+        "p95": 919.55,
+        "p99": 923.19,
+        "max": 942.93
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 142
+      },
+      "server_cpu_percent_peak": 343.8,
+      "server_rss_peak_mb": 1425.6
+    }
+  ],
+  "gpu_dll_directories": [
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cublas\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cuda_runtime\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cudnn\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cufft\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\curand\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cusolver\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\cusparse\\bin",
+    "C:\\Users\\jb\\miniconda3\\envs\\bank\\Lib\\site-packages\\nvidia\\nvjitlink\\bin"
+  ],
+  "gpu_preflight": {
+    "default_ocr_device": "gpu:0",
+    "tensor_place": "Place(gpu:0)",
+    "gpu_compute_sum": 8.0
+  },
+  "server_pid": 29560,
+  "cold_request_s": 5.14,
+  "warmup_review_result": "pass",
+  "audit_check": {
+    "rows": 523,
+    "acknowledged_unique_requests": 523,
+    "missing_acknowledged_records": 0,
+    "extra_records": 0
+  },
+  "status": "completed",
+  "terminated_by_harness": true,
+  "exit_before_cleanup": null,
+  "server_stopped": true,
+  "server_exit_code": 1,
+  "ended_at": "2026-09-29T08:52:43.020069+08:00"
+}

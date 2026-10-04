@@ -1,0 +1,141 @@
+{
+  "mode": "mock",
+  "base_url": "http://127.0.0.1:54315",
+  "endpoint": "POST /bank-card/review",
+  "workers": 1,
+  "ocr_device": "mock",
+  "ai_assist_enabled": false,
+  "load_model": "closed-loop, zero think time, one outstanding request per virtual user",
+  "login_and_warmup_excluded": true,
+  "database": "J:\\job\\bank-ocr-test-platform\\reports\\test-artifacts\\pressure\\20261003-024200-mock-cpu\\review_records.db",
+  "started_at": "2026-10-03T02:42:00.292101+08:00",
+  "image": {
+    "path": "J:\\job\\bank-ocr-test-platform\\data\\processed\\bank_card\\normal\\bank_card_0001.png",
+    "bytes": 32385,
+    "sha256": "508f963af78657cf5846bf5fab711da12dda04a992f24f976d455087051a20d1"
+  },
+  "environment": {
+    "python": "3.10.20",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "logical_cpus": 32,
+    "physical_cpus": 16,
+    "memory_gb": 15.2,
+    "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+    "packages": {
+      "fastapi": "0.137.1",
+      "httpx": "0.28.1",
+      "opencv-python": "4.13.0.92",
+      "paddleocr": "3.7.0",
+      "paddlepaddle-gpu": "3.3.0",
+      "uvicorn": "0.49.0"
+    }
+  },
+  "code_sha256": {
+    "app/__init__.py": "514b11a1cb986f964f87c25721842a3bfd302386b1475d5465dc71a4fe610a9e",
+    "app/adjudication.py": "1b15c060bc1199463614bf12ff2acc4f0dbe64992fc57ff4bd63e479af07f3d9",
+    "app/ai_client.py": "8a4793821d40c27ac2281e71bb722afe5ef3d75b40db003146f814859fe69d9a",
+    "app/ai_routes.py": "e9ea05a8b3223c026c8d07d30456f005c4d5e50c15d66b007d90856e682fd3ab",
+    "app/auth_routes.py": "a8d79ce649f6f862e697cace50aa55419df408c0cec15722f31e3eebd68904e7",
+    "app/boundary.py": "851ab497f31df41cbf76fb972a8c50ad97bd0ee8cf7b4750c9e9b49d1aae814b",
+    "app/csrf.py": "7840eed6ed6d2823726e4c49823c8aef8485f2ea4d192431fe73241a6fc2ee01",
+    "app/field_parser.py": "91a0a69b13302a89434fea4beb7719c0c0f85a1f2f186711438330da42c85409",
+    "app/id_card_parser.py": "5b51b21121fdde4cc9fe625ff3e778f28488e73db0890c2ccc34c75239bdeb7b",
+    "app/image_geometry.py": "0c2c400e301900c7930a7ecb876c1164d1b790ddb0d740d3d5a7d110cbe85f0e",
+    "app/logging_utils.py": "3a84e4482b9ce66d6dd6bcce2aca67c608dc0fa600b5b1ee0992606f5c0fd320",
+    "app/main.py": "8e87965b54b4d5c2d7320158e8e00814f9d3f6d3546b35341f5b4f669a10f33c",
+    "app/ocr_evidence.py": "80af1c2c54307b88f0f211d80dbed4d737e321d8bc02ef3ae5e293de6e6a22cc",
+    "app/ocr_service.py": "7c43d4678d166883bdfde4c7af92c67186b55787b6c16363770ffdeea554c858",
+    "app/page_routes.py": "51312051e7dc10fe98677cb080b55745eff5ad416f939d752b045d6360962a5d",
+    "app/quality_check.py": "7634ebeafaa0836b138ff7c9001574c733d1ce788e816b82a5a2b4beae0c46ba",
+    "app/review_records.py": "be4031290b87c0c56fb2e9d5fa0e60d70ae8ca2957479d020cd8d05f3e21a17d",
+    "app/rule_check.py": "2a79cc196ee6394eb76024912c575b483b84583222d78fb91ff4082db4d3c981",
+    "app/sqlite_connection.py": "22283fd93a32eb05fb7d69b7d0ee29af09a6114d614ca848eb3f3596dc022afb",
+    "app/users.py": "bce6500ba36276f8225e56118f4d872f19d1838ca4c4a60cfa655989da185362"
+  },
+  "stages": [
+    {
+      "concurrency": 10,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.103,
+      "requests": 987,
+      "successes": 987,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 65.35,
+      "completed_rps": 65.35,
+      "latency_ms": {
+        "p50": 151.66,
+        "p95": 182.44,
+        "p99": 195.16,
+        "max": 219.88
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 987
+      },
+      "server_cpu_percent_peak": 1131.2,
+      "server_rss_peak_mb": 111.5
+    },
+    {
+      "concurrency": 40,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.212,
+      "requests": 1019,
+      "successes": 1019,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 66.99,
+      "completed_rps": 66.99,
+      "latency_ms": {
+        "p50": 574.56,
+        "p95": 711.94,
+        "p99": 979.83,
+        "max": 1180.19
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 1019
+      },
+      "server_cpu_percent_peak": 1334.4,
+      "server_rss_peak_mb": 148.0
+    },
+    {
+      "concurrency": 80,
+      "dispatch_window_s": 15,
+      "elapsed_including_drain_s": 15.632,
+      "requests": 1034,
+      "successes": 1034,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "successful_rps": 66.15,
+      "completed_rps": 66.15,
+      "latency_ms": {
+        "p50": 1161.18,
+        "p95": 1458.97,
+        "p99": 1958.33,
+        "max": 2167.56
+      },
+      "errors": {},
+      "review_results": {
+        "pass": 1034
+      },
+      "server_cpu_percent_peak": 1275.0,
+      "server_rss_peak_mb": 242.6
+    }
+  ],
+  "server_pid": 3900,
+  "cold_request_s": 0.068,
+  "warmup_review_result": "pass",
+  "audit_check": {
+    "rows": 3041,
+    "acknowledged_unique_requests": 3041,
+    "missing_acknowledged_records": 0,
+    "extra_records": 0
+  },
+  "status": "completed",
+  "terminated_by_harness": true,
+  "exit_before_cleanup": null,
+  "server_stopped": true,
+  "server_exit_code": 1,
+  "ended_at": "2026-10-03T02:42:49.253905+08:00"
+}

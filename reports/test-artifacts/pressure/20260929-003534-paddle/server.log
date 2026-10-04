@@ -1,0 +1,69 @@
+信息: 用提供的模式无法找到文件。
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddle\base\framework.py:829: UserWarning: You are using GPU version Paddle, but your CUDA device is not set properly. CPU device will be used by default.
+  warnings.warn(
+Creating model: ('PP-OCRv6_medium_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_det`.
+Creating model: ('PP-OCRv6_medium_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `J:\job\bank-ocr-test-platform\reports\paddlex-runtime-cache\official_models\PP-OCRv6_medium_rec`.
+Windows fatal exception: access violation
+
+Thread 0x0000d4f0 (most recent call first):
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 118 in _recognize_text_with_paddle
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 136 in recognize_text
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 398 in review_bank_card_image
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 1016 in _bootstrap_inner
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 973 in _bootstrap
+
+Thread 0x00005d3c (most recent call first):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\models\runners\paddle_static\runner.py", line 265 in __call__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\models\runners\paddle_static\runner.py", line 297 in __call__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\models\text_detection\predictor.py", line 145 in process
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\models\predictors\base_predictor.py", line 140 in apply
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\models\predictors\base_predictor.py", line 117 in __call__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\pipelines\ocr\pipeline.py", line 366 in predict
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddlex\inference\pipelines\_parallel.py", line 161 in predict
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\paddleocr\_pipelines\ocr.py", line 223 in predict
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 121 in _recognize_text_with_paddle
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 136 in recognize_text
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 398 in review_bank_card_image
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 1016 in _bootstrap_inner
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 973 in _bootstrap
+
+Thread 0x000063a0 (most recent call first):
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 118 in _recognize_text_with_paddle
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 136 in recognize_text
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 398 in review_bank_card_image
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 1016 in _bootstrap_inner
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 973 in _bootstrap
+
+Thread 0x0000db78 (most recent call first):
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 118 in _recognize_text_with_paddle
+  File "J:\job\bank-ocr-test-platform\app\ocr_service.py", line 136 in recognize_text
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 398 in review_bank_card_image
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 1016 in _bootstrap_inner
+  File "C:\Users\jb\miniconda3\envs\bank\lib\threading.py", line 973 in _bootstrap
+
+Thread 0x00008cd4 (most recent call first):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\windows_events.py", line 797 in _poll
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\windows_events.py", line 444 in select
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\base_events.py", line 1871 in _run_once
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\base_events.py", line 603 in run_forever
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\windows_events.py", line 321 in run_forever
+  File "C:\Users\jb\miniconda3\envs\bank\lib\asyncio\base_events.py", line 636 in run_until_complete
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\_compat.py", line 60 in asyncio_run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\server.py", line 75 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\main.py", line 620 in run
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\main.py", line 441 in main
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\click\core.py", line 877 in invoke
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\click\core.py", line 1308 in invoke
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\click\core.py", line 1445 in main
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\click\core.py", line 1524 in __call__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\__main__.py", line 4 in <module>
+  File "C:\Users\jb\miniconda3\envs\bank\lib\runpy.py", line 86 in _run_code
+  File "C:\Users\jb\miniconda3\envs\bank\lib\runpy.py", line 196 in _run_module_as_main

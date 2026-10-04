@@ -13,6 +13,7 @@ reports/pytest-tmp*/
 reports/full-run*.log
 reports/review_records.db
 reports/review_records.db-*
+reports/.session-secret
 reports/tmp_uploads/
 modedify_log.md
 data/processed/bank_card/*/*.png
@@ -22,6 +23,7 @@ data/processed/bank_card/*/*.png
 银行OCR测试平台_面试问题与参考答案_已补充.docx
 银行OCR测试平台_面试问题与参考答案.docx
 reports/test-documents/
+reports/cte-discovery/
 
 # CTE 的过程证据要入库（它们是审计轨迹），但 CTE 的临时报告不入库
 test_evolution/reports/
@@ -32,3 +34,4 @@ reports/cte5-record*.log
 # 错误率报告是**生成物**，正文在 docs/ocr_field_error_rates.md
 reports/ocr_field_error_rates.md
 reports/ocr_field_error_rates.csv
+reports/test-artifacts/pressure/*/review_records.db

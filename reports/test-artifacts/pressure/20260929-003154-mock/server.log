@@ -1,0 +1,2108 @@
+review failed request_id=c5f98595249d4667b2034477d7e5461b error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=73757190dcb4463fa17ca781bc215eac error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=7ca753326e354924a83942e2b183dfaa error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=acaf5cfe894046d694d9c0ca25db61fc error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=f853f8dd76584908a908d3f01b031481 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=5fb3e17ed4f9446a8568769918ec38f5 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=619fe56a8cce41a2af9534fdca78f168 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=e16318c5a9ea42b392a6f63eb9a48770 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=1317fac2395140099ca97d1589bd07d0 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=bceeebd6846f4275a0e1a03a747ef9c7 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=ba824f4ba8aa466bafe506952070eeff error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=bc8b571ec4584b0e9b1de14fb1aa1cf1 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=8ca210ec66184032b0a3d4eb6363bed4 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=0b7d2873609f40049f342e65a6ccc718 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=33f31fe4184f432b8638a1b2e0d934de error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=c1ba8225834c479cb250741a43973fa7 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=f0b371e8d9ac408aa7bcaf550ec4daf4 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=2ab16f9f30bd4c4184fee35f9b401d39 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=58d455d34bee4e2b96d5f74ee84a12f6 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=ec0560529907472f881140d90d0ee370 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=8432ec43886e408e97fb73a0888a1c28 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=35c4f226d65f4a6ab3f2a156cb8329f8 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=0650f8b889b043d8b4c2f3560e830542 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=b85a7d90635f427d92d8c84b842d44c0 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=aa1b40cf74a6411bbf12c72a1df4b56e error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=1002e63361cb4164a34945616a2162a7 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=f1d20cd7218344bdae0119599f9a6eb9 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=c40405134bda4310a5dceb55a6cc2795 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=d505d052c12444b296c5c2160533e565 error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=91b0c25255934df08c1f30a9ec6d89fb error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked
+review failed request_id=76dc06549c764040a2d182f012291bdd error=database is locked
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 177, in add_review_request_id
+    response = await call_next(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\sessions.py", line 88, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+  File "C:\Users\jb\miniconda3\envs\bank\lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 443, in review_bank_card_image
+    _save_audit_record(
+  File "J:\job\bank-ocr-test-platform\app\main.py", line 140, in _save_audit_record
+    save_review_record(
+  File "J:\job\bank-ocr-test-platform\app\review_records.py", line 108, in save_review_record
+    connection.execute(
+sqlite3.OperationalError: database is locked

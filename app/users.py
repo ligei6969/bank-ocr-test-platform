@@ -9,28 +9,44 @@ from typing import Any
 import bcrypt
 
 from app.review_records import get_review_db_path
-from app.sqlite_connection import connect_database
+from app.sqlite_connection import connect_database, setup_database_once
 
 
 class UserAlreadyExistsError(ValueError):
     """Raised when an account already uses the requested username."""
 
 
+#: 建库标记的 key。与 ``review_records`` 共用同一个库文件，但两张表各自建，
+#: 所以 key 必须区分开（见 ``setup_database_once``）。
+SCHEMA_KEY = "users"
+
+
 def initialize_user_database() -> None:
-    """Create the users table without changing existing database objects."""
-    with connect_database(get_review_db_path()) as connection:
-        connection.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL UNIQUE,
-                password_hash TEXT NOT NULL,
-                role TEXT NOT NULL DEFAULT 'user',
-                is_active INTEGER NOT NULL DEFAULT 1,
-                created_at TEXT NOT NULL
-            )
-            """
+    """Create the users table without changing existing database objects.
+
+    **每个库文件只真正执行一次**（见 :func:`setup_database_once`）。
+    此前它挂在每次用户查询前面，于是登录、取用户都要跑一条 DDL 写语句；
+    并发压测下这些「顺带的写」同样是 ``database is locked`` 的来源。
+    """
+    setup_database_once(
+        get_review_db_path(), key=SCHEMA_KEY, setup=_create_user_schema
+    )
+
+
+def _create_user_schema(connection: sqlite3.Connection) -> None:
+    """建 ``users`` 表。只在建库那一次执行。"""
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'user',
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL
         )
+        """
+    )
 
 
 def hash_password(password: str) -> str:
@@ -111,7 +127,7 @@ def create_user(
     initialize_user_database()
 
     try:
-        with connect_database(get_review_db_path()) as connection:
+        with connect_database(get_review_db_path(), write=True) as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO users (
