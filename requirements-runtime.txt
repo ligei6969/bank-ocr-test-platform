@@ -7,3 +7,4 @@ numpy>=1.26,<3
 opencv-python-headless>=4.10,<5
 bcrypt>=4,<6
 itsdangerous>=2.2,<3
+mcp>=2,<3
